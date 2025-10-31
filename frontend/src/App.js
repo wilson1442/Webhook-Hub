@@ -90,6 +90,7 @@ function App() {
                   <Routes>
                     <Route path="/" element={<Dashboard user={user} />} />
                     <Route path="/webhooks" element={<Webhooks user={user} />} />
+                    <Route path="/test" element={<TestWebhooks user={user} />} />
                     <Route path="/logs" element={<Logs user={user} />} />
                     <Route path="/sendgrid-lists" element={<SendGridLists user={user} />} />
                     <Route path="/sendgrid-templates" element={<SendGridTemplates user={user} />} />
