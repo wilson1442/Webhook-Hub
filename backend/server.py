@@ -440,15 +440,23 @@ async def process_add_contact(endpoint: dict, payload: dict) -> dict:
     if endpoint.get('sendgrid_list_id'):
         contact_data['list_ids'] = [endpoint['sendgrid_list_id']]
     
+    # Log the data being sent to SendGrid for debugging
+    logger.info(f"SendGrid contact data: {json.dumps(contact_data)}")
+    
     response = requests.put(
         "https://api.sendgrid.com/v3/marketing/contacts",
         headers=headers,
         json=contact_data
     )
     
+    # Log the response
+    logger.info(f"SendGrid response status: {response.status_code}, body: {response.text}")
+    
     if response.status_code in [200, 202]:
         list_msg = f" to list {endpoint.get('sendgrid_list_id')}" if endpoint.get('sendgrid_list_id') else ""
-        return {"status": "success", "message": f"Contact added successfully{list_msg}"}
+        response_data = response.json() if response.text else {}
+        job_id = response_data.get('job_id', 'N/A')
+        return {"status": "success", "message": f"Contact added successfully{list_msg} (Job ID: {job_id})"}
     else:
         return {"status": "failed", "message": f"SendGrid API error: {response.text}"}
 
