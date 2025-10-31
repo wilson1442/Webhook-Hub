@@ -290,11 +290,27 @@ const Webhooks = () => {
                 </p>
                 
                 <div className="space-y-2 border rounded-lg p-3 bg-gray-50 dark:bg-gray-800">
+                  {/* Column Headers */}
+                  <div className="grid grid-cols-[1fr_1fr_auto] gap-2 items-center pb-2 border-b border-gray-300 dark:border-gray-600">
+                    <div>
+                      <Label className="text-xs font-semibold text-gray-700 dark:text-gray-300">
+                        SendGrid Field
+                      </Label>
+                    </div>
+                    <div>
+                      <Label className="text-xs font-semibold text-gray-700 dark:text-gray-300">
+                        Payload Field
+                      </Label>
+                    </div>
+                    <div className="w-8"></div>
+                  </div>
+                  
+                  {/* Field Mapping Rows */}
                   {Object.entries(formData.field_mapping).map(([sendgridField, payloadField], index) => (
                     <div key={index} className="grid grid-cols-[1fr_1fr_auto] gap-2 items-center">
                       <div>
                         <Input
-                          placeholder="SendGrid field (e.g., first_name)"
+                          placeholder="e.g., first_name"
                           value={sendgridField}
                           onChange={(e) => updateFieldMappingKey(sendgridField, e.target.value)}
                           disabled={sendgridField === 'email'}
@@ -303,7 +319,7 @@ const Webhooks = () => {
                       </div>
                       <div>
                         <Input
-                          placeholder="Payload field (e.g., firstname)"
+                          placeholder="e.g., firstname"
                           value={payloadField}
                           onChange={(e) => updateFieldMappingValue(sendgridField, e.target.value)}
                           className="text-sm"
