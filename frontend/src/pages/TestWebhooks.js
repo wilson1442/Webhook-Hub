@@ -255,15 +255,18 @@ const TestWebhooks = () => {
                     <CardTitle>Request Payload</CardTitle>
                     <CardDescription>Edit the JSON payload to send</CardDescription>
                   </div>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => loadExamplePayload('basic')}
-                    className="text-xs"
-                  >
-                    <RefreshCw className="h-3 w-3 mr-1" />
-                    Reset
-                  </Button>
+                  <div className="flex gap-2">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => generateSamplePayload()}
+                      className="text-xs"
+                      title="Generate sample data from field mapping"
+                    >
+                      <RefreshCw className="h-3 w-3 mr-1" />
+                      Auto-Fill
+                    </Button>
+                  </div>
                 </div>
               </CardHeader>
               <CardContent className="space-y-4">
