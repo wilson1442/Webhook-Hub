@@ -306,13 +306,22 @@ const TestWebhooks = () => {
                   <div className="p-3 bg-green-50 dark:bg-green-950 rounded-lg border border-green-200 dark:border-green-800">
                     <p className="text-xs font-semibold text-green-800 dark:text-green-300 mb-2">Expected Fields:</p>
                     <div className="space-y-1">
-                      {Object.entries(selectedEndpoint.field_mapping).map(([sendgrid, payload]) => (
-                        <div key={sendgrid} className="text-xs text-gray-700 dark:text-gray-300">
-                          <code className="bg-white dark:bg-gray-800 px-1 rounded">{payload}</code>
-                          <span className="mx-1 text-gray-400">→</span>
-                          <code className="bg-white dark:bg-gray-800 px-1 rounded">{sendgrid}</code>
-                        </div>
-                      ))}
+                      {Object.entries(selectedEndpoint.field_mapping).map(([sendgrid, config]) => {
+                        // Handle both old format (string) and new format (object)
+                        const payloadField = typeof config === 'string' ? config : config.payload_field;
+                        const isCustom = typeof config === 'object' && config.is_custom;
+                        
+                        return (
+                          <div key={sendgrid} className="text-xs text-gray-700 dark:text-gray-300">
+                            <code className="bg-white dark:bg-gray-800 px-1 rounded">{payloadField}</code>
+                            <span className="mx-1 text-gray-400">→</span>
+                            <code className="bg-white dark:bg-gray-800 px-1 rounded">{sendgrid}</code>
+                            {isCustom && (
+                              <span className="ml-2 text-xs text-purple-600 dark:text-purple-400">(Custom)</span>
+                            )}
+                          </div>
+                        );
+                      })}
                     </div>
                   </div>
                 )}
