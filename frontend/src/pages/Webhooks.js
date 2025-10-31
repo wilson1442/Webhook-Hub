@@ -138,6 +138,7 @@ const Webhooks = () => {
       name: endpoint.name,
       path: endpoint.path,
       mode: endpoint.mode,
+      integration: endpoint.integration || 'sendgrid',
       field_mapping: normalizedMapping,
       sendgrid_list_id: endpoint.sendgrid_list_id || '',
       sendgrid_template_id: endpoint.sendgrid_template_id || ''
