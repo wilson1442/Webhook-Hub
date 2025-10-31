@@ -729,6 +729,18 @@ async def delete_api_key(service_name: str, current_user: dict = Depends(get_adm
         raise HTTPException(status_code=404, detail="API key not found")
     return {"message": "API key deleted successfully"}
 
+@api_router.patch("/settings/api-keys/{service_name}/toggle")
+async def toggle_integration(service_name: str, request: dict, current_user: dict = Depends(get_admin_user)):
+    """Toggle integration active status"""
+    is_active = request.get('is_active', True)
+    result = await db.api_keys.update_one(
+        {"service_name": service_name},
+        {"$set": {"is_active": is_active}}
+    )
+    if result.matched_count == 0:
+        raise HTTPException(status_code=404, detail="Integration not found")
+    return {"message": f"Integration {service_name} {'activated' if is_active else 'deactivated'}", "is_active": is_active}
+
 @api_router.post("/settings/api-keys/{service_name}/verify")
 async def verify_api_key(service_name: str, current_user: dict = Depends(get_admin_user)):
     key_doc = await db.api_keys.find_one({"service_name": service_name}, {"_id": 0})
