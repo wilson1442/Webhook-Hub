@@ -398,9 +398,19 @@ const Settings = ({ user }) => {
                   <CardContent className="space-y-3">
                     {existingKey ? (
                       <>
-                        <div className="flex items-center space-x-2">
-                          <Check className="h-5 w-5 text-green-500" />
-                          <span className="text-sm text-gray-600">Configured</span>
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center space-x-2">
+                            <Check className="h-5 w-5 text-green-500" />
+                            <span className="text-sm text-gray-600 dark:text-gray-400">Configured</span>
+                          </div>
+                          <div className="flex items-center space-x-2">
+                            <Label htmlFor={`toggle-${service.name}`} className="text-sm">Active</Label>
+                            <Switch
+                              id={`toggle-${service.name}`}
+                              checked={existingKey.is_active !== false}
+                              onCheckedChange={(checked) => handleToggleIntegration(service.name, checked)}
+                            />
+                          </div>
                         </div>
                         <div className="flex space-x-2">
                           <Button
