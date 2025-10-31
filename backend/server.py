@@ -436,10 +436,13 @@ async def process_add_contact(endpoint: dict, payload: dict) -> dict:
     # Clean the API key
     api_key = api_key.encode('ascii', 'ignore').decode('ascii').strip()
     
-    # Map fields
-    email = payload.get(endpoint['field_mapping'].get('email', 'email'))
+    # Map fields - handle both old and new field_mapping formats
+    email_config = endpoint['field_mapping'].get('email', 'email')
+    email_field = email_config if isinstance(email_config, str) else email_config.get('payload_field', 'email')
+    email = payload.get(email_field)
+    
     if not email:
-        return {"status": "failed", "message": "Email field not found in payload"}
+        return {"status": "failed", "message": f"Email field '{email_field}' not found in payload"}
     
     # Add to SendGrid list
     headers = {
