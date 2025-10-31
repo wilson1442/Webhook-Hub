@@ -101,7 +101,7 @@ class WebhookEndpoint(BaseModel):
     path: str  # e.g., "lead-intake"
     secret_token: str = Field(default_factory=lambda: str(uuid.uuid4()))
     mode: str  # "add_contact" or "send_email"
-    field_mapping: Dict[str, str] = {}  # Maps incoming JSON fields to SendGrid fields
+    field_mapping: Dict[str, Any] = {}  # Maps incoming JSON fields to SendGrid fields (supports both str and dict values)
     sendgrid_list_id: Optional[str] = None
     sendgrid_template_id: Optional[str] = None
     created_by: str
