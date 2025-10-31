@@ -72,6 +72,17 @@ const Webhooks = () => {
     }
   };
 
+  const fetchActiveIntegrations = async () => {
+    try {
+      const response = await axios.get(`${API}/settings/api-keys`);
+      // Filter to only active integrations
+      const active = response.data.filter(key => key.is_active !== false);
+      setActiveIntegrations(active);
+    } catch (error) {
+      // No integrations configured
+    }
+  };
+
   // Normalize field mapping for backward compatibility
   const normalizeFieldMapping = (mapping) => {
     const normalized = {};
