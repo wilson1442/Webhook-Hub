@@ -1,6 +1,6 @@
 import { Link, useLocation } from 'react-router-dom';
 import { Button } from './ui/button';
-import { LayoutDashboard, Webhook, FileText, Settings, Users, LogOut, Menu, X, List, Mail, User, TestTube2 } from 'lucide-react';
+import { LayoutDashboard, Webhook, FileText, Settings, Users, LogOut, Menu, X, List, Mail, User, TestTube2, Database } from 'lucide-react';
 import { useState } from 'react';
 
 const Layout = ({ children, user, logout }) => {
@@ -14,12 +14,13 @@ const Layout = ({ children, user, logout }) => {
     { name: 'Logs', href: '/logs', icon: FileText },
     { name: 'SendGrid Lists', href: '/sendgrid-lists', icon: List },
     { name: 'SendGrid Templates', href: '/sendgrid-templates', icon: Mail },
+    { name: 'SendGrid Fields', href: '/sendgrid-fields', icon: Database },
     { name: 'Settings', href: '/settings', icon: Settings },
     { name: 'Profile', href: '/profile', icon: User },
   ];
 
   if (user.role === 'admin') {
-    navigation.splice(7, 0, { name: 'Users', href: '/users', icon: Users });
+    navigation.splice(8, 0, { name: 'Users', href: '/users', icon: Users });
   }
 
   return (
