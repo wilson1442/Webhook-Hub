@@ -140,6 +140,20 @@ class APIKeyCreate(BaseModel):
     service_name: str
     credentials: Dict[str, str]
 
+class Settings(BaseModel):
+    model_config = ConfigDict(extra="ignore")
+    service_name: str
+    credentials: Dict[str, str]
+
+class SendGridField(BaseModel):
+    model_config = ConfigDict(extra="ignore")
+    id: str = Field(default_factory=lambda: str(uuid.uuid4()))
+    field_id: str  # e.g., "first_name" or "e3_T"
+    field_name: str  # e.g., "First Name" or "Company"
+    field_type: str  # "Text", "Number", "Date"
+    is_reserved: bool  # True for standard fields, False for custom
+    synced_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+
 # Helper Functions
 def hash_password(password: str) -> str:
     return bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt()).decode('utf-8')
