@@ -1,26 +1,30 @@
 import { Link, useLocation } from 'react-router-dom';
 import { Button } from './ui/button';
-import { LayoutDashboard, Webhook, FileText, Settings, Users, LogOut, Menu, X, List, Mail, User, TestTube2, Database } from 'lucide-react';
+import { LayoutDashboard, Webhook, FileText, Settings, Users, LogOut, Menu, X, List, Mail, User, TestTube2, Database, ChevronDown, ChevronRight } from 'lucide-react';
 import { useState } from 'react';
 
 const Layout = ({ children, user, logout }) => {
   const location = useLocation();
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [sendgridOpen, setSendgridOpen] = useState(true);
 
   const navigation = [
     { name: 'Dashboard', href: '/', icon: LayoutDashboard },
     { name: 'Webhooks', href: '/webhooks', icon: Webhook },
     { name: 'Test', href: '/test', icon: TestTube2 },
     { name: 'Logs', href: '/logs', icon: FileText },
-    { name: 'SendGrid Lists', href: '/sendgrid-lists', icon: List },
-    { name: 'SendGrid Templates', href: '/sendgrid-templates', icon: Mail },
-    { name: 'SendGrid Fields', href: '/sendgrid-fields', icon: Database },
     { name: 'Settings', href: '/settings', icon: Settings },
     { name: 'Profile', href: '/profile', icon: User },
   ];
 
+  const sendgridSubmenu = [
+    { name: 'SendGrid Lists', href: '/sendgrid-lists', icon: List },
+    { name: 'SendGrid Templates', href: '/sendgrid-templates', icon: Mail },
+    { name: 'SendGrid Fields', href: '/sendgrid-fields', icon: Database },
+  ];
+
   if (user.role === 'admin') {
-    navigation.splice(8, 0, { name: 'Users', href: '/users', icon: Users });
+    navigation.splice(5, 0, { name: 'Users', href: '/users', icon: Users });
   }
 
   return (
