@@ -822,6 +822,98 @@ async def get_sendgrid_templates(current_user: dict = Depends(get_current_user))
     
     return {"templates": templates}
 
+# SendGrid Field Definitions Management
+@api_router.post("/sendgrid/sync-fields")
+async def sync_sendgrid_fields(current_user: dict = Depends(get_current_user)):
+    """Sync SendGrid field definitions (both reserved and custom fields)"""
+    key_doc = await db.api_keys.find_one({"service_name": "sendgrid"}, {"_id": 0})
+    if not key_doc:
+        raise HTTPException(status_code=404, detail="SendGrid API key not configured")
+    
+    api_key = decrypt_data(key_doc['credentials']['api_key'])
+    api_key = api_key.encode('ascii', 'ignore').decode('ascii').strip()
+    
+    headers = {"Authorization": f"Bearer {api_key}"}
+    
+    # Standard/Reserved SendGrid fields
+    reserved_fields = [
+        {"field_id": "email", "field_name": "Email", "field_type": "Text", "is_reserved": True},
+        {"field_id": "first_name", "field_name": "First Name", "field_type": "Text", "is_reserved": True},
+        {"field_id": "last_name", "field_name": "Last Name", "field_type": "Text", "is_reserved": True},
+        {"field_id": "address_line_1", "field_name": "Address Line 1", "field_type": "Text", "is_reserved": True},
+        {"field_id": "address_line_2", "field_name": "Address Line 2", "field_type": "Text", "is_reserved": True},
+        {"field_id": "city", "field_name": "City", "field_type": "Text", "is_reserved": True},
+        {"field_id": "state_province_region", "field_name": "State/Province/Region", "field_type": "Text", "is_reserved": True},
+        {"field_id": "postal_code", "field_name": "Postal Code", "field_type": "Text", "is_reserved": True},
+        {"field_id": "country", "field_name": "Country", "field_type": "Text", "is_reserved": True},
+        {"field_id": "phone_number", "field_name": "Phone Number", "field_type": "Text", "is_reserved": True},
+        {"field_id": "whatsapp", "field_name": "WhatsApp", "field_type": "Text", "is_reserved": True},
+        {"field_id": "line", "field_name": "Line", "field_type": "Text", "is_reserved": True},
+        {"field_id": "facebook", "field_name": "Facebook", "field_type": "Text", "is_reserved": True},
+        {"field_id": "unique_name", "field_name": "Unique Name", "field_type": "Text", "is_reserved": True},
+    ]
+    
+    # Fetch custom fields from SendGrid API
+    custom_fields = []
+    try:
+        response = requests.get(
+            "https://api.sendgrid.com/v3/marketing/field_definitions",
+            headers=headers,
+            timeout=10
+        )
+        if response.status_code == 200:
+            field_defs = response.json().get('custom_fields', [])
+            for field in field_defs:
+                custom_fields.append({
+                    "field_id": field.get('id', ''),
+                    "field_name": field.get('name', ''),
+                    "field_type": field.get('field_type', 'Text'),
+                    "is_reserved": False
+                })
+    except Exception as e:
+        logger.error(f"Error fetching SendGrid custom fields: {e}")
+    
+    # Clear existing fields and insert new ones
+    await db.sendgrid_fields.delete_many({})
+    
+    all_fields = reserved_fields + custom_fields
+    synced_at = datetime.now(timezone.utc)
+    
+    for field_data in all_fields:
+        field = SendGridField(
+            field_id=field_data['field_id'],
+            field_name=field_data['field_name'],
+            field_type=field_data['field_type'],
+            is_reserved=field_data['is_reserved'],
+            synced_at=synced_at
+        )
+        field_dict = field.model_dump()
+        field_dict['synced_at'] = field_dict['synced_at'].isoformat()
+        await db.sendgrid_fields.insert_one(field_dict)
+    
+    return {
+        "success": True,
+        "message": f"Synced {len(all_fields)} fields ({len(reserved_fields)} reserved, {len(custom_fields)} custom)",
+        "synced_at": synced_at.isoformat()
+    }
+
+@api_router.get("/sendgrid/fields")
+async def get_sendgrid_fields(current_user: dict = Depends(get_current_user)):
+    """Get all synced SendGrid field definitions"""
+    fields = await db.sendgrid_fields.find({}, {"_id": 0}).to_list(1000)
+    
+    # Organize fields by type
+    reserved = [f for f in fields if f.get('is_reserved', False)]
+    custom = [f for f in fields if not f.get('is_reserved', False)]
+    
+    return {
+        "fields": fields,
+        "reserved": reserved,
+        "custom": custom,
+        "total": len(fields),
+        "synced_at": fields[0].get('synced_at') if fields else None
+    }
+
 # Backup Management
 @api_router.post("/backups/create")
 async def create_backup(current_user: dict = Depends(get_admin_user)):
