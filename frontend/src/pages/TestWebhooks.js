@@ -271,32 +271,6 @@ const TestWebhooks = () => {
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="space-y-2">
-                  <div className="flex gap-2 mb-2">
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => loadExamplePayload('basic')}
-                      className="text-xs"
-                    >
-                      Basic
-                    </Button>
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => loadExamplePayload('full')}
-                      className="text-xs"
-                    >
-                      Full
-                    </Button>
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => loadExamplePayload('minimal')}
-                      className="text-xs"
-                    >
-                      Minimal
-                    </Button>
-                  </div>
                   <textarea
                     value={payload}
                     onChange={(e) => setPayload(e.target.value)}
