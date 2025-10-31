@@ -372,7 +372,7 @@ const Settings = ({ user }) => {
 
       <Tabs defaultValue="api-keys" className="w-full">
         <TabsList className="grid w-full grid-cols-4">
-          <TabsTrigger value="api-keys" data-testid="api-keys-tab">API Keys</TabsTrigger>
+          <TabsTrigger value="api-keys" data-testid="api-keys-tab">Integrations</TabsTrigger>
           <TabsTrigger value="backups" data-testid="backups-tab">Backups</TabsTrigger>
           <TabsTrigger value="scheduler" data-testid="scheduler-tab">Backup Scheduler</TabsTrigger>
           <TabsTrigger value="updates" data-testid="updates-tab">Updates</TabsTrigger>
