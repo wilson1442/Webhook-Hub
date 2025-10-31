@@ -10,6 +10,7 @@ import Users from './pages/Users';
 import SendGridLists from './pages/SendGridLists';
 import SendGridTemplates from './pages/SendGridTemplates';
 import Profile from './pages/Profile';
+import TestWebhooks from './pages/TestWebhooks';
 import Layout from './components/Layout';
 import { Toaster } from './components/ui/sonner';
 import './App.css';
