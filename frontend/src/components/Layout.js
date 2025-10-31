@@ -1,6 +1,6 @@
 import { Link, useLocation } from 'react-router-dom';
 import { Button } from './ui/button';
-import { LayoutDashboard, Webhook, FileText, Settings, Users, LogOut, Menu, X, List, Mail, User } from 'lucide-react';
+import { LayoutDashboard, Webhook, FileText, Settings, Users, LogOut, Menu, X, List, Mail, User, TestTube2 } from 'lucide-react';
 import { useState } from 'react';
 
 const Layout = ({ children, user, logout }) => {
@@ -10,6 +10,7 @@ const Layout = ({ children, user, logout }) => {
   const navigation = [
     { name: 'Dashboard', href: '/', icon: LayoutDashboard },
     { name: 'Webhooks', href: '/webhooks', icon: Webhook },
+    { name: 'Test', href: '/test', icon: TestTube2 },
     { name: 'Logs', href: '/logs', icon: FileText },
     { name: 'SendGrid Lists', href: '/sendgrid-lists', icon: List },
     { name: 'SendGrid Templates', href: '/sendgrid-templates', icon: Mail },
@@ -18,7 +19,7 @@ const Layout = ({ children, user, logout }) => {
   ];
 
   if (user.role === 'admin') {
-    navigation.splice(6, 0, { name: 'Users', href: '/users', icon: Users });
+    navigation.splice(7, 0, { name: 'Users', href: '/users', icon: Users });
   }
 
   return (
