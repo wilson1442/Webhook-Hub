@@ -310,6 +310,11 @@ const Webhooks = () => {
                 </div>
                 <p className="text-xs text-gray-600 dark:text-gray-400">
                   Map your payload fields to SendGrid fields. Check "Custom" for SendGrid custom fields (e.g., e3_T, e4_T).
+                  {sendgridFields.length === 0 && (
+                    <span className="block mt-1 text-orange-600 dark:text-orange-400">
+                      ⚠️ No SendGrid fields synced yet. <a href="/sendgrid-fields" className="underline">Sync fields</a> to use dropdown selector.
+                    </span>
+                  )}
                 </p>
                 
                 <div className="space-y-2 border rounded-lg p-3 bg-gray-50 dark:bg-gray-800">
