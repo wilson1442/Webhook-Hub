@@ -522,9 +522,13 @@ async def process_send_email(endpoint: dict, payload: dict) -> dict:
     api_key = decrypt_data(api_key_doc['credentials']['api_key'])
     sender_email = api_key_doc['credentials'].get('sender_email', 'noreply@example.com')
     
-    email = payload.get(endpoint['field_mapping'].get('email', 'email'))
+    # Handle both old and new field_mapping formats
+    email_config = endpoint['field_mapping'].get('email', 'email')
+    email_field = email_config if isinstance(email_config, str) else email_config.get('payload_field', 'email')
+    email = payload.get(email_field)
+    
     if not email:
-        return {"status": "failed", "message": "Email field not found in payload"}
+        return {"status": "failed", "message": f"Email field '{email_field}' not found in payload"}
     
     headers = {
         "Authorization": f"Bearer {api_key}",
