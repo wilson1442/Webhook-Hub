@@ -19,6 +19,7 @@ const Webhooks = () => {
   const [collapsedCards, setCollapsedCards] = useState({});
   const [sendgridLists, setSendgridLists] = useState([]);
   const [sendgridTemplates, setSendgridTemplates] = useState([]);
+  const [sendgridFields, setSendgridFields] = useState([]);
   const [formData, setFormData] = useState({
     name: '',
     path: '',
@@ -55,14 +56,16 @@ const Webhooks = () => {
 
   const fetchSendgridData = async () => {
     try {
-      const [lists, templates] = await Promise.all([
+      const [lists, templates, fields] = await Promise.all([
         axios.get(`${API}/sendgrid/lists`),
-        axios.get(`${API}/sendgrid/templates`)
+        axios.get(`${API}/sendgrid/templates`),
+        axios.get(`${API}/sendgrid/fields`)
       ]);
       setSendgridLists(lists.data.lists || []);
       setSendgridTemplates(templates.data.templates || []);
+      setSendgridFields(fields.data.fields || []);
     } catch (error) {
-      // SendGrid not configured yet
+      // SendGrid not configured yet or fields not synced
     }
   };
 
