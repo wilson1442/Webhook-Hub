@@ -58,8 +58,8 @@ const Layout = ({ children, user, logout }) => {
                   <div
                     className={`flex items-center space-x-3 px-4 py-3 rounded-lg transition-colors ${
                       isActive
-                        ? 'bg-blue-50 text-blue-600'
-                        : 'text-gray-700 hover:bg-gray-50'
+                        ? 'bg-blue-50 text-blue-600 dark:bg-blue-900 dark:text-blue-100'
+                        : 'text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800'
                     }`}
                     data-testid={`nav-${item.name.toLowerCase()}`}
                   >
@@ -69,6 +69,46 @@ const Layout = ({ children, user, logout }) => {
                 </Link>
               );
             })}
+
+            {/* SendGrid Submenu */}
+            <div>
+              <button
+                onClick={() => setSendgridOpen(!sendgridOpen)}
+                className="flex items-center justify-between w-full px-4 py-3 rounded-lg transition-colors text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800"
+              >
+                <div className="flex items-center space-x-3">
+                  <Database className="h-5 w-5" />
+                  <span className="font-medium">SendGrid Data</span>
+                </div>
+                {sendgridOpen ? (
+                  <ChevronDown className="h-4 w-4" />
+                ) : (
+                  <ChevronRight className="h-4 w-4" />
+                )}
+              </button>
+              
+              {sendgridOpen && (
+                <div className="ml-4 mt-1 space-y-1">
+                  {sendgridSubmenu.map((item) => {
+                    const isActive = location.pathname === item.href;
+                    return (
+                      <Link key={item.name} to={item.href} onClick={() => setSidebarOpen(false)}>
+                        <div
+                          className={`flex items-center space-x-3 px-4 py-2 rounded-lg transition-colors text-sm ${
+                            isActive
+                              ? 'bg-blue-50 text-blue-600 dark:bg-blue-900 dark:text-blue-100'
+                              : 'text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-800'
+                          }`}
+                        >
+                          <item.icon className="h-4 w-4" />
+                          <span>{item.name}</span>
+                        </div>
+                      </Link>
+                    );
+                  })}
+                </div>
+              )}
+            </div>
           </nav>
 
           {/* Logout */}
