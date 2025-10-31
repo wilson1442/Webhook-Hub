@@ -332,17 +332,20 @@ const Settings = ({ user }) => {
         { key: 'sender_email', label: 'Sender Email', type: 'email' },
         { key: 'sender_name', label: 'Sender Name', type: 'text' }
       ]
-    },
-    {
-      name: 'github',
-      title: 'GitHub',
-      description: 'Repository updates and version control',
-      fields: [
-        { key: 'repo_url', label: 'Repository URL', type: 'text' },
-        { key: 'token', label: 'Access Token', type: 'password' }
-      ]
     }
   ];
+
+  const handleToggleIntegration = async (serviceName, isActive) => {
+    try {
+      await axios.patch(`${API}/settings/api-keys/${serviceName}/toggle`, {
+        is_active: isActive
+      });
+      toast.success(`${serviceName} ${isActive ? 'activated' : 'deactivated'}`);
+      fetchApiKeys();
+    } catch (error) {
+      toast.error('Failed to toggle integration');
+    }
+  };
 
   const getServiceConfig = (serviceName) => {
     return services.find((s) => s.name === serviceName);
