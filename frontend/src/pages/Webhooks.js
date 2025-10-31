@@ -20,10 +20,12 @@ const Webhooks = () => {
   const [sendgridLists, setSendgridLists] = useState([]);
   const [sendgridTemplates, setSendgridTemplates] = useState([]);
   const [sendgridFields, setSendgridFields] = useState([]);
+  const [activeIntegrations, setActiveIntegrations] = useState([]);
   const [formData, setFormData] = useState({
     name: '',
     path: '',
     mode: 'add_contact',
+    integration: 'sendgrid',
     field_mapping: {
       email: { payload_field: 'email', is_custom: false }
     },
@@ -34,6 +36,7 @@ const Webhooks = () => {
   useEffect(() => {
     fetchEndpoints();
     fetchSendgridData();
+    fetchActiveIntegrations();
   }, []);
 
   const fetchEndpoints = async () => {
