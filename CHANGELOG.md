@@ -5,6 +5,74 @@ All notable changes to Webhook Gateway Hub will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.0.1] - 2025-10-31
+
+### ✨ Added
+
+#### Dynamic Field Mapping
+- **Unlimited Custom Field Mapping** for webhook endpoints
+  - Add unlimited field mappings with "Add Field" button
+  - Remove any field mapping (except required email field)
+  - Clear column headers: "SendGrid Field" and "Payload Field"
+  - Visual field mapping display in collapsed webhook cards
+  - Support for all standard SendGrid fields (first_name, last_name, phone_number, city, state_province_region, postal_code, country, address_line_1, address_line_2, whatsapp, line, facebook, unique_name)
+  - Automatic custom field support for non-standard field names
+  - Helpful inline documentation for common fields
+
+### 🔧 Improved
+
+#### Webhook Logs
+- **Full Payload Storage**: Webhook logs now store complete payload data, not just 500-character summary
+- **Enhanced Payload Display**: Log detail dialog shows full JSON payload with proper formatting
+- **Improved Logging**: Added detailed SendGrid API request/response logging for debugging
+- **Job ID Display**: Success messages now include SendGrid job ID for tracking
+
+#### GitHub Integration
+- **Token-Optional Release Detection**: GitHub release info now works without authentication token for public repositories
+- **Better Error Handling**: Improved error messages for GitHub API failures
+
+#### UI/UX Enhancements
+- **Collapsible Webhook Cards**: Fixed default collapsed state - cards now properly start collapsed on page load
+- **Improved Chevron Icons**: Icons correctly indicate collapsed/expanded state
+- **Better Field Mapping UI**: Two-column layout with clear headers and visual separation
+- **Enhanced Help Text**: Added helpful descriptions for SendGrid field types
+
+### 🐛 Fixed
+
+- Fixed webhook cards showing expanded details on initial page load
+- Fixed field mapping not supporting dynamic payload field names
+- Fixed GitHub release detection requiring authentication token
+- Fixed payload truncation in webhook logs (was limited to 500 chars)
+- Fixed SendGrid contact addition when payload field names don't match expected format
+
+### 🗑️ Removed
+
+- Deleted obsolete diagnostic scripts:
+  - diagnose-login.sh
+  - fix-correct-url.sh
+  - fix-frontend-local.sh
+  - test-frontend-backend.sh
+  - test-network.sh
+  - test-tunnel-routing.sh
+
+### 📝 Technical Details
+
+#### Backend Changes
+- Updated `WebhookLog` model to include full `payload` field
+- Enhanced `process_add_contact()` to dynamically process all mapped fields
+- Added intelligent field type detection (standard vs custom SendGrid fields)
+- Improved SendGrid API error logging with request/response details
+- Updated GitHub info endpoint to work without authentication
+
+#### Frontend Changes
+- Completely redesigned webhook field mapping interface
+- Added dynamic field management functions (add, remove, update)
+- Improved form state management for field mappings
+- Enhanced visual feedback with column headers and borders
+- Updated webhook card display to show all field mappings
+
+---
+
 ## [1.0.0] - 2025-10-30
 
 ### 🎉 Initial Production Release
