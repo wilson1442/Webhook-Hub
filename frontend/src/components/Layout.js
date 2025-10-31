@@ -77,7 +77,7 @@ const Layout = ({ children, user, logout }) => {
               Logout
             </Button>
             <div className="text-center text-xs text-gray-500 dark:text-gray-400 mt-2">
-              v1.0.0
+              v1.0.1
             </div>
           </div>
         </div>
