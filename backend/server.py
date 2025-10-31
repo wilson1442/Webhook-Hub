@@ -428,13 +428,25 @@ async def process_add_contact(endpoint: dict, payload: dict) -> dict:
     
     contact_data = {"contacts": [{"email": email}]}
     
-    # Add custom fields if mapped
-    first_name = payload.get(endpoint['field_mapping'].get('first_name', 'first_name'))
-    last_name = payload.get(endpoint['field_mapping'].get('last_name', 'last_name'))
-    if first_name:
-        contact_data['contacts'][0]['first_name'] = first_name
-    if last_name:
-        contact_data['contacts'][0]['last_name'] = last_name
+    # Dynamically map all fields from field_mapping
+    # field_mapping format: {"sendgrid_field": "payload_field"}
+    for sendgrid_field, payload_field in endpoint.get('field_mapping', {}).items():
+        if sendgrid_field == 'email':
+            continue  # Already handled
+        
+        # Get value from payload using the mapped field name
+        field_value = payload.get(payload_field)
+        if field_value:
+            # For known SendGrid fields, use standard names
+            if sendgrid_field in ['first_name', 'last_name', 'address_line_1', 'address_line_2', 
+                                   'city', 'state_province_region', 'postal_code', 'country', 
+                                   'phone_number', 'whatsapp', 'line', 'facebook', 'unique_name']:
+                contact_data['contacts'][0][sendgrid_field] = field_value
+            else:
+                # For custom fields, add to custom_fields object
+                if 'custom_fields' not in contact_data['contacts'][0]:
+                    contact_data['contacts'][0]['custom_fields'] = {}
+                contact_data['contacts'][0]['custom_fields'][sendgrid_field] = field_value
     
     # Add list_ids if specified
     if endpoint.get('sendgrid_list_id'):
