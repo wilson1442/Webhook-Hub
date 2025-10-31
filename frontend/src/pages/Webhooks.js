@@ -337,13 +337,65 @@ const Webhooks = () => {
                   {Object.entries(formData.field_mapping).map(([sendgridField, config], index) => (
                     <div key={index} className="grid grid-cols-[1fr_1fr_auto_auto] gap-2 items-center">
                       <div>
-                        <Input
-                          placeholder="e.g., first_name or e3_T"
-                          value={sendgridField}
-                          onChange={(e) => updateFieldMappingKey(sendgridField, e.target.value)}
-                          disabled={sendgridField === 'email'}
-                          className="text-sm"
-                        />
+                        {sendgridField === 'email' ? (
+                          <Input
+                            value={sendgridField}
+                            disabled
+                            className="text-sm bg-gray-100 dark:bg-gray-800"
+                          />
+                        ) : sendgridFields.length > 0 ? (
+                          <Select
+                            value={sendgridField}
+                            onValueChange={(value) => {
+                              // Find the field to determine if it's custom
+                              const selectedField = sendgridFields.find(f => f.field_id === value);
+                              const isCustom = selectedField ? !selectedField.is_reserved : false;
+                              
+                              // Update both the field key and is_custom flag
+                              const newMapping = {};
+                              Object.keys(formData.field_mapping).forEach(key => {
+                                if (key === sendgridField) {
+                                  newMapping[value] = {
+                                    ...formData.field_mapping[key],
+                                    is_custom: isCustom
+                                  };
+                                } else {
+                                  newMapping[key] = formData.field_mapping[key];
+                                }
+                              });
+                              setFormData({
+                                ...formData,
+                                field_mapping: newMapping
+                              });
+                            }}
+                          >
+                            <SelectTrigger className="text-sm">
+                              <SelectValue placeholder="Select SendGrid field" />
+                            </SelectTrigger>
+                            <SelectContent className="max-h-[300px]">
+                              {sendgridFields.map((field) => (
+                                <SelectItem key={field.field_id} value={field.field_id}>
+                                  <div className="flex items-center justify-between w-full">
+                                    <span className="font-mono text-xs">{field.field_id}</span>
+                                    <span className="text-gray-600 dark:text-gray-400 text-xs ml-2">
+                                      {field.field_name}
+                                    </span>
+                                    {!field.is_reserved && (
+                                      <span className="ml-2 text-xs text-purple-600 dark:text-purple-400">(Custom)</span>
+                                    )}
+                                  </div>
+                                </SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                        ) : (
+                          <Input
+                            placeholder="e.g., first_name or e3_T"
+                            value={sendgridField}
+                            onChange={(e) => updateFieldMappingKey(sendgridField, e.target.value)}
+                            className="text-sm"
+                          />
+                        )}
                       </div>
                       <div>
                         <Input
