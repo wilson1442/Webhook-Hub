@@ -8,7 +8,7 @@ import { Input } from '../components/ui/input';
 import { Label } from '../components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../components/ui/select';
 import { toast } from 'sonner';
-import { Plus, Copy, RefreshCw, Trash2, Edit, Check, ChevronDown, ChevronUp } from 'lucide-react';
+import { Plus, Copy, RefreshCw, Trash2, Edit, Check, ChevronDown, ChevronUp, X } from 'lucide-react';
 
 const Webhooks = () => {
   const [endpoints, setEndpoints] = useState([]);
@@ -23,9 +23,7 @@ const Webhooks = () => {
     path: '',
     mode: 'add_contact',
     field_mapping: {
-      email: 'email',
-      first_name: 'first_name',
-      last_name: 'last_name'
+      email: 'email'
     },
     sendgrid_list_id: '',
     sendgrid_template_id: ''
@@ -82,17 +80,21 @@ const Webhooks = () => {
       setDialogOpen(false);
       setEditingEndpoint(null);
       fetchEndpoints();
-      setFormData({
-        name: '',
-        path: '',
-        mode: 'add_contact',
-        field_mapping: { email: 'email', first_name: 'first_name', last_name: 'last_name' },
-        sendgrid_list_id: '',
-        sendgrid_template_id: ''
-      });
+      resetForm();
     } catch (error) {
       toast.error(error.response?.data?.detail || `Failed to ${editingEndpoint ? 'update' : 'create'} endpoint`);
     }
+  };
+
+  const resetForm = () => {
+    setFormData({
+      name: '',
+      path: '',
+      mode: 'add_contact',
+      field_mapping: { email: 'email' },
+      sendgrid_list_id: '',
+      sendgrid_template_id: ''
+    });
   };
 
   const handleEdit = (endpoint) => {
@@ -101,7 +103,7 @@ const Webhooks = () => {
       name: endpoint.name,
       path: endpoint.path,
       mode: endpoint.mode,
-      field_mapping: endpoint.field_mapping,
+      field_mapping: endpoint.field_mapping || { email: 'email' },
       sendgrid_list_id: endpoint.sendgrid_list_id || '',
       sendgrid_template_id: endpoint.sendgrid_template_id || ''
     });
@@ -141,6 +143,56 @@ const Webhooks = () => {
     toast.success('Copied to clipboard');
   };
 
+  // Dynamic field mapping functions
+  const addFieldMapping = () => {
+    const newField = `field_${Object.keys(formData.field_mapping).length}`;
+    setFormData({
+      ...formData,
+      field_mapping: {
+        ...formData.field_mapping,
+        [newField]: ''
+      }
+    });
+  };
+
+  const removeFieldMapping = (fieldKey) => {
+    if (fieldKey === 'email') {
+      toast.error('Email field is required and cannot be removed');
+      return;
+    }
+    const newMapping = { ...formData.field_mapping };
+    delete newMapping[fieldKey];
+    setFormData({
+      ...formData,
+      field_mapping: newMapping
+    });
+  };
+
+  const updateFieldMappingKey = (oldKey, newKey) => {
+    const newMapping = {};
+    Object.keys(formData.field_mapping).forEach(key => {
+      if (key === oldKey) {
+        newMapping[newKey] = formData.field_mapping[key];
+      } else {
+        newMapping[key] = formData.field_mapping[key];
+      }
+    });
+    setFormData({
+      ...formData,
+      field_mapping: newMapping
+    });
+  };
+
+  const updateFieldMappingValue = (key, value) => {
+    setFormData({
+      ...formData,
+      field_mapping: {
+        ...formData.field_mapping,
+        [key]: value
+      }
+    });
+  };
+
   if (loading) {
     return (
       <div className="flex items-center justify-center h-64">
@@ -160,14 +212,7 @@ const Webhooks = () => {
           setDialogOpen(open);
           if (!open) {
             setEditingEndpoint(null);
-            setFormData({
-              name: '',
-              path: '',
-              mode: 'add_contact',
-              field_mapping: { email: 'email', first_name: 'first_name', last_name: 'last_name' },
-              sendgrid_list_id: '',
-              sendgrid_template_id: ''
-            });
+            resetForm();
           }
         }}>
           <DialogTrigger asChild>
@@ -176,7 +221,7 @@ const Webhooks = () => {
               Create Endpoint
             </Button>
           </DialogTrigger>
-          <DialogContent className="max-w-2xl" data-testid="create-webhook-dialog">
+          <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto" data-testid="create-webhook-dialog">
             <DialogHeader>
               <DialogTitle>{editingEndpoint ? 'Edit Webhook Endpoint' : 'Create Webhook Endpoint'}</DialogTitle>
               <DialogDescription>
@@ -225,29 +270,62 @@ const Webhooks = () => {
                 </Select>
               </div>
 
-              <div className="space-y-2">
-                <Label>Field Mapping</Label>
-                <div className="grid grid-cols-2 gap-2">
-                  <Input
-                    placeholder="Email field name"
-                    value={formData.field_mapping.email}
-                    onChange={(e) =>
-                      setFormData({
-                        ...formData,
-                        field_mapping: { ...formData.field_mapping, email: e.target.value }
-                      })
-                    }
-                  />
-                  <Input
-                    placeholder="First name field"
-                    value={formData.field_mapping.first_name}
-                    onChange={(e) =>
-                      setFormData({
-                        ...formData,
-                        field_mapping: { ...formData.field_mapping, first_name: e.target.value }
-                      })
-                    }
-                  />
+              {/* Dynamic Field Mapping */}
+              <div className="space-y-3">
+                <div className="flex justify-between items-center">
+                  <Label>Field Mapping</Label>
+                  <Button
+                    type="button"
+                    size="sm"
+                    variant="outline"
+                    onClick={addFieldMapping}
+                    className="text-xs"
+                  >
+                    <Plus className="h-3 w-3 mr-1" />
+                    Add Field
+                  </Button>
+                </div>
+                <p className="text-xs text-gray-600 dark:text-gray-400">
+                  Map your payload fields to SendGrid fields. Use standard SendGrid fields (first_name, last_name, phone_number, etc.) or custom field names.
+                </p>
+                
+                <div className="space-y-2 border rounded-lg p-3 bg-gray-50 dark:bg-gray-800">
+                  {Object.entries(formData.field_mapping).map(([sendgridField, payloadField], index) => (
+                    <div key={index} className="grid grid-cols-[1fr_1fr_auto] gap-2 items-center">
+                      <div>
+                        <Input
+                          placeholder="SendGrid field (e.g., first_name)"
+                          value={sendgridField}
+                          onChange={(e) => updateFieldMappingKey(sendgridField, e.target.value)}
+                          disabled={sendgridField === 'email'}
+                          className="text-sm"
+                        />
+                      </div>
+                      <div>
+                        <Input
+                          placeholder="Payload field (e.g., firstname)"
+                          value={payloadField}
+                          onChange={(e) => updateFieldMappingValue(sendgridField, e.target.value)}
+                          className="text-sm"
+                        />
+                      </div>
+                      <Button
+                        type="button"
+                        size="sm"
+                        variant="ghost"
+                        onClick={() => removeFieldMapping(sendgridField)}
+                        disabled={sendgridField === 'email'}
+                        className="text-red-600 hover:text-red-700"
+                      >
+                        <X className="h-4 w-4" />
+                      </Button>
+                    </div>
+                  ))}
+                </div>
+                
+                <div className="text-xs text-gray-600 dark:text-gray-400 space-y-1">
+                  <p><strong>Common SendGrid fields:</strong> first_name, last_name, phone_number, city, state_province_region, postal_code, country, address_line_1, address_line_2</p>
+                  <p><strong>Custom fields:</strong> Use any name for custom fields (e.g., company, job_title, industry)</p>
                 </div>
               </div>
 
@@ -400,6 +478,20 @@ const Webhooks = () => {
                     </div>
                   </div>
 
+                  {/* Field Mapping Display */}
+                  <div>
+                    <Label className="text-sm text-gray-600 dark:text-gray-400 mb-2">Field Mappings</Label>
+                    <div className="space-y-1">
+                      {Object.entries(endpoint.field_mapping || {}).map(([sendgridField, payloadField]) => (
+                        <div key={sendgridField} className="flex items-center text-xs">
+                          <code className="code-display px-2 py-1">{payloadField}</code>
+                          <span className="mx-2 text-gray-400">→</span>
+                          <code className="code-display px-2 py-1">{sendgridField}</code>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+
                   {endpoint.mode === 'add_contact' && endpoint.sendgrid_list_id && (
                     <div>
                       <Label className="text-sm text-gray-600 dark:text-gray-400">SendGrid List ID</Label>
@@ -427,7 +519,7 @@ const Webhooks = () => {
                       <br />
                       &nbsp;&nbsp;-H "Content-Type: application/json" \
                       <br />
-                      &nbsp;&nbsp;-d '{'{'}'"email":"user@example.com"{'}'}''
+                      &nbsp;&nbsp;-d '{'{'}"email":"user@example.com"{'}'}'
                     </code>
                   </div>
                 </CardContent>
