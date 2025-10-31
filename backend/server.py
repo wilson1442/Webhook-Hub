@@ -477,7 +477,9 @@ async def process_add_contact(endpoint: dict, payload: dict) -> dict:
         job_id = response_data.get('job_id', 'N/A')
         return {"status": "success", "message": f"Contact added successfully{list_msg} (Job ID: {job_id})"}
     else:
-        return {"status": "failed", "message": f"SendGrid API error: {response.text}"}
+        error_detail = response.text if response.text else f"HTTP {response.status_code}"
+        logger.error(f"SendGrid API error: {error_detail}")
+        return {"status": "failed", "message": f"SendGrid API error: {error_detail}"}
 
 async def process_send_email(endpoint: dict, payload: dict) -> dict:
     api_key_doc = await db.api_keys.find_one({"service_name": "sendgrid"}, {"_id": 0})
