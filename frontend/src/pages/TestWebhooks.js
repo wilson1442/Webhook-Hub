@@ -25,8 +25,58 @@ const TestWebhooks = () => {
   useEffect(() => {
     if (selectedEndpoint) {
       generateCurlCommand();
+      generateSamplePayload(); // Auto-generate sample data when endpoint changes
     }
   }, [selectedEndpoint, payload]);
+
+  const generateSamplePayload = () => {
+    if (!selectedEndpoint || !selectedEndpoint.field_mapping) return;
+    
+    const sampleData = {};
+    
+    // Iterate through field_mapping to generate sample data
+    Object.entries(selectedEndpoint.field_mapping).forEach(([sendgridField, config]) => {
+      // Handle both old format (string) and new format (object)
+      const payloadField = typeof config === 'string' ? config : config.payload_field;
+      
+      // Generate sample data based on field name
+      if (payloadField.toLowerCase().includes('email')) {
+        sampleData[payloadField] = 'test@example.com';
+      } else if (payloadField.toLowerCase().includes('first') || payloadField.toLowerCase().includes('fname')) {
+        sampleData[payloadField] = 'John';
+      } else if (payloadField.toLowerCase().includes('last') || payloadField.toLowerCase().includes('lname')) {
+        sampleData[payloadField] = 'Doe';
+      } else if (payloadField.toLowerCase().includes('phone')) {
+        sampleData[payloadField] = '+1234567890';
+      } else if (payloadField.toLowerCase().includes('company')) {
+        sampleData[payloadField] = 'Acme Corp';
+      } else if (payloadField.toLowerCase().includes('city')) {
+        sampleData[payloadField] = 'New York';
+      } else if (payloadField.toLowerCase().includes('state')) {
+        sampleData[payloadField] = 'NY';
+      } else if (payloadField.toLowerCase().includes('country')) {
+        sampleData[payloadField] = 'USA';
+      } else if (payloadField.toLowerCase().includes('zip') || payloadField.toLowerCase().includes('postal')) {
+        sampleData[payloadField] = '10001';
+      } else if (payloadField.toLowerCase().includes('address')) {
+        sampleData[payloadField] = '123 Main Street';
+      } else if (sendgridField.match(/e\d+_N/)) {
+        // Number custom field
+        sampleData[payloadField] = 12345;
+      } else {
+        // Default text value
+        sampleData[payloadField] = `Sample ${payloadField}`;
+      }
+    });
+    
+    // Only update if we have data and it's different from current
+    if (Object.keys(sampleData).length > 0) {
+      const newPayload = JSON.stringify(sampleData, null, 2);
+      if (newPayload !== payload) {
+        setPayload(newPayload);
+      }
+    }
+  };
 
   const fetchEndpoints = async () => {
     setLoading(true);
