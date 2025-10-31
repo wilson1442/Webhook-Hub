@@ -436,31 +436,40 @@ async def process_add_contact(endpoint: dict, payload: dict) -> dict:
     contact_data = {"contacts": [{"email": email}]}
     
     # Dynamically map all fields from field_mapping
-    # field_mapping format: {"sendgrid_field": "payload_field"}
+    # New format: {"sendgrid_field": {"payload_field": "...", "is_custom": true/false}}
+    # Old format: {"sendgrid_field": "payload_field"} (for backward compatibility)
     logger.info(f"Field mapping: {endpoint.get('field_mapping', {})}")
     logger.info(f"Payload: {payload}")
     
-    for sendgrid_field, payload_field in endpoint.get('field_mapping', {}).items():
+    for sendgrid_field, config in endpoint.get('field_mapping', {}).items():
         if sendgrid_field == 'email':
             continue  # Already handled
         
+        # Handle both old and new format
+        if isinstance(config, str):
+            # Old format: {"first_name": "firstname"}
+            payload_field = config
+            is_custom = False
+        else:
+            # New format: {"first_name": {"payload_field": "firstname", "is_custom": false}}
+            payload_field = config.get('payload_field', '')
+            is_custom = config.get('is_custom', False)
+        
         # Get value from payload using the mapped field name
         field_value = payload.get(payload_field)
-        logger.info(f"Checking field: {sendgrid_field} -> {payload_field}, value: {field_value}")
+        logger.info(f"Checking field: {sendgrid_field} -> {payload_field}, is_custom: {is_custom}, value: {field_value}")
         
         if field_value:
-            # For known SendGrid fields, use standard names
-            if sendgrid_field in ['first_name', 'last_name', 'address_line_1', 'address_line_2', 
-                                   'city', 'state_province_region', 'postal_code', 'country', 
-                                   'phone_number', 'whatsapp', 'line', 'facebook', 'unique_name']:
-                contact_data['contacts'][0][sendgrid_field] = field_value
-                logger.info(f"Added standard field: {sendgrid_field} = {field_value}")
-            else:
-                # For custom fields, add to custom_fields object
+            if is_custom:
+                # Custom SendGrid field - add to custom_fields object
                 if 'custom_fields' not in contact_data['contacts'][0]:
                     contact_data['contacts'][0]['custom_fields'] = {}
                 contact_data['contacts'][0]['custom_fields'][sendgrid_field] = field_value
                 logger.info(f"Added custom field: {sendgrid_field} = {field_value}")
+            else:
+                # Standard SendGrid field
+                contact_data['contacts'][0][sendgrid_field] = field_value
+                logger.info(f"Added standard field: {sendgrid_field} = {field_value}")
     
     # Add list_ids if specified
     if endpoint.get('sendgrid_list_id'):
