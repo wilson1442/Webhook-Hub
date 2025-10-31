@@ -9,6 +9,7 @@ import Settings from './pages/Settings';
 import Users from './pages/Users';
 import SendGridLists from './pages/SendGridLists';
 import SendGridTemplates from './pages/SendGridTemplates';
+import SendGridFields from './pages/SendGridFields';
 import Profile from './pages/Profile';
 import TestWebhooks from './pages/TestWebhooks';
 import Layout from './components/Layout';
