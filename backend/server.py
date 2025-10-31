@@ -112,7 +112,7 @@ class WebhookEndpointCreate(BaseModel):
     name: str
     path: str
     mode: str
-    field_mapping: Dict[str, str] = {}
+    field_mapping: Dict[str, Any] = {}  # Changed to Any to support both old (str) and new (dict) formats
     sendgrid_list_id: Optional[str] = None
     sendgrid_template_id: Optional[str] = None
 
