@@ -400,10 +400,17 @@ async def handle_webhook(path: str, request: Request, x_webhook_token: Optional[
             result.get('message', '')
         )
         
-        return result
+        # Ensure result is JSON serializable
+        return {
+            "status": result.get('status', 'unknown'),
+            "message": result.get('message', 'No message'),
+            "detail": result.get('detail', '')
+        }
     except Exception as e:
-        await log_webhook(endpoint['id'], endpoint['name'], "failed", real_ip, payload, str(e))
-        raise HTTPException(status_code=500, detail=str(e))
+        error_message = str(e) if str(e) else "Unknown error occurred"
+        logger.error(f"Webhook processing error: {error_message}", exc_info=True)
+        await log_webhook(endpoint['id'], endpoint['name'], "failed", real_ip, payload, error_message)
+        raise HTTPException(status_code=500, detail=error_message)
 
 async def process_add_contact(endpoint: dict, payload: dict) -> dict:
     # Get SendGrid API key
