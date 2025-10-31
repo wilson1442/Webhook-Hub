@@ -294,6 +294,36 @@ const Webhooks = () => {
               </div>
 
               <div className="space-y-2">
+                <Label htmlFor="integration">Integration</Label>
+                <Select
+                  value={formData.integration}
+                  onValueChange={(value) => setFormData({ ...formData, integration: value })}
+                >
+                  <SelectTrigger data-testid="webhook-integration-select">
+                    <SelectValue placeholder="Select integration" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {activeIntegrations.length > 0 ? (
+                      activeIntegrations.map((integration) => (
+                        <SelectItem key={integration.service_name} value={integration.service_name}>
+                          {integration.service_name === 'sendgrid' ? 'SendGrid' : 
+                           integration.service_name === 'smtp2go' ? 'SMTP2GO' :
+                           integration.service_name.charAt(0).toUpperCase() + integration.service_name.slice(1)}
+                        </SelectItem>
+                      ))
+                    ) : (
+                      <SelectItem value="sendgrid" disabled>No active integrations</SelectItem>
+                    )}
+                  </SelectContent>
+                </Select>
+                {activeIntegrations.length === 0 && (
+                  <p className="text-xs text-orange-600 dark:text-orange-400">
+                    ⚠️ No active integrations. <a href="/settings" className="underline">Configure integrations</a> in Settings.
+                  </p>
+                )}
+              </div>
+
+              <div className="space-y-2">
                 <Label htmlFor="mode">Mode</Label>
                 <Select
                   value={formData.mode}
