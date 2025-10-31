@@ -42,7 +42,7 @@ cipher = Fernet(ENCRYPTION_KEY.encode() if isinstance(ENCRYPTION_KEY, str) else 
 app = FastAPI(
     title="Webhook Gateway Hub",
     description="Self-hosted webhook management platform with SendGrid integration",
-    version="1.0.0"
+    version="1.0.1"
 )
 api_router = APIRouter(prefix="/api")
 security = HTTPBearer()
