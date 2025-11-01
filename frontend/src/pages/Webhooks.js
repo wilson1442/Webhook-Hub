@@ -17,6 +17,10 @@ const Webhooks = () => {
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editingEndpoint, setEditingEndpoint] = useState(null);
   const [collapsedCards, setCollapsedCards] = useState({});
+  const [collapsedGroups, setCollapsedGroups] = useState({
+    add_contact: true,
+    send_email: true
+  });
   const [sendgridLists, setSendgridLists] = useState([]);
   const [sendgridTemplates, setSendgridTemplates] = useState([]);
   const [sendgridFields, setSendgridFields] = useState([]);
