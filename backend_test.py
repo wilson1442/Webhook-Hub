@@ -599,15 +599,13 @@ class WebhookGatewayTester:
             self.log_test("Mailto Comma-Separated", False, f"Request error: {str(e)}")
             return False
     
-    def test_mixed_dynamic_static_fields(self):
-        """Test mixed configuration with both dynamic and static fields"""
+    def test_cc_bcc_fields(self):
+        """Test sending webhook with cc and bcc fields"""
         try:
-            # Create webhook with mixed email configuration
+            # Create webhook with from fields only
             email_config = {
-                "email_to": "{{email}}",  # Dynamic
-                "email_to_name": "Valued Customer",  # Static
-                "email_from": "support@company.com",  # Static
-                "email_from_name": "{{company_name}} Support"  # Dynamic
+                "email_from": "sender@company.com",
+                "email_from_name": "Company Support"
             }
             
             webhook_data = self.create_send_email_webhook(email_config)
@@ -618,12 +616,13 @@ class WebhookGatewayTester:
             webhook_token = webhook_data.get("secret_token")
             webhook_id = webhook_data.get("id")
             
-            # Test payload with some dynamic values
+            # Test payload with cc and bcc fields
             test_payload = {
-                "email": "mixed.test@example.com",
-                "company_name": "Acme Corp",
-                "product": "Premium Service",
-                "message": "Testing mixed dynamic and static configuration"
+                "mailto": "primary@example.com",
+                "cc": "cc1@example.com, cc2@example.com",
+                "bcc": "bcc1@example.com",
+                "subject": "Test CC/BCC Fields",
+                "message": "Testing CC and BCC functionality"
             }
             
             # Send webhook request
@@ -636,10 +635,9 @@ class WebhookGatewayTester:
                 headers=headers
             )
             
-            # Wait for log to be written
-            time.sleep(1)
+            time.sleep(1)  # Wait for log to be written
             
-            # Get the webhook log
+            # Get the webhook log to verify processing
             logs_response = self.session.get(f"{BASE_URL}/webhooks/logs?endpoint_id={webhook_id}&limit=1")
             
             if logs_response.status_code == 200:
@@ -649,32 +647,33 @@ class WebhookGatewayTester:
                     
                     # Check if the webhook was processed
                     if log_entry.get("status") in ["success", "failed"]:
-                        self.log_test("Mixed Dynamic/Static Fields", True, 
-                                    f"✅ Mixed field configuration processed - Status: {log_entry.get('status')}")
+                        self.log_test("CC/BCC Fields", True, 
+                                    f"✅ CC/BCC fields processed - Status: {log_entry.get('status')}")
                         
                         # Verify the payload was stored correctly
                         stored_payload = log_entry.get("payload", {})
-                        expected_fields = ["email", "company_name", "product", "message"]
+                        expected_fields = ["mailto", "cc", "bcc"]
                         has_all_fields = all(field in stored_payload for field in expected_fields)
                         
                         if has_all_fields:
-                            self.log_test("Mixed Field Payload Verification", True, 
-                                        "Payload correctly stored with all expected fields")
+                            self.log_test("CC/BCC Payload Verification", True, 
+                                        f"Payload correctly stored - mailto: {stored_payload.get('mailto')}, cc: {stored_payload.get('cc')}, bcc: {stored_payload.get('bcc')}")
                         else:
-                            self.log_test("Mixed Field Payload Verification", False, 
-                                        f"Payload missing fields: {[f for f in expected_fields if f not in stored_payload]}")
+                            missing_fields = [f for f in expected_fields if f not in stored_payload]
+                            self.log_test("CC/BCC Payload Verification", False, 
+                                        f"Payload missing fields: {missing_fields}")
                         
                         # Clean up webhook
                         self.session.delete(f"{BASE_URL}/webhooks/endpoints/{webhook_id}")
                         return True
                     else:
-                        self.log_test("Mixed Dynamic/Static Fields", False, 
+                        self.log_test("CC/BCC Fields", False, 
                                     f"Webhook processing failed: {log_entry.get('response_message', 'Unknown error')}")
                 else:
-                    self.log_test("Mixed Dynamic/Static Fields", False, 
+                    self.log_test("CC/BCC Fields", False, 
                                 "No webhook log found after processing")
             else:
-                self.log_test("Mixed Dynamic/Static Fields", False, 
+                self.log_test("CC/BCC Fields", False, 
                             f"Failed to retrieve webhook logs: {logs_response.status_code}")
             
             # Clean up webhook
@@ -682,7 +681,7 @@ class WebhookGatewayTester:
             return False
                 
         except Exception as e:
-            self.log_test("Mixed Dynamic/Static Fields", False, f"Request error: {str(e)}")
+            self.log_test("CC/BCC Fields", False, f"Request error: {str(e)}")
             return False
     
     def run_all_tests(self):
