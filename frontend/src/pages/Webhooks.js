@@ -183,6 +183,10 @@ const Webhooks = () => {
       email_from: endpoint.email_from || '',
       email_from_name: endpoint.email_from_name || ''
     });
+    // Fetch template keys if template is selected
+    if (endpoint.sendgrid_template_id) {
+      fetchTemplateKeys(endpoint.sendgrid_template_id);
+    }
     setDialogOpen(true);
   };
 
