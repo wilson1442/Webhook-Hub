@@ -357,7 +357,7 @@ frontend:
   
   - task: "Refactored Email Config UI - From Fields Only"
     implemented: true
-    working: "NA"
+    working: true
     file: "/app/frontend/src/pages/Webhooks.js"
     stuck_count: 0
     priority: "high"
@@ -369,6 +369,9 @@ frontend:
       - working: "NA"
         agent: "testing"
         comment: "Frontend UI testing not performed as per system limitations. Backend functionality for refactored email configuration has been thoroughly tested and confirmed working. The backend correctly processes webhooks with mailto/cc/bcc fields from payload and dynamic from fields as specified in the refactored implementation."
+      - working: true
+        agent: "testing"
+        comment: "✅ COMPREHENSIVE FRONTEND TESTING COMPLETE: Refactored Email Configuration UI working perfectly. All requirements verified: (1) ONLY From Address and From Name fields present - To Address/To Name fields correctly REMOVED. (2) Blue info box present explaining recipients come from webhook payload using mailto, cc, bcc fields with support for single emails or comma-separated lists. (3) Template Keys Display working - auto-fetches and displays template keys as badges when SendGrid template selected (tested with 'Payment Declined' template showing 4 keys: amount, borrower_name, description, loan_number). (4) Form functionality perfect - accepts both static values and dynamic {{field}} syntax in From fields. (5) Email Configuration section properly structured with clear instructions. (6) Form submission button present. All 6 test scenarios passed successfully. UI matches refactored specification exactly."
 
 metadata:
   created_by: "main_agent"
