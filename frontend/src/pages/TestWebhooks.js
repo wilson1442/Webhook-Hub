@@ -40,6 +40,13 @@ const TestWebhooks = () => {
     
     const sampleData = {};
     
+    // For send_email mode, add mailto/cc/bcc fields
+    if (selectedEndpoint.mode === 'send_email') {
+      sampleData['mailto'] = 'recipient@example.com';
+      sampleData['cc'] = 'cc@example.com';
+      sampleData['bcc'] = 'bcc@example.com';
+    }
+    
     // Iterate through field_mapping to generate sample data
     Object.entries(selectedEndpoint.field_mapping).forEach(([sendgridField, config]) => {
       // Handle both old format (string) and new format (object)
