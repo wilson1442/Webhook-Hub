@@ -80,30 +80,10 @@ const TestWebhooks = () => {
       }
     });
     
-    // For send_email mode, add mailto/cc/bcc in proper order
-    if (selectedEndpoint.mode === 'send_email') {
-      const orderedData = {};
-      
-      // Add mailto first
-      orderedData['mailto'] = 'recipient@example.com';
-      
-      // Add all template data fields
-      Object.entries(sampleData).forEach(([key, value]) => {
-        orderedData[key] = value;
-      });
-      
-      // Add cc and bcc at the end
-      orderedData['cc'] = 'cc@example.com';
-      orderedData['bcc'] = 'bcc@example.com';
-      
-      const newPayload = JSON.stringify(orderedData, null, 2);
+    // Always update with new sample data when called
+    if (Object.keys(sampleData).length > 0) {
+      const newPayload = JSON.stringify(sampleData, null, 2);
       setPayload(newPayload);
-    } else {
-      // For other modes, just use sampleData as is
-      if (Object.keys(sampleData).length > 0) {
-        const newPayload = JSON.stringify(sampleData, null, 2);
-        setPayload(newPayload);
-      }
     }
   };
 
