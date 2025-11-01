@@ -410,7 +410,7 @@ const Webhooks = () => {
                             disabled
                             className="text-sm bg-gray-100 dark:bg-gray-800"
                           />
-                        ) : sendgridFields.length > 0 ? (
+                        ) : formData.integration === 'sendgrid' && sendgridFields.length > 0 ? (
                           <Select
                             value={sendgridField}
                             onValueChange={(value) => {
