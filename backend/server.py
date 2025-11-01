@@ -533,25 +533,58 @@ async def process_send_email(endpoint: dict, payload: dict) -> dict:
     api_key = decrypt_data(api_key_doc['credentials']['api_key'])
     sender_email = api_key_doc['credentials'].get('sender_email', 'noreply@example.com')
     
-    # Handle both old and new field_mapping formats
-    email_config = endpoint['field_mapping'].get('email', 'email')
-    email_field = email_config if isinstance(email_config, str) else email_config.get('payload_field', 'email')
-    email = payload.get(email_field)
+    # Helper function to extract value from payload or use static value
+    def get_field_value(field_config, default=''):
+        if not field_config:
+            return default
+        
+        # Check if it's a dynamic field reference {{field_name}}
+        if isinstance(field_config, str) and field_config.startswith('{{') and field_config.endswith('}}'):
+            # Extract field name from {{field_name}}
+            field_name = field_config[2:-2].strip()
+            return payload.get(field_name, default)
+        else:
+            # Use as static value
+            return field_config
     
-    if not email:
-        return {"status": "failed", "message": f"Email field '{email_field}' not found in payload"}
+    # Get to address and name (with dynamic support)
+    to_email = get_field_value(endpoint.get('email_to'), '')
+    to_name = get_field_value(endpoint.get('email_to_name'), '')
+    
+    # Get from address and name (with dynamic support)
+    from_email = get_field_value(endpoint.get('email_from'), sender_email)
+    from_name = get_field_value(endpoint.get('email_from_name'), '')
+    
+    # If email_to is not set, fall back to old field_mapping logic
+    if not to_email:
+        email_config = endpoint['field_mapping'].get('email', 'email')
+        email_field = email_config if isinstance(email_config, str) else email_config.get('payload_field', 'email')
+        to_email = payload.get(email_field)
+    
+    if not to_email:
+        return {"status": "failed", "message": "Recipient email not found or not configured"}
     
     headers = {
         "Authorization": f"Bearer {api_key}",
         "Content-Type": "application/json"
     }
     
+    # Build the 'to' recipient object
+    to_recipient = {"email": to_email}
+    if to_name:
+        to_recipient["name"] = to_name
+    
+    # Build the 'from' sender object
+    from_sender = {"email": from_email}
+    if from_name:
+        from_sender["name"] = from_name
+    
     email_data = {
         "personalizations": [{
-            "to": [{"email": email}],
+            "to": [to_recipient],
             "dynamic_template_data": payload
         }],
-        "from": {"email": sender_email},
+        "from": from_sender,
         "template_id": endpoint.get('sendgrid_template_id', '')
     }
     
