@@ -24,6 +24,8 @@ const Webhooks = () => {
   const [sendgridLists, setSendgridLists] = useState([]);
   const [sendgridTemplates, setSendgridTemplates] = useState([]);
   const [sendgridFields, setSendgridFields] = useState([]);
+  const [templateKeys, setTemplateKeys] = useState([]);
+  const [loadingTemplateKeys, setLoadingTemplateKeys] = useState(false);
   const [activeIntegrations, setActiveIntegrations] = useState([]);
   const [formData, setFormData] = useState({
     name: '',
