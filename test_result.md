@@ -377,9 +377,7 @@ metadata:
   run_ui: false
 
 test_plan:
-  current_focus:
-    - "Mailto/CC/BCC Email Recipients from Payload"
-    - "Refactored Email Config UI - From Fields Only"
+  current_focus: []
   stuck_tasks:
     - "Webhooks Page - Collapsible Cards Default Collapsed"
     - "Settings Page - Backup Download"
