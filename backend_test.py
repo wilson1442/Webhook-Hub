@@ -1024,34 +1024,46 @@ class WebhookGatewayTester:
             print("❌ Authentication failed. Cannot proceed with tests.")
             return False
         
-        print("\n🎯 FEATURE 1: SendGrid Template Keys Endpoint")
+        print("\n🎯 FEATURE 1: Mailto/CC/BCC Email Recipients from Payload")
         print("=" * 70)
         
-        # Test 1: Check SendGrid configuration
+        # Test 1: Check SendGrid configuration (optional for basic testing)
         print("\n1. Checking SendGrid Configuration...")
-        if not self.check_sendgrid_configuration():
-            print("❌ SendGrid not configured. Cannot proceed with SendGrid tests.")
-            print("   Please configure SendGrid API key and create at least one template.")
-            return False
+        sendgrid_available = self.check_sendgrid_configuration()
+        if not sendgrid_available:
+            print("⚠️  SendGrid not configured. Tests will proceed but may fail at SendGrid API level.")
+            print("   This is expected - we're testing the webhook processing logic.")
         
-        # Test 2: Test template keys endpoint
-        print("\n2. Testing SendGrid Template Keys Endpoint...")
-        self.test_sendgrid_template_keys_endpoint()
+        # Test 2: Single mailto email
+        print("\n2. Testing Single Mailto Email...")
+        self.test_mailto_single_email()
         
-        print("\n🎯 FEATURE 2: Dynamic Email Field Substitution")
+        # Test 3: Comma-separated mailto emails
+        print("\n3. Testing Comma-Separated Mailto Emails...")
+        self.test_mailto_comma_separated()
+        
+        # Test 4: CC and BCC fields
+        print("\n4. Testing CC and BCC Fields...")
+        self.test_cc_bcc_fields()
+        
+        # Test 5: All recipients together
+        print("\n5. Testing All Recipients Together (mailto + cc + bcc)...")
+        self.test_all_recipients_together()
+        
+        # Test 6: Missing mailto error handling
+        print("\n6. Testing Missing Mailto Error Handling...")
+        self.test_missing_mailto_error()
+        
+        print("\n🎯 FEATURE 2: Dynamic From Fields")
         print("=" * 70)
         
-        # Test 3: Dynamic field substitution
-        print("\n3. Testing Dynamic Email Field Substitution ({{field}} syntax)...")
-        self.test_dynamic_email_field_substitution_dynamic()
+        # Test 7: Dynamic from fields
+        print("\n7. Testing Dynamic From Fields ({{field}} syntax)...")
+        self.test_dynamic_from_fields()
         
-        # Test 4: Static field configuration
-        print("\n4. Testing Static Email Field Configuration...")
-        self.test_dynamic_email_field_substitution_static()
-        
-        # Test 5: Mixed dynamic and static fields
-        print("\n5. Testing Mixed Dynamic/Static Field Configuration...")
-        self.test_mixed_dynamic_static_fields()
+        # Test 8: Static from fields
+        print("\n8. Testing Static From Fields...")
+        self.test_static_from_fields()
         
         # Summary
         print("\n" + "=" * 70)
