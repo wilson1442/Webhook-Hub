@@ -327,15 +327,18 @@ frontend:
   
   - task: "Email Configuration UI - Send Email Mode"
     implemented: true
-    working: "NA"
+    working: true
     file: "/app/frontend/src/pages/Webhooks.js"
     stuck_count: 0
     priority: "high"
-    needs_retesting: true
+    needs_retesting: false
     status_history:
       - working: "NA"
         agent: "main"
         comment: "Added email configuration UI for send_email mode webhooks. Includes: (1) Template key display section showing all available template keys when template is selected. (2) Email Configuration section with 4 input fields: To Address, To Name, From Address, From Name. (3) Auto-fetches template keys when template is selected. (4) Instructions for using {{field_name}} syntax for dynamic values. All fields properly bound to formData state and submitted with webhook creation/update."
+      - working: true
+        agent: "testing"
+        comment: "✅ TESTED: Email Configuration UI working perfectly in send_email mode. (1) Template Keys Display: Successfully verified template keys are auto-fetched when SendGrid template is selected, displayed in blue section as badges (found 5 keys: first_name, last_name, ip_email, unsubscribe, unsubscribe_preferences), with clear instructions about {{key_name}} syntax. (2) Email Configuration Form Fields: All 4 input fields present and functional - To Address, To Name, From Address, From Name with appropriate placeholders and support for both static values and dynamic {{field}} syntax. (3) UI/UX: Email Configuration section appears only in send_email mode, proper spacing/layout, helpful instructions visible. (4) Edit Mode: Fields properly populate when editing existing webhooks. All functionality working as specified."
 
 metadata:
   created_by: "main_agent"
