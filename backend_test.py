@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
-Backend API Testing for Webhook Gateway Hub - Critical Features
-Tests webhook logs full payload storage and GitHub release detection without token.
+Backend API Testing for Webhook Gateway Hub - SendGrid Template Features
+Tests SendGrid template keys endpoint and dynamic email field substitution.
 """
 
 import requests
@@ -9,6 +9,7 @@ import json
 import time
 import sys
 import uuid
+import re
 from datetime import datetime
 
 # Configuration
