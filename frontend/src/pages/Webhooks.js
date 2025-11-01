@@ -548,7 +548,7 @@ const Webhooks = () => {
                         size="sm"
                         variant="ghost"
                         onClick={() => removeFieldMapping(sendgridField)}
-                        disabled={sendgridField === 'email'}
+                        disabled={['email', 'cc', 'bcc'].includes(sendgridField)}
                         className="text-red-600 hover:text-red-700"
                       >
                         <X className="h-4 w-4" />
