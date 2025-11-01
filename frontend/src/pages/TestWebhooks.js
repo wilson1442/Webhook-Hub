@@ -40,17 +40,15 @@ const TestWebhooks = () => {
     
     const sampleData = {};
     
-    // For send_email mode, add mailto/cc/bcc fields
-    if (selectedEndpoint.mode === 'send_email') {
-      sampleData['mailto'] = 'recipient@example.com';
-      sampleData['cc'] = 'cc@example.com';
-      sampleData['bcc'] = 'bcc@example.com';
-    }
-    
     // Iterate through field_mapping to generate sample data
     Object.entries(selectedEndpoint.field_mapping).forEach(([sendgridField, config]) => {
       // Handle both old format (string) and new format (object)
       const payloadField = typeof config === 'string' ? config : config.payload_field;
+      
+      // Skip mailto, cc, bcc, mailcc, mailbcc fields
+      if (['mailto', 'cc', 'bcc', 'mailcc', 'mailbcc'].includes(payloadField.toLowerCase())) {
+        return;
+      }
       
       // Generate sample data based on field name
       if (payloadField.toLowerCase().includes('email')) {
@@ -82,10 +80,34 @@ const TestWebhooks = () => {
       }
     });
     
-    // Always update with new sample data when called
-    if (Object.keys(sampleData).length > 0) {
-      const newPayload = JSON.stringify(sampleData, null, 2);
+    // For send_email mode, add email field first, then cc/bcc at the end
+    if (selectedEndpoint.mode === 'send_email') {
+      const orderedData = {};
+      
+      // Add email first if it exists
+      if (sampleData['email']) {
+        orderedData['email'] = sampleData['email'];
+      }
+      
+      // Add all other fields except email
+      Object.entries(sampleData).forEach(([key, value]) => {
+        if (key !== 'email') {
+          orderedData[key] = value;
+        }
+      });
+      
+      // Add cc and bcc at the end
+      orderedData['cc'] = 'cc@example.com';
+      orderedData['bcc'] = 'bcc@example.com';
+      
+      const newPayload = JSON.stringify(orderedData, null, 2);
       setPayload(newPayload);
+    } else {
+      // For other modes, just use sampleData as is
+      if (Object.keys(sampleData).length > 0) {
+        const newPayload = JSON.stringify(sampleData, null, 2);
+        setPayload(newPayload);
+      }
     }
   };
 
