@@ -554,7 +554,7 @@ const Webhooks = () => {
                         <Checkbox
                           checked={config.is_custom}
                           onCheckedChange={(checked) => updateFieldMappingValue(sendgridField, 'is_custom', checked)}
-                          disabled={['email', 'cc', 'bcc'].includes(sendgridField)}
+                          disabled={['mailto', 'cc', 'bcc'].includes(sendgridField)}
                         />
                       </div>
                       <Button
@@ -562,7 +562,7 @@ const Webhooks = () => {
                         size="sm"
                         variant="ghost"
                         onClick={() => removeFieldMapping(sendgridField)}
-                        disabled={['email', 'cc', 'bcc'].includes(sendgridField)}
+                        disabled={['mailto', 'cc', 'bcc'].includes(sendgridField)}
                         className="text-red-600 hover:text-red-700"
                       >
                         <X className="h-4 w-4" />
