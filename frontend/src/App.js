@@ -12,6 +12,7 @@ import SendGridTemplates from './pages/SendGridTemplates';
 import SendGridFields from './pages/SendGridFields';
 import Profile from './pages/Profile';
 import TestWebhooks from './pages/TestWebhooks';
+import ReleaseNotes from './pages/ReleaseNotes';
 import Layout from './components/Layout';
 import { Toaster } from './components/ui/sonner';
 import './App.css';
