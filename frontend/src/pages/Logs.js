@@ -121,6 +121,37 @@ const Logs = () => {
     }
   };
 
+  const handleDeleteLog = async (logId) => {
+    if (!window.confirm('Are you sure you want to delete this log entry?')) return;
+    
+    setDeleting(true);
+    try {
+      await axios.delete(`${API}/webhooks/logs/${logId}`);
+      toast.success('Log entry deleted successfully');
+      setDialogOpen(false);
+      fetchLogs();
+    } catch (error) {
+      toast.error(error.response?.data?.detail || 'Failed to delete log');
+    } finally {
+      setDeleting(false);
+    }
+  };
+
+  const handleDeleteAllFailed = async () => {
+    if (!window.confirm('Are you sure you want to delete all failed log entries? This action cannot be undone.')) return;
+    
+    setDeleting(true);
+    try {
+      const response = await axios.delete(`${API}/webhooks/logs/failed/all`);
+      toast.success(response.data.message || 'Failed logs deleted successfully');
+      fetchLogs();
+    } catch (error) {
+      toast.error(error.response?.data?.detail || 'Failed to delete logs');
+    } finally {
+      setDeleting(false);
+    }
+  };
+
   if (loading) {
     return (
       <div className="flex items-center justify-center h-64">
