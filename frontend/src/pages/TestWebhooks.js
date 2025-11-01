@@ -388,18 +388,59 @@ const TestWebhooks = () => {
                   <div>
                     <Label className="text-xs text-gray-600 dark:text-gray-400">Request Body:</Label>
                     <pre className="code-display text-xs overflow-x-auto whitespace-pre-wrap break-words p-3 rounded bg-gray-900 dark:bg-gray-950 text-gray-100 mt-1">
-{`{
-  "personalizations": [{
-    "to": [{"email": "recipient@example.com"}],
-    "dynamic_template_data": ${payload}
-  }],
-  "from": {"email": "sender@example.com"},
-  "template_id": "${selectedEndpoint.sendgrid_template_id || 'your-template-id'}"
-}`}
+{(() => {
+  try {
+    const parsedPayload = JSON.parse(payload);
+    const mailto = parsedPayload.mailto || 'recipient@example.com';
+    const cc = parsedPayload.cc;
+    const bcc = parsedPayload.bcc;
+    
+    // Parse email addresses
+    const parseEmails = (field) => {
+      if (!field) return null;
+      if (Array.isArray(field)) {
+        return field.map(e => ({ email: e }));
+      }
+      if (typeof field === 'string') {
+        return field.split(',').map(e => ({ email: e.trim() }));
+      }
+      return null;
+    };
+    
+    const toRecipients = parseEmails(mailto);
+    const ccRecipients = parseEmails(cc);
+    const bccRecipients = parseEmails(bcc);
+    
+    const fromEmail = selectedEndpoint.email_from || 'sender@example.com';
+    const fromName = selectedEndpoint.email_from_name;
+    
+    const personalization = {
+      to: toRecipients,
+      dynamic_template_data: parsedPayload
+    };
+    
+    if (ccRecipients) personalization.cc = ccRecipients;
+    if (bccRecipients) personalization.bcc = bccRecipients;
+    
+    const fromObj = { email: fromEmail };
+    if (fromName) fromObj.name = fromName;
+    
+    const emailRequest = {
+      personalizations: [personalization],
+      from: fromObj,
+      template_id: selectedEndpoint.sendgrid_template_id || 'your-template-id'
+    };
+    
+    return JSON.stringify(emailRequest, null, 2);
+  } catch (e) {
+    return '// Invalid JSON payload - please fix the payload above';
+  }
+})()}
                     </pre>
                   </div>
-                  <div className="text-xs text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-950 p-3 rounded-lg">
-                    💡 <strong>Your payload becomes dynamic_template_data</strong> - All fields in your JSON payload will be available as variables in your SendGrid template.
+                  <div className="text-xs text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-950 p-3 rounded-lg space-y-1">
+                    <div>💡 <strong>mailto, cc, bcc</strong> fields are extracted from your payload and sent to SendGrid as recipients</div>
+                    <div>📧 <strong>dynamic_template_data</strong> contains all fields from your payload for use in the template</div>
                   </div>
                 </div>
               </CardContent>
