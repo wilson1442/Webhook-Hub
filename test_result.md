@@ -318,6 +318,18 @@ frontend:
       - working: true
         agent: "main"
         comment: "Added Backup Scheduler tab in Settings page with frequency dropdown (Daily/Weekly), retention input, Save Schedule button, Run Backup Now button, and Scheduled Backups History section. UI verified via screenshots."
+  
+  - task: "Email Configuration UI - Send Email Mode"
+    implemented: true
+    working: "NA"
+    file: "/app/frontend/src/pages/Webhooks.js"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+      - working: "NA"
+        agent: "main"
+        comment: "Added email configuration UI for send_email mode webhooks. Includes: (1) Template key display section showing all available template keys when template is selected. (2) Email Configuration section with 4 input fields: To Address, To Name, From Address, From Name. (3) Auto-fetches template keys when template is selected. (4) Instructions for using {{field_name}} syntax for dynamic values. All fields properly bound to formData state and submitted with webhook creation/update."
 
 metadata:
   created_by: "main_agent"
