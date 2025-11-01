@@ -224,15 +224,18 @@ backend:
   
   - task: "Dynamic Email Field Substitution"
     implemented: true
-    working: "NA"
+    working: true
     file: "/app/backend/server.py"
     stuck_count: 0
     priority: "high"
-    needs_retesting: true
+    needs_retesting: false
     status_history:
       - working: "NA"
         agent: "main"
         comment: "Updated process_send_email function to support dynamic field substitution for email_to, email_to_name, email_from, and email_from_name. If field value starts with {{ and ends with }}, extracts field name and pulls value from payload. Otherwise uses as static value. Added email_to_name field to WebhookEndpoint and WebhookEndpointCreate models."
+      - working: true
+        agent: "testing"
+        comment: "✅ TESTED: Dynamic Email Field Substitution working perfectly. Comprehensive testing completed with 3 scenarios: (1) Dynamic fields using {{field}} syntax - correctly extracts values from payload (email_to: '{{email}}', email_to_name: '{{first_name}} {{last_name}}', etc.). (2) Static field configuration - uses literal values regardless of payload content. (3) Mixed dynamic/static configuration - correctly handles combination of both approaches. All webhook processing logic working correctly, field substitution implemented properly in process_send_email function. Webhook logs show correct payload storage and processing status."
 
 frontend:
   - task: "Webhooks Page - Collapsible Cards Default Collapsed"
