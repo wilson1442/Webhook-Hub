@@ -93,6 +93,27 @@ const Webhooks = () => {
     }
   };
 
+  const fetchTemplateKeys = async (templateId) => {
+    if (!templateId) {
+      setTemplateKeys([]);
+      return;
+    }
+    
+    setLoadingTemplateKeys(true);
+    try {
+      const response = await axios.get(`${API}/sendgrid/templates/${templateId}`);
+      setTemplateKeys(response.data.template_keys || []);
+      if (response.data.template_keys && response.data.template_keys.length > 0) {
+        toast.success(`Found ${response.data.template_keys.length} template keys`);
+      }
+    } catch (error) {
+      toast.error('Failed to fetch template keys');
+      setTemplateKeys([]);
+    } finally {
+      setLoadingTemplateKeys(false);
+    }
+  };
+
   // Normalize field mapping for backward compatibility
   const normalizeFieldMapping = (mapping) => {
     const normalized = {};
