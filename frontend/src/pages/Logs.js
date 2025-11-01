@@ -13,6 +13,7 @@ const Logs = () => {
   const [endpoints, setEndpoints] = useState([]);
   const [selectedEndpoint, setSelectedEndpoint] = useState('all');
   const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
   const [selectedLog, setSelectedLog] = useState(null);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [retrying, setRetrying] = useState(false);
