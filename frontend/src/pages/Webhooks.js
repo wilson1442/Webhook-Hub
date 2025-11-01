@@ -153,6 +153,22 @@ const Webhooks = () => {
     }));
   };
 
+  const handleDuplicate = (endpoint) => {
+    const normalizedMapping = normalizeFieldMapping(endpoint.field_mapping || { email: 'email' });
+    setFormData({
+      name: `${endpoint.name} (Copy)`,
+      path: `${endpoint.path}-copy`,
+      mode: endpoint.mode,
+      integration: endpoint.integration || 'sendgrid',
+      field_mapping: normalizedMapping,
+      sendgrid_list_id: endpoint.sendgrid_list_id || '',
+      sendgrid_template_id: endpoint.sendgrid_template_id || ''
+    });
+    setEditingEndpoint(null); // Set to null so it creates new instead of editing
+    setDialogOpen(true);
+    toast.info('Duplicating webhook - modify as needed');
+  };
+
   const handleDelete = async (id) => {
     if (!window.confirm('Are you sure you want to delete this endpoint?')) return;
     try {
