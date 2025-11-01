@@ -345,8 +345,6 @@ metadata:
 
 test_plan:
   current_focus:
-    - "SendGrid Template Keys Endpoint"
-    - "Dynamic Email Field Substitution"
     - "Email Configuration UI - Send Email Mode"
   stuck_tasks:
     - "Webhooks Page - Collapsible Cards Default Collapsed"
