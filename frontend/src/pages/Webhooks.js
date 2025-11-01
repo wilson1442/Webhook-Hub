@@ -562,7 +562,11 @@ const Webhooks = () => {
                     <div className="flex-1">
                       <div className="flex items-center space-x-3">
                         <CardTitle className="text-xl">{endpoint.name}</CardTitle>
-                        <span className="badge badge-info text-xs">
+                        <span className={`text-xs px-2 py-1 rounded-full font-medium ${
+                          endpoint.mode === 'add_contact' 
+                            ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200' 
+                            : 'bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200'
+                        }`}>
                           {endpoint.mode === 'add_contact' ? 'Add Contact' : 'Send Email'}
                         </span>
                       </div>
