@@ -519,15 +519,13 @@ class WebhookGatewayTester:
             self.log_test("Mailto Single Email", False, f"Request error: {str(e)}")
             return False
     
-    def test_dynamic_email_field_substitution_static(self):
-        """Test static email field configuration (no {{}} syntax)"""
+    def test_mailto_comma_separated(self):
+        """Test sending webhook with mailto as comma-separated emails"""
         try:
-            # Create webhook with static email configuration
+            # Create webhook with from fields only
             email_config = {
-                "email_to": "static.recipient@example.com",
-                "email_to_name": "Static Recipient",
-                "email_from": "static.sender@company.com",
-                "email_from_name": "Static Sender"
+                "email_from": "sender@company.com",
+                "email_from_name": "Company Support"
             }
             
             webhook_data = self.create_send_email_webhook(email_config)
@@ -538,12 +536,11 @@ class WebhookGatewayTester:
             webhook_token = webhook_data.get("secret_token")
             webhook_id = webhook_data.get("id")
             
-            # Test payload (static values should be used regardless of payload content)
+            # Test payload with comma-separated mailto
             test_payload = {
-                "email": "payload.email@example.com",
-                "first_name": "Payload",
-                "last_name": "User",
-                "message": "This should use static email configuration"
+                "mailto": "user1@example.com, user2@example.com, user3@example.com",
+                "subject": "Test Comma-Separated Mailto",
+                "message": "Testing multiple email recipients"
             }
             
             # Send webhook request
@@ -556,10 +553,9 @@ class WebhookGatewayTester:
                 headers=headers
             )
             
-            # Wait for log to be written
-            time.sleep(1)
+            time.sleep(1)  # Wait for log to be written
             
-            # Get the webhook log to verify static field usage
+            # Get the webhook log to verify processing
             logs_response = self.session.get(f"{BASE_URL}/webhooks/logs?endpoint_id={webhook_id}&limit=1")
             
             if logs_response.status_code == 200:
@@ -569,29 +565,30 @@ class WebhookGatewayTester:
                     
                     # Check if the webhook was processed
                     if log_entry.get("status") in ["success", "failed"]:
-                        self.log_test("Static Email Field Configuration", True, 
-                                    f"✅ Static field configuration processed - Status: {log_entry.get('status')}")
+                        self.log_test("Mailto Comma-Separated", True, 
+                                    f"✅ Comma-separated mailto processed - Status: {log_entry.get('status')}")
                         
                         # Verify the payload was stored correctly
                         stored_payload = log_entry.get("payload", {})
-                        if stored_payload.get("email") == "payload.email@example.com":
-                            self.log_test("Static Field Payload Verification", True, 
-                                        "Payload correctly stored (static config should override)")
+                        expected_mailto = "user1@example.com, user2@example.com, user3@example.com"
+                        if stored_payload.get("mailto") == expected_mailto:
+                            self.log_test("Comma-Separated Mailto Payload Verification", True, 
+                                        "Payload correctly stored with comma-separated mailto")
                         else:
-                            self.log_test("Static Field Payload Verification", False, 
-                                        "Payload not stored correctly")
+                            self.log_test("Comma-Separated Mailto Payload Verification", False, 
+                                        f"Expected: {expected_mailto}, Got: {stored_payload.get('mailto')}")
                         
                         # Clean up webhook
                         self.session.delete(f"{BASE_URL}/webhooks/endpoints/{webhook_id}")
                         return True
                     else:
-                        self.log_test("Static Email Field Configuration", False, 
+                        self.log_test("Mailto Comma-Separated", False, 
                                     f"Webhook processing failed: {log_entry.get('response_message', 'Unknown error')}")
                 else:
-                    self.log_test("Static Email Field Configuration", False, 
+                    self.log_test("Mailto Comma-Separated", False, 
                                 "No webhook log found after processing")
             else:
-                self.log_test("Static Email Field Configuration", False, 
+                self.log_test("Mailto Comma-Separated", False, 
                             f"Failed to retrieve webhook logs: {logs_response.status_code}")
             
             # Clean up webhook
@@ -599,7 +596,7 @@ class WebhookGatewayTester:
             return False
                 
         except Exception as e:
-            self.log_test("Static Email Field Configuration", False, f"Request error: {str(e)}")
+            self.log_test("Mailto Comma-Separated", False, f"Request error: {str(e)}")
             return False
     
     def test_mixed_dynamic_static_fields(self):
