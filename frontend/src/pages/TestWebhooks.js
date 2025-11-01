@@ -314,10 +314,15 @@ const TestWebhooks = () => {
                       })}
                     </div>
                     {selectedEndpoint.mode === 'send_email' && (
-                      <div className="mt-3 pt-3 border-t border-green-300 dark:border-green-700">
+                      <div className="mt-3 pt-3 border-t border-green-300 dark:border-green-700 space-y-2">
                         <p className="text-xs text-green-700 dark:text-green-400">
-                          💡 <strong>Note:</strong> For email templates, your entire payload is sent as dynamic_template_data to SendGrid. 
-                          Use these fields in your template like: <code className="bg-white dark:bg-gray-800 px-1 rounded">{'{{email}}'}</code> or <code className="bg-white dark:bg-gray-800 px-1 rounded">{'{{first_name}}'}</code>
+                          📧 <strong>Recipients:</strong> Include <code className="bg-white dark:bg-gray-800 px-1 rounded">mailto</code>, 
+                          <code className="bg-white dark:bg-gray-800 px-1 rounded ml-1">cc</code>, and 
+                          <code className="bg-white dark:bg-gray-800 px-1 rounded ml-1">bcc</code> fields in your payload (single emails or comma-separated)
+                        </p>
+                        <p className="text-xs text-green-700 dark:text-green-400">
+                          💡 <strong>Template Data:</strong> All payload fields are sent as dynamic_template_data to SendGrid. 
+                          Use them in your template like: <code className="bg-white dark:bg-gray-800 px-1 rounded">{'{{field_name}}'}</code>
                         </p>
                       </div>
                     )}
