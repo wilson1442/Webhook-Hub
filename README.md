@@ -357,5 +357,5 @@ All rights reserved.
 **Built with ❤️ using FastAPI + React + MongoDB**
 
 **Repository**: [https://github.com/wilson1442/Webhook-Hub](https://github.com/wilson1442/Webhook-Hub)  
-**Live Demo**: https://webhook-bridge-5.preview.emergentagent.com  
+**Live Demo**: https://webhook-gateway-2.preview.emergentagent.com  
 **Default Login**: admin / admin123 (change on first login)
