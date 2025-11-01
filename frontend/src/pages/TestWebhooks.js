@@ -530,7 +530,7 @@ const TestWebhooks = () => {
                     </div>
                   </TabsContent>
                   <TabsContent value="raw">
-                    <pre className="code-display text-xs overflow-x-auto whitespace-pre-wrap break-words p-3 rounded bg-gray-900 dark:bg-gray-950 text-gray-100">
+                    <pre className="code-display text-xs overflow-x-auto whitespace-pre-wrap break-words p-3 rounded bg-gray-900 dark:bg-gray-950 text-green-300 dark:text-green-400">
                       {JSON.stringify(response.data, null, 2)}
                     </pre>
                   </TabsContent>
