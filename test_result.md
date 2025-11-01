@@ -206,6 +206,30 @@ backend:
       - working: true
         agent: "testing"
         comment: "✅ TESTED: GET /api/backups/scheduled endpoint working correctly. Returns backup history with proper structure including filename, created_at, size_bytes fields. Successfully shows backups created by manual trigger."
+  
+  - task: "SendGrid Template Keys Endpoint"
+    implemented: true
+    working: "NA"
+    file: "/app/backend/server.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+      - working: "NA"
+        agent: "main"
+        comment: "Created /api/sendgrid/templates/{template_id} endpoint that fetches a specific SendGrid template and extracts dynamic substitution keys (using regex to find {{key_name}} patterns). Returns template_id, template_name, template_keys array, and versions_count."
+  
+  - task: "Dynamic Email Field Substitution"
+    implemented: true
+    working: "NA"
+    file: "/app/backend/server.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+      - working: "NA"
+        agent: "main"
+        comment: "Updated process_send_email function to support dynamic field substitution for email_to, email_to_name, email_from, and email_from_name. If field value starts with {{ and ends with }}, extracts field name and pulls value from payload. Otherwise uses as static value. Added email_to_name field to WebhookEndpoint and WebhookEndpointCreate models."
 
 frontend:
   - task: "Webhooks Page - Collapsible Cards Default Collapsed"
