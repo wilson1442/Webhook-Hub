@@ -48,43 +48,51 @@ const TestWebhooks = () => {
         
         if (!payloadField) return; // Skip if no payload field
         
+        // For send_email mode, use the sendgridField name (mailto, cc, bcc) instead of payload field name
+        const fieldName = selectedEndpoint.mode === 'send_email' && ['mailto', 'cc', 'bcc'].includes(sendgridField)
+          ? sendgridField
+          : payloadField;
+        
         // Generate sample data based on field name
-        if (payloadField.toLowerCase().includes('email')) {
-          sampleData[payloadField] = 'test@example.com';
+        if (fieldName === 'mailto' || fieldName.toLowerCase().includes('email')) {
+          sampleData[fieldName] = fieldName === 'mailto' ? 'recipient@example.com' : 'test@example.com';
+        } else if (fieldName === 'cc') {
+          sampleData[fieldName] = 'cc@example.com';
+        } else if (fieldName === 'bcc') {
+          sampleData[fieldName] = 'bcc@example.com';
         } else if (payloadField.toLowerCase().includes('first') || payloadField.toLowerCase().includes('fname')) {
-          sampleData[payloadField] = 'John';
+          sampleData[fieldName] = 'John';
         } else if (payloadField.toLowerCase().includes('last') || payloadField.toLowerCase().includes('lname')) {
-          sampleData[payloadField] = 'Doe';
+          sampleData[fieldName] = 'Doe';
         } else if (payloadField.toLowerCase().includes('phone')) {
-          sampleData[payloadField] = '+1234567890';
+          sampleData[fieldName] = '+1234567890';
         } else if (payloadField.toLowerCase().includes('company')) {
-          sampleData[payloadField] = 'Acme Corp';
+          sampleData[fieldName] = 'Acme Corp';
         } else if (payloadField.toLowerCase().includes('city')) {
-          sampleData[payloadField] = 'New York';
+          sampleData[fieldName] = 'New York';
         } else if (payloadField.toLowerCase().includes('state')) {
-          sampleData[payloadField] = 'NY';
+          sampleData[fieldName] = 'NY';
         } else if (payloadField.toLowerCase().includes('country')) {
-          sampleData[payloadField] = 'USA';
+          sampleData[fieldName] = 'USA';
         } else if (payloadField.toLowerCase().includes('zip') || payloadField.toLowerCase().includes('postal')) {
-          sampleData[payloadField] = '10001';
+          sampleData[fieldName] = '10001';
         } else if (payloadField.toLowerCase().includes('address')) {
-          sampleData[payloadField] = '123 Main Street';
-        } else if (payloadField === 'cc') {
-          sampleData[payloadField] = 'cc@example.com';
-        } else if (payloadField === 'bcc') {
-          sampleData[payloadField] = 'bcc@example.com';
+          sampleData[fieldName] = '123 Main Street';
         } else if (sendgridField.match(/e\d+_N/)) {
           // Number custom field
-          sampleData[payloadField] = 12345;
+          sampleData[fieldName] = 12345;
         } else {
           // Default text value
-          sampleData[payloadField] = `Sample ${payloadField}`;
+          sampleData[fieldName] = `Sample ${payloadField}`;
         }
       });
     }
     
-    // For send_email mode, always ensure cc and bcc are present
+    // For send_email mode, always ensure mailto, cc and bcc are present
     if (selectedEndpoint.mode === 'send_email') {
+      if (!sampleData.mailto) {
+        sampleData.mailto = 'recipient@example.com';
+      }
       if (!sampleData.cc) {
         sampleData.cc = 'cc@example.com';
       }
@@ -100,7 +108,7 @@ const TestWebhooks = () => {
     } else {
       // Fallback if no field mapping exists
       const fallbackPayload = selectedEndpoint.mode === 'send_email' 
-        ? { "email": "test@example.com", "cc": "cc@example.com", "bcc": "bcc@example.com" }
+        ? { "mailto": "recipient@example.com", "cc": "cc@example.com", "bcc": "bcc@example.com" }
         : { "email": "test@example.com" };
       setPayload(JSON.stringify(fallbackPayload, null, 2));
     }
