@@ -1,6 +1,6 @@
 import { Link, useLocation } from 'react-router-dom';
 import { Button } from './ui/button';
-import { LayoutDashboard, Webhook, FileText, Settings, Users, LogOut, Menu, X, List, Mail, User, TestTube2, Database, ChevronDown, ChevronRight } from 'lucide-react';
+import { LayoutDashboard, Webhook, FileText, Settings, Users, LogOut, Menu, X, List, Mail, User, TestTube2, Database, ChevronDown, ChevronRight, BookOpen } from 'lucide-react';
 import { useState } from 'react';
 
 const Layout = ({ children, user, logout }) => {
@@ -15,6 +15,7 @@ const Layout = ({ children, user, logout }) => {
     { name: 'Logs', href: '/logs', icon: FileText },
     { name: 'Settings', href: '/settings', icon: Settings },
     { name: 'Profile', href: '/profile', icon: User },
+    { name: 'Release Notes', href: '/release-notes', icon: BookOpen },
   ];
 
   const sendgridSubmenu = [
