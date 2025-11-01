@@ -409,7 +409,11 @@ const Webhooks = () => {
                     
                     // For send_email mode, ensure mailto, cc, and bcc are always present
                     if (value === 'send_email') {
-                      if (!newFieldMapping.mailto) {
+                      // Convert email to mailto if it exists
+                      if (newFieldMapping.email) {
+                        newFieldMapping.mailto = newFieldMapping.email;
+                        delete newFieldMapping.email;
+                      } else if (!newFieldMapping.mailto) {
                         newFieldMapping.mailto = { payload_field: 'email', is_custom: false };
                       }
                       if (!newFieldMapping.cc) {
@@ -418,6 +422,17 @@ const Webhooks = () => {
                       if (!newFieldMapping.bcc) {
                         newFieldMapping.bcc = { payload_field: 'bcc', is_custom: false };
                       }
+                    } else if (value === 'add_contact') {
+                      // Convert mailto back to email if it exists
+                      if (newFieldMapping.mailto) {
+                        newFieldMapping.email = newFieldMapping.mailto;
+                        delete newFieldMapping.mailto;
+                      } else if (!newFieldMapping.email) {
+                        newFieldMapping.email = { payload_field: 'email', is_custom: false };
+                      }
+                      // Remove cc and bcc for add_contact mode
+                      delete newFieldMapping.cc;
+                      delete newFieldMapping.bcc;
                     }
                     
                     setFormData({ ...formData, mode: value, field_mapping: newFieldMapping });
