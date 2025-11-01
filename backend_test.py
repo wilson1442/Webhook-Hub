@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
-Backend API Testing for Webhook Gateway Hub - SendGrid Template Features
-Tests SendGrid template keys endpoint and dynamic email field substitution.
+Backend API Testing for Webhook Gateway Hub - Refactored Send Email Functionality
+Tests mailto/cc/bcc email recipients from payload and dynamic from fields.
 """
 
 import requests
