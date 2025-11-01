@@ -6,7 +6,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '.
 import { Button } from '../components/ui/button';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '../components/ui/dialog';
 import { toast } from 'sonner';
-import { Download, FileText, CheckCircle, XCircle, AlertCircle, RefreshCw } from 'lucide-react';
+import { Download, FileText, CheckCircle, XCircle, AlertCircle, RefreshCw, Trash2 } from 'lucide-react';
 
 const Logs = () => {
   const [logs, setLogs] = useState([]);
@@ -17,6 +17,7 @@ const Logs = () => {
   const [selectedLog, setSelectedLog] = useState(null);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [retrying, setRetrying] = useState(false);
+  const [deleting, setDeleting] = useState(false);
 
   useEffect(() => {
     fetchEndpoints();
