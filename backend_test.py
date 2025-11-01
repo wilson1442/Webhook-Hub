@@ -693,60 +693,48 @@ class WebhookGatewayTester:
             return False
     
     def run_all_tests(self):
-        """Run complete test suite for critical features"""
-        print("🚀 Starting Webhook Gateway Hub Critical Features Tests")
-        print("=" * 60)
+        """Run complete test suite for SendGrid template features"""
+        print("🚀 Starting Webhook Gateway Hub - SendGrid Template Features Tests")
+        print("=" * 70)
         
         # Authentication
         if not self.authenticate():
             print("❌ Authentication failed. Cannot proceed with tests.")
             return False
         
-        print("\n🎯 CRITICAL FEATURE 1: Webhook Logs Full Payload Storage")
-        print("=" * 60)
+        print("\n🎯 FEATURE 1: SendGrid Template Keys Endpoint")
+        print("=" * 70)
         
-        # Test 1: Create test webhook endpoint
-        print("\n1. Creating Test Webhook Endpoint...")
-        webhook_data = self.create_test_webhook_endpoint()
-        if not webhook_data:
-            print("❌ Cannot proceed with webhook tests - endpoint creation failed")
+        # Test 1: Check SendGrid configuration
+        print("\n1. Checking SendGrid Configuration...")
+        if not self.check_sendgrid_configuration():
+            print("❌ SendGrid not configured. Cannot proceed with SendGrid tests.")
+            print("   Please configure SendGrid API key and create at least one template.")
             return False
         
-        webhook_path = webhook_data.get("path")
+        # Test 2: Test template keys endpoint
+        print("\n2. Testing SendGrid Template Keys Endpoint...")
+        self.test_sendgrid_template_keys_endpoint()
         
-        # Test 2: Trigger webhook with large payload
-        print("\n2. Testing Webhook with Large Payload (>500 chars)...")
-        if not self.test_webhook_full_payload_storage(webhook_path):
-            print("❌ Webhook payload test failed")
+        print("\n🎯 FEATURE 2: Dynamic Email Field Substitution")
+        print("=" * 70)
         
-        # Test 3: Verify full payload storage in logs
-        print("\n3. Verifying Full Payload Storage in Logs...")
-        self.test_webhook_logs_full_payload_retrieval()
+        # Test 3: Dynamic field substitution
+        print("\n3. Testing Dynamic Email Field Substitution ({{field}} syntax)...")
+        self.test_dynamic_email_field_substitution_dynamic()
         
-        print("\n🎯 CRITICAL FEATURE 2: GitHub Release Detection Without Token")
-        print("=" * 60)
+        # Test 4: Static field configuration
+        print("\n4. Testing Static Email Field Configuration...")
+        self.test_dynamic_email_field_substitution_static()
         
-        # Test 4: Configure public GitHub repository
-        print("\n4. Configuring Public GitHub Repository...")
-        if not self.configure_github_public_repo():
-            print("❌ Cannot proceed with GitHub tests - configuration failed")
-        else:
-            # Test 5: Get GitHub info without token
-            print("\n5. Testing GitHub Release Detection (No Token Required)...")
-            self.test_github_info_without_token()
-            
-            # Test 6: Verify API structure
-            print("\n6. Verifying GitHub API Response Structure...")
-            self.test_github_info_with_token_simulation()
-        
-        # Cleanup
-        print("\n🧹 Cleanup...")
-        self.cleanup_test_webhook()
+        # Test 5: Mixed dynamic and static fields
+        print("\n5. Testing Mixed Dynamic/Static Field Configuration...")
+        self.test_mixed_dynamic_static_fields()
         
         # Summary
-        print("\n" + "=" * 60)
-        print("📊 CRITICAL FEATURES TEST SUMMARY")
-        print("=" * 60)
+        print("\n" + "=" * 70)
+        print("📊 SENDGRID TEMPLATE FEATURES TEST SUMMARY")
+        print("=" * 70)
         
         total_tests = len(self.test_results)
         passed_tests = sum(1 for result in self.test_results if result["success"])
@@ -758,15 +746,15 @@ class WebhookGatewayTester:
         print(f"Success Rate: {(passed_tests/total_tests)*100:.1f}%")
         
         # Categorize results by feature
-        webhook_tests = [r for r in self.test_results if "webhook" in r["test"].lower() or "payload" in r["test"].lower()]
-        github_tests = [r for r in self.test_results if "github" in r["test"].lower()]
+        template_tests = [r for r in self.test_results if "template" in r["test"].lower() or "sendgrid" in r["test"].lower()]
+        email_tests = [r for r in self.test_results if "email" in r["test"].lower() or "dynamic" in r["test"].lower() or "static" in r["test"].lower()]
         
-        webhook_passed = sum(1 for r in webhook_tests if r["success"])
-        github_passed = sum(1 for r in github_tests if r["success"])
+        template_passed = sum(1 for r in template_tests if r["success"])
+        email_passed = sum(1 for r in email_tests if r["success"])
         
         print(f"\n📋 Feature Breakdown:")
-        print(f"  Webhook Full Payload: {webhook_passed}/{len(webhook_tests)} passed")
-        print(f"  GitHub Release Detection: {github_passed}/{len(github_tests)} passed")
+        print(f"  SendGrid Template Keys: {template_passed}/{len(template_tests)} passed")
+        print(f"  Dynamic Email Fields: {email_passed}/{len(email_tests)} passed")
         
         if failed_tests > 0:
             print(f"\n❌ FAILED TESTS ({failed_tests}):")
@@ -775,6 +763,8 @@ class WebhookGatewayTester:
                     print(f"  - {result['test']}: {result['message']}")
                     if result.get("details"):
                         print(f"    Details: {result['details']}")
+        else:
+            print(f"\n🎉 All SendGrid template features working correctly!")
         
         return failed_tests == 0
 
