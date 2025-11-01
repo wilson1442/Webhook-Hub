@@ -222,7 +222,14 @@ const Webhooks = () => {
   };
 
   const handleDuplicate = (endpoint) => {
-    const normalizedMapping = normalizeFieldMapping(endpoint.field_mapping || { mailto: 'email' });
+    const normalizedMapping = normalizeFieldMapping(endpoint.field_mapping || { email: 'email' });
+    
+    // For send_email mode, convert email to mailto if needed
+    if (endpoint.mode === 'send_email' && normalizedMapping.email) {
+      normalizedMapping.mailto = normalizedMapping.email;
+      delete normalizedMapping.email;
+    }
+    
     setFormData({
       name: `${endpoint.name} (Copy)`,
       path: `${endpoint.path}-copy`,
