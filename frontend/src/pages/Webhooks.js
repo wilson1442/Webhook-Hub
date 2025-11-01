@@ -166,6 +166,20 @@ const Webhooks = () => {
   const handleEdit = (endpoint) => {
     setEditingEndpoint(endpoint);
     const normalizedMapping = normalizeFieldMapping(endpoint.field_mapping || { email: 'email' });
+    
+    // For send_email mode, ensure email, cc, and bcc are always present
+    if (endpoint.mode === 'send_email') {
+      if (!normalizedMapping.email) {
+        normalizedMapping.email = { payload_field: 'email', is_custom: false };
+      }
+      if (!normalizedMapping.cc) {
+        normalizedMapping.cc = { payload_field: 'cc', is_custom: false };
+      }
+      if (!normalizedMapping.bcc) {
+        normalizedMapping.bcc = { payload_field: 'bcc', is_custom: false };
+      }
+    }
+    
     setFormData({
       name: endpoint.name,
       path: endpoint.path,
