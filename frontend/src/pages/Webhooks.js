@@ -165,11 +165,15 @@ const Webhooks = () => {
 
   const handleEdit = (endpoint) => {
     setEditingEndpoint(endpoint);
-    const normalizedMapping = normalizeFieldMapping(endpoint.field_mapping || { mailto: 'email' });
+    const normalizedMapping = normalizeFieldMapping(endpoint.field_mapping || { email: 'email' });
     
     // For send_email mode, ensure mailto, cc, and bcc are always present
     if (endpoint.mode === 'send_email') {
-      if (!normalizedMapping.mailto) {
+      // Convert email to mailto if it exists
+      if (normalizedMapping.email) {
+        normalizedMapping.mailto = normalizedMapping.email;
+        delete normalizedMapping.email;
+      } else if (!normalizedMapping.mailto) {
         normalizedMapping.mailto = { payload_field: 'email', is_custom: false };
       }
       if (!normalizedMapping.cc) {
@@ -177,6 +181,11 @@ const Webhooks = () => {
       }
       if (!normalizedMapping.bcc) {
         normalizedMapping.bcc = { payload_field: 'bcc', is_custom: false };
+      }
+    } else if (endpoint.mode === 'add_contact') {
+      // Ensure email field exists for add_contact mode
+      if (!normalizedMapping.email) {
+        normalizedMapping.email = { payload_field: 'email', is_custom: false };
       }
     }
     
