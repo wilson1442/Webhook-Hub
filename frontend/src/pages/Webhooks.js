@@ -157,6 +157,13 @@ const Webhooks = () => {
     }));
   };
 
+  const toggleGroup = (mode) => {
+    setCollapsedGroups(prev => ({
+      ...prev,
+      [mode]: !prev[mode]
+    }));
+  };
+
   const handleDuplicate = (endpoint) => {
     const normalizedMapping = normalizeFieldMapping(endpoint.field_mapping || { email: 'email' });
     setFormData({
