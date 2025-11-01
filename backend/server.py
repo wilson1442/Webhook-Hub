@@ -106,8 +106,7 @@ class WebhookEndpoint(BaseModel):
     sendgrid_list_id: Optional[str] = None
     sendgrid_template_id: Optional[str] = None
     # Email template fields (for send_email mode)
-    email_to: Optional[str] = None  # Can be static "user@example.com" or dynamic "{{email}}"
-    email_to_name: Optional[str] = None  # Can be static or dynamic
+    # mailto, cc, bcc come from webhook payload
     email_from: Optional[str] = None  # Can be static or dynamic
     email_from_name: Optional[str] = None  # Can be static or dynamic
     created_by: str
