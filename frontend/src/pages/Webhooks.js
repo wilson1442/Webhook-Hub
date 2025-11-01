@@ -9,7 +9,7 @@ import { Label } from '../components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../components/ui/select';
 import { Checkbox } from '../components/ui/checkbox';
 import { toast } from 'sonner';
-import { Plus, Copy, RefreshCw, Trash2, Edit, Check, ChevronDown, ChevronUp, X } from 'lucide-react';
+import { Plus, Copy, RefreshCw, Trash2, Edit, Check, ChevronDown, ChevronUp, X, Mail } from 'lucide-react';
 
 const Webhooks = () => {
   const [endpoints, setEndpoints] = useState([]);
