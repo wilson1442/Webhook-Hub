@@ -540,7 +540,7 @@ const Webhooks = () => {
                         <Checkbox
                           checked={config.is_custom}
                           onCheckedChange={(checked) => updateFieldMappingValue(sendgridField, 'is_custom', checked)}
-                          disabled={sendgridField === 'email'}
+                          disabled={['email', 'cc', 'bcc'].includes(sendgridField)}
                         />
                       </div>
                       <Button
