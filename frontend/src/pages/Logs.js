@@ -51,6 +51,18 @@ const Logs = () => {
     }
   };
 
+  const handleRefresh = async () => {
+    setRefreshing(true);
+    try {
+      await fetchLogs();
+      toast.success('Logs refreshed');
+    } catch (error) {
+      toast.error('Failed to refresh logs');
+    } finally {
+      setRefreshing(false);
+    }
+  };
+
   const exportCSV = () => {
     const headers = ['Timestamp', 'Endpoint', 'Status', 'Source IP', 'Payload', 'Response'];
     const rows = logs.map((log) => [
