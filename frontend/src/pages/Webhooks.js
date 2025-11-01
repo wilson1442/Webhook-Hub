@@ -390,7 +390,24 @@ const Webhooks = () => {
                 <Label htmlFor="mode">Mode</Label>
                 <Select
                   value={formData.mode}
-                  onValueChange={(value) => setFormData({ ...formData, mode: value })}
+                  onValueChange={(value) => {
+                    const newFieldMapping = { ...formData.field_mapping };
+                    
+                    // For send_email mode, ensure email, cc, and bcc are always present
+                    if (value === 'send_email') {
+                      if (!newFieldMapping.email) {
+                        newFieldMapping.email = { payload_field: 'email', is_custom: false };
+                      }
+                      if (!newFieldMapping.cc) {
+                        newFieldMapping.cc = { payload_field: 'cc', is_custom: false };
+                      }
+                      if (!newFieldMapping.bcc) {
+                        newFieldMapping.bcc = { payload_field: 'bcc', is_custom: false };
+                      }
+                    }
+                    
+                    setFormData({ ...formData, mode: value, field_mapping: newFieldMapping });
+                  }}
                 >
                   <SelectTrigger data-testid="webhook-mode-select">
                     <SelectValue />
