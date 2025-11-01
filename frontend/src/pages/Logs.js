@@ -179,13 +179,22 @@ const Logs = () => {
             {refreshing ? 'Refreshing...' : 'Refresh'}
           </Button>
           <Button 
+            onClick={handleDeleteAllFailed}
+            disabled={deleting}
+            variant="destructive"
+            className="btn-transition"
+          >
+            <Trash2 className="h-4 w-4 mr-2" />
+            Delete All Failed
+          </Button>
+          <Button 
             onClick={handleClearLogs} 
             variant="destructive"
             className="btn-transition" 
             data-testid="clear-logs-btn"
           >
             <XCircle className="h-4 w-4 mr-2" />
-            Clear Logs
+            Clear All Logs
           </Button>
           <Button onClick={exportCSV} className="btn-transition" data-testid="export-csv-btn">
             <Download className="h-4 w-4 mr-2" />
