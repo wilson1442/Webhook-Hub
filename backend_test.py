@@ -1067,7 +1067,7 @@ class WebhookGatewayTester:
         
         # Summary
         print("\n" + "=" * 70)
-        print("📊 SENDGRID TEMPLATE FEATURES TEST SUMMARY")
+        print("📊 REFACTORED SEND EMAIL FUNCTIONALITY TEST SUMMARY")
         print("=" * 70)
         
         total_tests = len(self.test_results)
@@ -1080,15 +1080,15 @@ class WebhookGatewayTester:
         print(f"Success Rate: {(passed_tests/total_tests)*100:.1f}%")
         
         # Categorize results by feature
-        template_tests = [r for r in self.test_results if "template" in r["test"].lower() or "sendgrid" in r["test"].lower()]
-        email_tests = [r for r in self.test_results if "email" in r["test"].lower() or "dynamic" in r["test"].lower() or "static" in r["test"].lower()]
+        mailto_tests = [r for r in self.test_results if "mailto" in r["test"].lower() or "cc" in r["test"].lower() or "bcc" in r["test"].lower() or "recipient" in r["test"].lower()]
+        from_tests = [r for r in self.test_results if "from" in r["test"].lower() or ("dynamic" in r["test"].lower() and "from" in r["test"].lower()) or ("static" in r["test"].lower() and "from" in r["test"].lower())]
         
-        template_passed = sum(1 for r in template_tests if r["success"])
-        email_passed = sum(1 for r in email_tests if r["success"])
+        mailto_passed = sum(1 for r in mailto_tests if r["success"])
+        from_passed = sum(1 for r in from_tests if r["success"])
         
         print(f"\n📋 Feature Breakdown:")
-        print(f"  SendGrid Template Keys: {template_passed}/{len(template_tests)} passed")
-        print(f"  Dynamic Email Fields: {email_passed}/{len(email_tests)} passed")
+        print(f"  Mailto/CC/BCC Recipients: {mailto_passed}/{len(mailto_tests)} passed")
+        print(f"  Dynamic From Fields: {from_passed}/{len(from_tests)} passed")
         
         if failed_tests > 0:
             print(f"\n❌ FAILED TESTS ({failed_tests}):")
@@ -1098,7 +1098,7 @@ class WebhookGatewayTester:
                     if result.get("details"):
                         print(f"    Details: {result['details']}")
         else:
-            print(f"\n🎉 All SendGrid template features working correctly!")
+            print(f"\n🎉 All refactored send_email features working correctly!")
         
         return failed_tests == 0
 
