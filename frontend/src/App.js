@@ -99,6 +99,7 @@ function App() {
                     <Route path="/sendgrid-fields" element={<SendGridFields user={user} />} />
                     <Route path="/settings" element={<Settings user={user} />} />
                     <Route path="/profile" element={<Profile user={user} />} />
+                    <Route path="/release-notes" element={<ReleaseNotes user={user} />} />
                     {user.role === 'admin' && <Route path="/users" element={<Users user={user} />} />}
                   </Routes>
                 </Layout>
