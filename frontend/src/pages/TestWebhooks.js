@@ -7,7 +7,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '.
 import { Label } from '../components/ui/label';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '../components/ui/tabs';
 import { toast } from 'sonner';
-import { Play, Copy, RefreshCw, Zap, Terminal } from 'lucide-react';
+import { Play, Copy, RefreshCw, Zap, Terminal, Mail } from 'lucide-react';
 
 const TestWebhooks = () => {
   const [endpoints, setEndpoints] = useState([]);
