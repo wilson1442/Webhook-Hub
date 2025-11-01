@@ -392,7 +392,7 @@ const TestWebhooks = () => {
                   </div>
                   <div>
                     <Label className="text-xs text-gray-600 dark:text-gray-400">Request Body:</Label>
-                    <pre className="code-display text-xs overflow-x-auto whitespace-pre-wrap break-words p-3 rounded bg-gray-900 dark:bg-gray-950 text-gray-100 mt-1">
+                    <pre className="code-display text-xs overflow-x-auto whitespace-pre-wrap break-words p-3 rounded bg-gray-900 dark:bg-gray-950 text-green-300 dark:text-green-400 mt-1">
 {(() => {
   try {
     const parsedPayload = JSON.parse(payload);
