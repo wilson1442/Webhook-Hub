@@ -427,10 +427,10 @@ const Webhooks = () => {
                     if (value === 'send_email') {
                       // Convert email to mailto if it exists
                       if (newFieldMapping.email) {
-                        newFieldMapping.mailto = newFieldMapping.email;
+                        newFieldMapping.mailto = { payload_field: 'mailto', is_custom: false };
                         delete newFieldMapping.email;
                       } else if (!newFieldMapping.mailto) {
-                        newFieldMapping.mailto = { payload_field: 'email', is_custom: false };
+                        newFieldMapping.mailto = { payload_field: 'mailto', is_custom: false };
                       }
                       if (!newFieldMapping.cc) {
                         newFieldMapping.cc = { payload_field: 'cc', is_custom: false };
