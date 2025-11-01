@@ -36,48 +36,52 @@ const TestWebhooks = () => {
   }, [selectedEndpoint]); // Only runs when endpoint changes, not on payload edit
 
   const generateSamplePayload = () => {
-    if (!selectedEndpoint || !selectedEndpoint.field_mapping) return;
+    if (!selectedEndpoint) return;
     
     const sampleData = {};
     
     // Iterate through field_mapping to generate sample data
-    Object.entries(selectedEndpoint.field_mapping).forEach(([sendgridField, config]) => {
-      // Handle both old format (string) and new format (object)
-      const payloadField = typeof config === 'string' ? config : config.payload_field;
-      
-      // Generate sample data based on field name
-      if (payloadField.toLowerCase().includes('email')) {
-        sampleData[payloadField] = 'test@example.com';
-      } else if (payloadField.toLowerCase().includes('first') || payloadField.toLowerCase().includes('fname')) {
-        sampleData[payloadField] = 'John';
-      } else if (payloadField.toLowerCase().includes('last') || payloadField.toLowerCase().includes('lname')) {
-        sampleData[payloadField] = 'Doe';
-      } else if (payloadField.toLowerCase().includes('phone')) {
-        sampleData[payloadField] = '+1234567890';
-      } else if (payloadField.toLowerCase().includes('company')) {
-        sampleData[payloadField] = 'Acme Corp';
-      } else if (payloadField.toLowerCase().includes('city')) {
-        sampleData[payloadField] = 'New York';
-      } else if (payloadField.toLowerCase().includes('state')) {
-        sampleData[payloadField] = 'NY';
-      } else if (payloadField.toLowerCase().includes('country')) {
-        sampleData[payloadField] = 'USA';
-      } else if (payloadField.toLowerCase().includes('zip') || payloadField.toLowerCase().includes('postal')) {
-        sampleData[payloadField] = '10001';
-      } else if (payloadField.toLowerCase().includes('address')) {
-        sampleData[payloadField] = '123 Main Street';
-      } else if (payloadField === 'cc') {
-        sampleData[payloadField] = 'cc@example.com';
-      } else if (payloadField === 'bcc') {
-        sampleData[payloadField] = 'bcc@example.com';
-      } else if (sendgridField.match(/e\d+_N/)) {
-        // Number custom field
-        sampleData[payloadField] = 12345;
-      } else {
-        // Default text value
-        sampleData[payloadField] = `Sample ${payloadField}`;
-      }
-    });
+    if (selectedEndpoint.field_mapping && Object.keys(selectedEndpoint.field_mapping).length > 0) {
+      Object.entries(selectedEndpoint.field_mapping).forEach(([sendgridField, config]) => {
+        // Handle both old format (string) and new format (object)
+        const payloadField = typeof config === 'string' ? config : config.payload_field;
+        
+        if (!payloadField) return; // Skip if no payload field
+        
+        // Generate sample data based on field name
+        if (payloadField.toLowerCase().includes('email')) {
+          sampleData[payloadField] = 'test@example.com';
+        } else if (payloadField.toLowerCase().includes('first') || payloadField.toLowerCase().includes('fname')) {
+          sampleData[payloadField] = 'John';
+        } else if (payloadField.toLowerCase().includes('last') || payloadField.toLowerCase().includes('lname')) {
+          sampleData[payloadField] = 'Doe';
+        } else if (payloadField.toLowerCase().includes('phone')) {
+          sampleData[payloadField] = '+1234567890';
+        } else if (payloadField.toLowerCase().includes('company')) {
+          sampleData[payloadField] = 'Acme Corp';
+        } else if (payloadField.toLowerCase().includes('city')) {
+          sampleData[payloadField] = 'New York';
+        } else if (payloadField.toLowerCase().includes('state')) {
+          sampleData[payloadField] = 'NY';
+        } else if (payloadField.toLowerCase().includes('country')) {
+          sampleData[payloadField] = 'USA';
+        } else if (payloadField.toLowerCase().includes('zip') || payloadField.toLowerCase().includes('postal')) {
+          sampleData[payloadField] = '10001';
+        } else if (payloadField.toLowerCase().includes('address')) {
+          sampleData[payloadField] = '123 Main Street';
+        } else if (payloadField === 'cc') {
+          sampleData[payloadField] = 'cc@example.com';
+        } else if (payloadField === 'bcc') {
+          sampleData[payloadField] = 'bcc@example.com';
+        } else if (sendgridField.match(/e\d+_N/)) {
+          // Number custom field
+          sampleData[payloadField] = 12345;
+        } else {
+          // Default text value
+          sampleData[payloadField] = `Sample ${payloadField}`;
+        }
+      });
+    }
     
     // For send_email mode, always ensure cc and bcc are present
     if (selectedEndpoint.mode === 'send_email') {
@@ -93,6 +97,12 @@ const TestWebhooks = () => {
     if (Object.keys(sampleData).length > 0) {
       const newPayload = JSON.stringify(sampleData, null, 2);
       setPayload(newPayload);
+    } else {
+      // Fallback if no field mapping exists
+      const fallbackPayload = selectedEndpoint.mode === 'send_email' 
+        ? { "email": "test@example.com", "cc": "cc@example.com", "bcc": "bcc@example.com" }
+        : { "email": "test@example.com" };
+      setPayload(JSON.stringify(fallbackPayload, null, 2));
     }
   };
 
