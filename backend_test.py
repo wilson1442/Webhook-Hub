@@ -410,16 +410,19 @@ class WebhookGatewayTester:
             self.log_test("SendGrid Template Keys Endpoint", False, f"Request error: {str(e)}")
             return False
     
-    def create_send_email_webhook(self, email_config):
+    def create_send_email_webhook(self, email_config=None):
         """Create a webhook endpoint for send_email mode with specific email configuration"""
         try:
             webhook_data = {
                 "name": f"Test Send Email Webhook - {str(uuid.uuid4())[:8]}",
                 "path": f"test-send-email-{str(uuid.uuid4())[:8]}",
                 "mode": "send_email",
-                "sendgrid_template_id": self.test_template_id,
-                **email_config
+                "sendgrid_template_id": self.test_template_id or "d-1234567890abcdef"  # Use test template or fallback
             }
+            
+            # Add email configuration if provided
+            if email_config:
+                webhook_data.update(email_config)
             
             response = self.session.post(f"{BASE_URL}/webhooks/endpoints", json=webhook_data)
             
