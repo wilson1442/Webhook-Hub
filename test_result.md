@@ -236,6 +236,18 @@ backend:
       - working: true
         agent: "testing"
         comment: "✅ TESTED: Dynamic Email Field Substitution working perfectly. Comprehensive testing completed with 3 scenarios: (1) Dynamic fields using {{field}} syntax - correctly extracts values from payload (email_to: '{{email}}', email_to_name: '{{first_name}} {{last_name}}', etc.). (2) Static field configuration - uses literal values regardless of payload content. (3) Mixed dynamic/static configuration - correctly handles combination of both approaches. All webhook processing logic working correctly, field substitution implemented properly in process_send_email function. Webhook logs show correct payload storage and processing status."
+  
+  - task: "Mailto/CC/BCC Email Recipients from Payload"
+    implemented: true
+    working: "NA"
+    file: "/app/backend/server.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+      - working: "NA"
+        agent: "main"
+        comment: "Refactored process_send_email to use mailto, cc, bcc fields from webhook payload instead of configured email_to. Removed email_to and email_to_name from models. Added parse_email_addresses helper that supports single string, comma-separated list, or array format. Builds SendGrid personalizations with to/cc/bcc recipients. Kept email_from and email_from_name for sender configuration with dynamic {{field}} support."
 
 frontend:
   - task: "Webhooks Page - Collapsible Cards Default Collapsed"
