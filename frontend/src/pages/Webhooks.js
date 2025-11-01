@@ -169,12 +169,17 @@ const Webhooks = () => {
     
     // For send_email mode, ensure mailto, cc, and bcc are always present
     if (endpoint.mode === 'send_email') {
-      // Convert email to mailto if it exists
+      // Convert email to mailto if it exists, and set payload_field to 'mailto'
       if (normalizedMapping.email) {
-        normalizedMapping.mailto = normalizedMapping.email;
+        normalizedMapping.mailto = { payload_field: 'mailto', is_custom: false };
         delete normalizedMapping.email;
       } else if (!normalizedMapping.mailto) {
-        normalizedMapping.mailto = { payload_field: 'email', is_custom: false };
+        normalizedMapping.mailto = { payload_field: 'mailto', is_custom: false };
+      } else {
+        // If mailto exists but has 'email' as payload_field, update it to 'mailto'
+        if (normalizedMapping.mailto.payload_field === 'email') {
+          normalizedMapping.mailto.payload_field = 'mailto';
+        }
       }
       if (!normalizedMapping.cc) {
         normalizedMapping.cc = { payload_field: 'cc', is_custom: false };
