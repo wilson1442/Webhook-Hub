@@ -164,6 +164,7 @@ const Webhooks = () => {
       email_from: '',
       email_from_name: ''
     });
+    setTemplateKeys([]);
   };
 
   const handleEdit = (endpoint) => {
