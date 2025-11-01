@@ -362,6 +362,43 @@ const TestWebhooks = () => {
             </Card>
           )}
 
+          {/* What Gets Sent to SendGrid */}
+          {selectedEndpoint && selectedEndpoint.mode === 'send_email' && (
+            <Card className="glass card-hover border-2 border-blue-500">
+              <CardHeader>
+                <CardTitle className="flex items-center text-blue-600 dark:text-blue-400">
+                  <Mail className="h-5 w-5 mr-2" />
+                  SendGrid Email Request Preview
+                </CardTitle>
+                <CardDescription>This is what will be sent to SendGrid's API</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-2">
+                  <div>
+                    <Label className="text-xs text-gray-600 dark:text-gray-400">Endpoint:</Label>
+                    <code className="block text-xs code-display p-2 mt-1">POST https://api.sendgrid.com/v3/mail/send</code>
+                  </div>
+                  <div>
+                    <Label className="text-xs text-gray-600 dark:text-gray-400">Request Body:</Label>
+                    <pre className="code-display text-xs overflow-x-auto whitespace-pre-wrap break-words p-3 rounded bg-gray-900 dark:bg-gray-950 text-gray-100 mt-1">
+{`{
+  "personalizations": [{
+    "to": [{"email": "recipient@example.com"}],
+    "dynamic_template_data": ${payload}
+  }],
+  "from": {"email": "sender@example.com"},
+  "template_id": "${selectedEndpoint.sendgrid_template_id || 'your-template-id'}"
+}`}
+                    </pre>
+                  </div>
+                  <div className="text-xs text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-950 p-3 rounded-lg">
+                    💡 <strong>Your payload becomes dynamic_template_data</strong> - All fields in your JSON payload will be available as variables in your SendGrid template.
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          )}
+
           {/* Response */}
           {response && (
             <Card className={`glass card-hover border-2 ${response.success ? 'border-green-500' : 'border-red-500'}`}>
