@@ -285,7 +285,9 @@ const TestWebhooks = () => {
 
                 {selectedEndpoint.field_mapping && (
                   <div className="p-3 bg-green-50 dark:bg-green-950 rounded-lg border border-green-200 dark:border-green-800">
-                    <p className="text-xs font-semibold text-green-800 dark:text-green-300 mb-2">Expected Fields:</p>
+                    <p className="text-xs font-semibold text-green-800 dark:text-green-300 mb-2">
+                      {selectedEndpoint.mode === 'add_contact' ? 'Expected Fields (Contact Data):' : 'Template Variables (dynamic_template_data):'}
+                    </p>
                     <div className="space-y-1">
                       {Object.entries(selectedEndpoint.field_mapping).map(([sendgrid, config]) => {
                         // Handle both old format (string) and new format (object)
@@ -304,6 +306,14 @@ const TestWebhooks = () => {
                         );
                       })}
                     </div>
+                    {selectedEndpoint.mode === 'send_email' && (
+                      <div className="mt-3 pt-3 border-t border-green-300 dark:border-green-700">
+                        <p className="text-xs text-green-700 dark:text-green-400">
+                          💡 <strong>Note:</strong> For email templates, your entire payload is sent as dynamic_template_data to SendGrid. 
+                          Use these fields in your template like: <code className="bg-white dark:bg-gray-800 px-1 rounded">{'{{email}}'}</code> or <code className="bg-white dark:bg-gray-800 px-1 rounded">{'{{first_name}}'}</code>
+                        </p>
+                      </div>
+                    )}
                   </div>
                 )}
 
