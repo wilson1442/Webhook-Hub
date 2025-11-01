@@ -753,7 +753,206 @@ const Webhooks = () => {
                 )}
               </Card>
             );
-          })
+          })}
+                  </div>
+                )}
+              </div>
+            )}
+
+            {/* Send Email Group */}
+            {endpoints.filter(e => e.mode === 'send_email').length > 0 && (
+              <div className="space-y-4">
+                <button
+                  onClick={() => toggleGroup('send_email')}
+                  className="flex items-center justify-between w-full p-4 bg-gradient-to-r from-purple-50 to-pink-50 dark:from-purple-950 dark:to-pink-950 rounded-lg border border-purple-200 dark:border-purple-800 hover:shadow-md transition-all"
+                >
+                  <div className="flex items-center space-x-3">
+                    <div className="p-2 bg-purple-100 dark:bg-purple-900 rounded-lg">
+                      <Mail className="h-5 w-5 text-purple-600 dark:text-purple-300" />
+                    </div>
+                    <div className="text-left">
+                      <h3 className="text-lg font-semibold text-purple-900 dark:text-purple-100">Send Email Webhooks</h3>
+                      <p className="text-sm text-purple-600 dark:text-purple-400">
+                        {endpoints.filter(e => e.mode === 'send_email').length} webhook{endpoints.filter(e => e.mode === 'send_email').length !== 1 ? 's' : ''}
+                      </p>
+                    </div>
+                  </div>
+                  {collapsedGroups.send_email ? (
+                    <ChevronDown className="h-6 w-6 text-purple-600 dark:text-purple-300" />
+                  ) : (
+                    <ChevronUp className="h-6 w-6 text-purple-600 dark:text-purple-300" />
+                  )}
+                </button>
+                
+                {!collapsedGroups.send_email && (
+                  <div className="grid grid-cols-1 gap-4 pl-4">
+                    {endpoints.filter(e => e.mode === 'send_email').map((endpoint) => {
+                      const normalizedMapping = normalizeFieldMapping(endpoint.field_mapping || {});
+                      return (
+                        <Card key={endpoint.id} className="glass card-hover" data-testid="webhook-endpoint-card">
+                          <CardHeader>
+                            <div className="flex justify-between items-center">
+                              <div className="flex-1">
+                                <div className="flex items-center space-x-3">
+                                  <CardTitle className="text-xl">{endpoint.name}</CardTitle>
+                                  <span className={`text-xs px-2 py-1 rounded-full font-medium ${
+                                    endpoint.mode === 'add_contact' 
+                                      ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200' 
+                                      : 'bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200'
+                                  }`}>
+                                    {endpoint.mode === 'add_contact' ? 'Add Contact' : 'Send Email'}
+                                  </span>
+                                </div>
+                              </div>
+                              
+                              <div className="flex space-x-2">
+                                <Button
+                                  variant="ghost"
+                                  size="sm"
+                                  onClick={() => toggleCollapse(endpoint.id)}
+                                  data-testid="toggle-collapse-btn"
+                                >
+                                  {collapsedCards[endpoint.id] === false ? (
+                                    <ChevronUp className="h-5 w-5" />
+                                  ) : (
+                                    <ChevronDown className="h-5 w-5" />
+                                  )}
+                                </Button>
+                                <Button
+                                  variant="outline"
+                                  size="sm"
+                                  onClick={() => handleDuplicate(endpoint)}
+                                  data-testid="duplicate-endpoint-btn"
+                                  title="Duplicate Endpoint"
+                                >
+                                  <Copy className="h-4 w-4" />
+                                </Button>
+                                <Button
+                                  variant="outline"
+                                  size="sm"
+                                  onClick={() => handleEdit(endpoint)}
+                                  data-testid="edit-endpoint-btn"
+                                  title="Edit Endpoint"
+                                >
+                                  <Edit className="h-4 w-4" />
+                                </Button>
+                                <Button
+                                  variant="outline"
+                                  size="sm"
+                                  onClick={() => handleRegenerateToken(endpoint.id)}
+                                  data-testid="regenerate-token-btn"
+                                  title="Regenerate Token"
+                                >
+                                  <RefreshCw className="h-4 w-4" />
+                                </Button>
+                                <Button
+                                  variant="destructive"
+                                  size="sm"
+                                  onClick={() => handleDelete(endpoint.id)}
+                                  data-testid="delete-webhook-btn"
+                                  title="Delete Endpoint"
+                                >
+                                  <Trash2 className="h-4 w-4" />
+                                </Button>
+                              </div>
+                            </div>
+                          </CardHeader>
+                          
+                          {collapsedCards[endpoint.id] === false && (
+                            <CardContent className="space-y-4">
+                              {/* Full Webhook URL */}
+                              <div>
+                                <Label className="text-sm text-gray-600 dark:text-gray-400 mb-1">Webhook URL</Label>
+                                <div className="flex items-center space-x-2">
+                                  <code className="code-display flex-1 text-sm font-mono" data-testid="webhook-full-url">
+                                    {window.location.origin}/api/hooks/{endpoint.path}
+                                  </code>
+                                  <Button
+                                    variant="outline"
+                                    size="sm"
+                                    onClick={() => copyToClipboard(`${window.location.origin}/api/hooks/${endpoint.path}`)}
+                                    data-testid="copy-url-btn"
+                                  >
+                                    <Copy className="h-4 w-4" />
+                                  </Button>
+                                </div>
+                              </div>
+
+                              {/* Secret Token */}
+                              <div>
+                                <Label className="text-sm text-gray-600 dark:text-gray-400 mb-1">Secret Token</Label>
+                                <div className="flex items-center space-x-2">
+                                  <code className="code-display flex-1 text-sm font-mono" data-testid="webhook-secret-token">
+                                    {endpoint.secret_token}
+                                  </code>
+                                  <Button
+                                    variant="outline"
+                                    size="sm"
+                                    onClick={() => copyToClipboard(endpoint.secret_token)}
+                                    data-testid="copy-token-btn"
+                                  >
+                                    <Copy className="h-4 w-4" />
+                                  </Button>
+                                </div>
+                              </div>
+
+                              {/* Field Mapping Display */}
+                              <div>
+                                <Label className="text-sm text-gray-600 dark:text-gray-400 mb-2">Field Mappings</Label>
+                                <div className="space-y-1">
+                                  {Object.entries(normalizedMapping).map(([sendgridField, config]) => (
+                                    <div key={sendgridField} className="flex items-center text-xs">
+                                      <code className="code-display px-2 py-1">{config.payload_field}</code>
+                                      <span className="mx-2 text-gray-400">→</span>
+                                      <code className="code-display px-2 py-1">{sendgridField}</code>
+                                      {config.is_custom && (
+                                        <span className="ml-2 badge badge-warning text-xs">Custom</span>
+                                      )}
+                                    </div>
+                                  ))}
+                                </div>
+                              </div>
+
+                              {endpoint.mode === 'add_contact' && endpoint.sendgrid_list_id && (
+                                <div>
+                                  <Label className="text-sm text-gray-600 dark:text-gray-400">SendGrid List ID</Label>
+                                  <div className="mt-1">
+                                    <code className="code-display text-xs">{endpoint.sendgrid_list_id}</code>
+                                  </div>
+                                </div>
+                              )}
+
+                              {endpoint.mode === 'send_email' && endpoint.sendgrid_template_id && (
+                                <div>
+                                  <Label className="text-sm text-gray-600 dark:text-gray-400">SendGrid Template ID</Label>
+                                  <div className="mt-1">
+                                    <code className="code-display text-xs">{endpoint.sendgrid_template_id}</code>
+                                  </div>
+                                </div>
+                              )}
+
+                              <div>
+                                <Label className="text-sm text-gray-600 dark:text-gray-400">Example cURL</Label>
+                                <code className="code-display block mt-1 text-xs" data-testid="webhook-curl-example">
+                                  curl -X POST {window.location.origin}/api/hooks/{endpoint.path} \
+                                  <br />
+                                  &nbsp;&nbsp;-H "X-Webhook-Token: {endpoint.secret_token}" \
+                                  <br />
+                                  &nbsp;&nbsp;-H "Content-Type: application/json" \
+                                  <br />
+                                  &nbsp;&nbsp;-d '{'{'}\"email\":\"user@example.com\"{'}'}\'
+                                </code>
+                              </div>
+                            </CardContent>
+                          )}
+                        </Card>
+                      );
+                    })}
+                  </div>
+                )}
+              </div>
+            )}
+          </>
         ) : (
           <Card className="glass">
             <CardContent className="text-center py-12">
