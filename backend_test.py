@@ -24,6 +24,8 @@ class WebhookGatewayTester:
         self.test_results = []
         self.test_webhook_id = None
         self.test_webhook_token = None
+        self.sendgrid_configured = False
+        self.test_template_id = None
         
     def log_test(self, test_name, success, message, details=None):
         """Log test results"""
