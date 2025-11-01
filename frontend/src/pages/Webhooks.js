@@ -37,8 +37,6 @@ const Webhooks = () => {
     },
     sendgrid_list_id: '',
     sendgrid_template_id: '',
-    email_to: '',
-    email_to_name: '',
     email_from: '',
     email_from_name: ''
   });
