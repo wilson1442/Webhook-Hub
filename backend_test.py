@@ -440,15 +440,13 @@ class WebhookGatewayTester:
             self.log_test("Create Send Email Webhook", False, f"Request error: {str(e)}")
             return None
     
-    def test_dynamic_email_field_substitution_dynamic(self):
-        """Test dynamic email field substitution with {{field}} syntax"""
+    def test_mailto_single_email(self):
+        """Test sending webhook with mailto field as single email"""
         try:
-            # Create webhook with dynamic email configuration
+            # Create webhook with from fields only (no to fields)
             email_config = {
-                "email_to": "{{email}}",
-                "email_to_name": "{{first_name}} {{last_name}}",
-                "email_from": "{{sender_email}}",
-                "email_from_name": "{{sender_name}}"
+                "email_from": "sender@company.com",
+                "email_from_name": "Company Support"
             }
             
             webhook_data = self.create_send_email_webhook(email_config)
@@ -459,17 +457,14 @@ class WebhookGatewayTester:
             webhook_token = webhook_data.get("secret_token")
             webhook_id = webhook_data.get("id")
             
-            # Test payload with dynamic values
+            # Test payload with single mailto
             test_payload = {
-                "email": "jane.smith@example.com",
-                "first_name": "Jane",
-                "last_name": "Smith",
-                "sender_email": "noreply@company.com",
-                "sender_name": "Company Support",
-                "message": "Welcome to our service!"
+                "mailto": "recipient@example.com",
+                "subject": "Test Single Mailto",
+                "message": "Testing single email recipient"
             }
             
-            # Send webhook request (this will fail at SendGrid level but we can check the processing)
+            # Send webhook request
             webhook_session = requests.Session()
             headers = {"X-Webhook-Token": webhook_token}
             
@@ -479,11 +474,9 @@ class WebhookGatewayTester:
                 headers=headers
             )
             
-            # The webhook might fail at SendGrid level, but we check if our processing worked
-            # by examining the webhook logs
             time.sleep(1)  # Wait for log to be written
             
-            # Get the webhook log to verify field substitution
+            # Get the webhook log to verify processing
             logs_response = self.session.get(f"{BASE_URL}/webhooks/logs?endpoint_id={webhook_id}&limit=1")
             
             if logs_response.status_code == 200:
@@ -491,31 +484,31 @@ class WebhookGatewayTester:
                 if logs:
                     log_entry = logs[0]
                     
-                    # Check if the webhook was processed (even if SendGrid failed)
+                    # Check if the webhook was processed
                     if log_entry.get("status") in ["success", "failed"]:
-                        self.log_test("Dynamic Email Field Substitution", True, 
-                                    f"✅ Dynamic field substitution processed - Status: {log_entry.get('status')}")
+                        self.log_test("Mailto Single Email", True, 
+                                    f"✅ Single mailto processed - Status: {log_entry.get('status')}")
                         
                         # Verify the payload was stored correctly
                         stored_payload = log_entry.get("payload", {})
-                        if stored_payload.get("email") == "jane.smith@example.com":
-                            self.log_test("Dynamic Field Payload Verification", True, 
-                                        "Payload correctly stored with dynamic field values")
+                        if stored_payload.get("mailto") == "recipient@example.com":
+                            self.log_test("Single Mailto Payload Verification", True, 
+                                        "Payload correctly stored with single mailto")
                         else:
-                            self.log_test("Dynamic Field Payload Verification", False, 
+                            self.log_test("Single Mailto Payload Verification", False, 
                                         "Payload not stored correctly")
                         
                         # Clean up webhook
                         self.session.delete(f"{BASE_URL}/webhooks/endpoints/{webhook_id}")
                         return True
                     else:
-                        self.log_test("Dynamic Email Field Substitution", False, 
+                        self.log_test("Mailto Single Email", False, 
                                     f"Webhook processing failed: {log_entry.get('response_message', 'Unknown error')}")
                 else:
-                    self.log_test("Dynamic Email Field Substitution", False, 
+                    self.log_test("Mailto Single Email", False, 
                                 "No webhook log found after processing")
             else:
-                self.log_test("Dynamic Email Field Substitution", False, 
+                self.log_test("Mailto Single Email", False, 
                             f"Failed to retrieve webhook logs: {logs_response.status_code}")
             
             # Clean up webhook
@@ -523,7 +516,7 @@ class WebhookGatewayTester:
             return False
                 
         except Exception as e:
-            self.log_test("Dynamic Email Field Substitution", False, f"Request error: {str(e)}")
+            self.log_test("Mailto Single Email", False, f"Request error: {str(e)}")
             return False
     
     def test_dynamic_email_field_substitution_static(self):
