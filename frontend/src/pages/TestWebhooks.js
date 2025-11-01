@@ -48,18 +48,24 @@ const TestWebhooks = () => {
         
         if (!payloadField) return; // Skip if no payload field
         
-        // For send_email mode, use the sendgridField name (mailto, cc, bcc) instead of payload field name
-        const fieldName = selectedEndpoint.mode === 'send_email' && ['mailto', 'cc', 'bcc'].includes(sendgridField)
-          ? sendgridField
-          : payloadField;
+        // For send_email mode, use the sendgridField name (mailto, cc, bcc) as the payload key
+        // This ensures mailto maps to "mailto" in payload, not "email"
+        let fieldName;
+        if (selectedEndpoint.mode === 'send_email' && ['mailto', 'cc', 'bcc'].includes(sendgridField)) {
+          fieldName = sendgridField; // Use 'mailto', 'cc', or 'bcc' as the key
+        } else {
+          fieldName = payloadField; // Use the configured payload field name
+        }
         
-        // Generate sample data based on field name
-        if (fieldName === 'mailto' || fieldName.toLowerCase().includes('email')) {
-          sampleData[fieldName] = fieldName === 'mailto' ? 'recipient@example.com' : 'test@example.com';
+        // Generate sample data based on field name and type
+        if (fieldName === 'mailto') {
+          sampleData[fieldName] = 'recipient@example.com';
         } else if (fieldName === 'cc') {
           sampleData[fieldName] = 'cc@example.com';
         } else if (fieldName === 'bcc') {
           sampleData[fieldName] = 'bcc@example.com';
+        } else if (payloadField.toLowerCase().includes('email')) {
+          sampleData[fieldName] = 'test@example.com';
         } else if (payloadField.toLowerCase().includes('first') || payloadField.toLowerCase().includes('fname')) {
           sampleData[fieldName] = 'John';
         } else if (payloadField.toLowerCase().includes('last') || payloadField.toLowerCase().includes('lname')) {
