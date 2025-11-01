@@ -584,6 +584,15 @@ const Webhooks = () => {
                       <Button
                         variant="outline"
                         size="sm"
+                        onClick={() => handleDuplicate(endpoint)}
+                        data-testid="duplicate-endpoint-btn"
+                        title="Duplicate Endpoint"
+                      >
+                        <Copy className="h-4 w-4" />
+                      </Button>
+                      <Button
+                        variant="outline"
+                        size="sm"
                         onClick={() => handleEdit(endpoint)}
                         data-testid="edit-endpoint-btn"
                         title="Edit Endpoint"
