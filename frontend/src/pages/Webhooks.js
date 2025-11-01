@@ -497,7 +497,8 @@ const Webhooks = () => {
                   {Object.entries(formData.field_mapping).map(([sendgridField, config], index) => (
                     <div key={index} className="grid grid-cols-[1fr_1fr_auto_auto] gap-2 items-center">
                       <div>
-                        {['mailto', 'cc', 'bcc'].includes(sendgridField) ? (
+                        {(sendgridField === 'email' && formData.mode === 'add_contact') || 
+                         (['mailto', 'cc', 'bcc'].includes(sendgridField) && formData.mode === 'send_email') ? (
                           <Input
                             value={sendgridField}
                             disabled
