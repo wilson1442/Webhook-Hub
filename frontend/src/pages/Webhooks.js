@@ -575,9 +575,10 @@ const Webhooks = () => {
                   <Label htmlFor="template">SendGrid Template</Label>
                   <Select
                     value={formData.sendgrid_template_id}
-                    onValueChange={(value) =>
-                      setFormData({ ...formData, sendgrid_template_id: value })
-                    }
+                    onValueChange={(value) => {
+                      setFormData({ ...formData, sendgrid_template_id: value });
+                      fetchTemplateKeys(value);
+                    }}
                   >
                     <SelectTrigger>
                       <SelectValue placeholder="Select a template" />
@@ -590,6 +591,79 @@ const Webhooks = () => {
                       ))}
                     </SelectContent>
                   </Select>
+                </div>
+              )}
+
+              {formData.mode === 'send_email' && templateKeys.length > 0 && (
+                <div className="space-y-2">
+                  <Label className="text-sm text-gray-600 dark:text-gray-400">Template Keys Available</Label>
+                  <div className="p-3 bg-blue-50 dark:bg-blue-950 rounded-lg border border-blue-200 dark:border-blue-800">
+                    <div className="flex flex-wrap gap-2">
+                      {templateKeys.map((key) => (
+                        <span
+                          key={key}
+                          className="px-2 py-1 bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200 rounded text-xs font-mono"
+                          title={`Use {{${key}}} to reference this field from webhook payload`}
+                        >
+                          {key}
+                        </span>
+                      ))}
+                    </div>
+                    <p className="text-xs text-blue-600 dark:text-blue-400 mt-2">
+                      These keys are used in the template. Reference them in fields below using {`{{key_name}}`} syntax.
+                    </p>
+                  </div>
+                </div>
+              )}
+
+              {formData.mode === 'send_email' && (
+                <div className="space-y-4 border-t pt-4">
+                  <h4 className="font-semibold text-sm text-gray-700 dark:text-gray-300">Email Configuration</h4>
+                  <p className="text-xs text-gray-500 dark:text-gray-400">
+                    Use {`{{field_name}}`} to pull values from webhook payload, or enter static values
+                  </p>
+                  
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="email_to">To Address</Label>
+                      <Input
+                        id="email_to"
+                        placeholder="e.g., {{email}} or user@example.com"
+                        value={formData.email_to}
+                        onChange={(e) => setFormData({ ...formData, email_to: e.target.value })}
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="email_to_name">To Name (optional)</Label>
+                      <Input
+                        id="email_to_name"
+                        placeholder="e.g., {{name}} or John Doe"
+                        value={formData.email_to_name}
+                        onChange={(e) => setFormData({ ...formData, email_to_name: e.target.value })}
+                      />
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="email_from">From Address</Label>
+                      <Input
+                        id="email_from"
+                        placeholder="e.g., noreply@example.com"
+                        value={formData.email_from}
+                        onChange={(e) => setFormData({ ...formData, email_from: e.target.value })}
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="email_from_name">From Name (optional)</Label>
+                      <Input
+                        id="email_from_name"
+                        placeholder="e.g., Support Team"
+                        value={formData.email_from_name}
+                        onChange={(e) => setFormData({ ...formData, email_from_name: e.target.value })}
+                      />
+                    </div>
+                  </div>
                 </div>
               )}
 
