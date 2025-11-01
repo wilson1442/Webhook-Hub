@@ -123,6 +123,7 @@ class WebhookEndpointCreate(BaseModel):
     sendgrid_list_id: Optional[str] = None
     sendgrid_template_id: Optional[str] = None
     email_to: Optional[str] = None
+    email_to_name: Optional[str] = None
     email_from: Optional[str] = None
     email_from_name: Optional[str] = None
 
