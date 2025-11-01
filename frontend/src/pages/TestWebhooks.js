@@ -79,6 +79,16 @@ const TestWebhooks = () => {
       }
     });
     
+    // For send_email mode, always ensure cc and bcc are present
+    if (selectedEndpoint.mode === 'send_email') {
+      if (!sampleData.cc) {
+        sampleData.cc = 'cc@example.com';
+      }
+      if (!sampleData.bcc) {
+        sampleData.bcc = 'bcc@example.com';
+      }
+    }
+    
     // Always update with new sample data when called
     if (Object.keys(sampleData).length > 0) {
       const newPayload = JSON.stringify(sampleData, null, 2);
