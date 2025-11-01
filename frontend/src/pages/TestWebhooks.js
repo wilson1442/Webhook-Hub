@@ -43,6 +43,11 @@ const TestWebhooks = () => {
     // Iterate through field_mapping to generate sample data
     if (selectedEndpoint.field_mapping && Object.keys(selectedEndpoint.field_mapping).length > 0) {
       Object.entries(selectedEndpoint.field_mapping).forEach(([sendgridField, config]) => {
+        // For send_email mode, skip the old "email" field if it exists (it should be "mailto")
+        if (selectedEndpoint.mode === 'send_email' && sendgridField === 'email') {
+          return; // Skip this field
+        }
+        
         // Handle both old format (string) and new format (object)
         const payloadField = typeof config === 'string' ? config : config.payload_field;
         
