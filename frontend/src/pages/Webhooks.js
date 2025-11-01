@@ -33,7 +33,7 @@ const Webhooks = () => {
     mode: 'add_contact',
     integration: 'sendgrid',
     field_mapping: {
-      email: { payload_field: 'email', is_custom: false }
+      mailto: { payload_field: 'email', is_custom: false }
     },
     sendgrid_list_id: '',
     sendgrid_template_id: '',
