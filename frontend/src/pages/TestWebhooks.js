@@ -45,11 +45,6 @@ const TestWebhooks = () => {
       // Handle both old format (string) and new format (object)
       const payloadField = typeof config === 'string' ? config : config.payload_field;
       
-      // Skip mailto, cc, bcc, mailcc, mailbcc fields
-      if (['mailto', 'cc', 'bcc', 'mailcc', 'mailbcc'].includes(payloadField.toLowerCase())) {
-        return;
-      }
-      
       // Generate sample data based on field name
       if (payloadField.toLowerCase().includes('email')) {
         sampleData[payloadField] = 'test@example.com';
@@ -71,6 +66,12 @@ const TestWebhooks = () => {
         sampleData[payloadField] = '10001';
       } else if (payloadField.toLowerCase().includes('address')) {
         sampleData[payloadField] = '123 Main Street';
+      } else if (payloadField === 'cc') {
+        sampleData[payloadField] = 'cc@example.com';
+      } else if (payloadField === 'bcc') {
+        sampleData[payloadField] = 'bcc@example.com';
+      } else if (payloadField === 'mailto') {
+        sampleData[payloadField] = 'recipient@example.com';
       } else if (sendgridField.match(/e\d+_N/)) {
         // Number custom field
         sampleData[payloadField] = 12345;
