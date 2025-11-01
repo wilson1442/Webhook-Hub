@@ -154,7 +154,7 @@ const Webhooks = () => {
       path: '',
       mode: 'add_contact',
       integration: activeIntegrations.length > 0 ? activeIntegrations[0].service_name : 'sendgrid',
-      field_mapping: { mailto: { payload_field: 'email', is_custom: false } },
+      field_mapping: { email: { payload_field: 'email', is_custom: false } },
       sendgrid_list_id: '',
       sendgrid_template_id: '',
       email_from: '',
