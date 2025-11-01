@@ -209,15 +209,18 @@ backend:
   
   - task: "SendGrid Template Keys Endpoint"
     implemented: true
-    working: "NA"
+    working: true
     file: "/app/backend/server.py"
     stuck_count: 0
     priority: "high"
-    needs_retesting: true
+    needs_retesting: false
     status_history:
       - working: "NA"
         agent: "main"
         comment: "Created /api/sendgrid/templates/{template_id} endpoint that fetches a specific SendGrid template and extracts dynamic substitution keys (using regex to find {{key_name}} patterns). Returns template_id, template_name, template_keys array, and versions_count."
+      - working: true
+        agent: "testing"
+        comment: "✅ TESTED: SendGrid Template Keys endpoint working perfectly. Successfully tested with template ID 'd-1dfe7673ee714c63a146577cc4a1c654' (Payment Declined template). Endpoint correctly returns all required fields: template_id, template_name, template_keys array, and versions_count. Template key extraction working correctly - extracted 4 template keys: ['amount', 'borrower_name', 'description', 'loan_number'] from template content using regex pattern matching for {{variable}} syntax."
   
   - task: "Dynamic Email Field Substitution"
     implemented: true
