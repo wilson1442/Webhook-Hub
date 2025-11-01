@@ -616,37 +616,24 @@ const Webhooks = () => {
               {formData.mode === 'send_email' && (
                 <div className="space-y-4 border-t pt-4">
                   <h4 className="font-semibold text-sm text-gray-700 dark:text-gray-300">Email Configuration</h4>
+                  <div className="p-3 bg-blue-50 dark:bg-blue-950 rounded-lg border border-blue-200 dark:border-blue-800">
+                    <p className="text-xs text-blue-800 dark:text-blue-200 font-semibold mb-1">📧 Recipient Information</p>
+                    <p className="text-xs text-blue-600 dark:text-blue-400">
+                      Recipients (to, cc, bcc) are provided in the webhook payload using <code className="bg-blue-100 dark:bg-blue-900 px-1 rounded">mailto</code>, <code className="bg-blue-100 dark:bg-blue-900 px-1 rounded">cc</code>, and <code className="bg-blue-100 dark:bg-blue-900 px-1 rounded">bcc</code> fields.
+                      These can be single emails or comma-separated lists.
+                    </p>
+                  </div>
+                  
                   <p className="text-xs text-gray-500 dark:text-gray-400">
                     Use {`{{field_name}}`} to pull values from webhook payload, or enter static values
                   </p>
-                  
-                  <div className="grid grid-cols-2 gap-4">
-                    <div className="space-y-2">
-                      <Label htmlFor="email_to">To Address</Label>
-                      <Input
-                        id="email_to"
-                        placeholder="e.g., {{email}} or user@example.com"
-                        value={formData.email_to}
-                        onChange={(e) => setFormData({ ...formData, email_to: e.target.value })}
-                      />
-                    </div>
-                    <div className="space-y-2">
-                      <Label htmlFor="email_to_name">To Name (optional)</Label>
-                      <Input
-                        id="email_to_name"
-                        placeholder="e.g., {{name}} or John Doe"
-                        value={formData.email_to_name}
-                        onChange={(e) => setFormData({ ...formData, email_to_name: e.target.value })}
-                      />
-                    </div>
-                  </div>
 
                   <div className="grid grid-cols-2 gap-4">
                     <div className="space-y-2">
                       <Label htmlFor="email_from">From Address</Label>
                       <Input
                         id="email_from"
-                        placeholder="e.g., noreply@example.com"
+                        placeholder="e.g., noreply@example.com or {{sender}}"
                         value={formData.email_from}
                         onChange={(e) => setFormData({ ...formData, email_from: e.target.value })}
                       />
@@ -655,7 +642,7 @@ const Webhooks = () => {
                       <Label htmlFor="email_from_name">From Name (optional)</Label>
                       <Input
                         id="email_from_name"
-                        placeholder="e.g., Support Team"
+                        placeholder="e.g., Support Team or {{company}}"
                         value={formData.email_from_name}
                         onChange={(e) => setFormData({ ...formData, email_from_name: e.target.value })}
                       />
