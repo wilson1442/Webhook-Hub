@@ -66,8 +66,10 @@ const TestWebhooks = () => {
         sampleData[payloadField] = '10001';
       } else if (payloadField.toLowerCase().includes('address')) {
         sampleData[payloadField] = '123 Main Street';
-      } else if (payloadField === 'mailto') {
-        sampleData[payloadField] = 'recipient@example.com';
+      } else if (payloadField === 'cc') {
+        sampleData[payloadField] = 'cc@example.com';
+      } else if (payloadField === 'bcc') {
+        sampleData[payloadField] = 'bcc@example.com';
       } else if (sendgridField.match(/e\d+_N/)) {
         // Number custom field
         sampleData[payloadField] = 12345;
@@ -76,13 +78,6 @@ const TestWebhooks = () => {
         sampleData[payloadField] = `Sample ${payloadField}`;
       }
     });
-    
-    // For send_email mode, always add mailto, cc, and bcc at the end
-    if (selectedEndpoint.mode === 'send_email') {
-      sampleData['mailto'] = 'recipient@example.com';
-      sampleData['cc'] = 'cc@example.com';
-      sampleData['bcc'] = 'bcc@example.com';
-    }
     
     // Always update with new sample data when called
     if (Object.keys(sampleData).length > 0) {
