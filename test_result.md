@@ -351,6 +351,18 @@ frontend:
       - working: true
         agent: "testing"
         comment: "✅ TESTED: Email Configuration UI working perfectly in send_email mode. (1) Template Keys Display: Successfully verified template keys are auto-fetched when SendGrid template is selected, displayed in blue section as badges (found 5 keys: first_name, last_name, ip_email, unsubscribe, unsubscribe_preferences), with clear instructions about {{key_name}} syntax. (2) Email Configuration Form Fields: All 4 input fields present and functional - To Address, To Name, From Address, From Name with appropriate placeholders and support for both static values and dynamic {{field}} syntax. (3) UI/UX: Email Configuration section appears only in send_email mode, proper spacing/layout, helpful instructions visible. (4) Edit Mode: Fields properly populate when editing existing webhooks. All functionality working as specified."
+  
+  - task: "Refactored Email Config UI - From Fields Only"
+    implemented: true
+    working: "NA"
+    file: "/app/frontend/src/pages/Webhooks.js"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+      - working: "NA"
+        agent: "main"
+        comment: "Refactored Email Configuration UI to remove To Address and To Name fields. Now shows only From Address and From Name fields. Added blue info box explaining that recipients come from webhook payload using mailto, cc, bcc fields (supports single emails or comma-separated lists). Updated all form state handlers to exclude email_to and email_to_name."
 
 metadata:
   created_by: "main_agent"
