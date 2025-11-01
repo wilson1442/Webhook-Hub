@@ -5,7 +5,32 @@ All notable changes to Webhook Gateway Hub will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [1.0.1] - 2025-10-31
+## [1.0.2] - 2025-01-XX
+
+### ✨ Added
+
+#### Log Management
+- **Delete Individual Log Entries**: Each log entry now has a delete button for quick removal
+- **Delete All Failed Logs**: New bulk action button to remove all failed log entries at once
+- **Release Notes Page**: Dedicated page showing version history and all improvements across releases
+
+#### UI Improvements
+- **Improved Test Page Visibility**: Darker, more readable font colors for curl commands and email request previews
+- **Better Code Display**: Enhanced contrast for JSON previews in test responses
+
+### 🔧 Improved
+
+#### Send Email Mode
+- **mailto/cc/bcc Field Handling**: Fixed field mapping to properly use mailto, cc, bcc in send_email mode
+- **Payload Field Defaults**: Email payload fields now correctly default to "mailto" instead of "email"
+- **Field Mapping Logic**: Improved logic to prevent duplicate email fields in test payloads
+- **Backwards Compatibility**: Old webhooks with "email" field mappings are automatically handled correctly
+
+#### User Interface
+- **Enhanced Log Actions**: Retry and delete buttons now displayed together for better UX
+- **Clearer Button Labels**: "Clear All Logs" renamed for clarity alongside "Delete All Failed"
+
+## [1.0.1] - 2024-12-XX
 
 ### ✨ Added
 
