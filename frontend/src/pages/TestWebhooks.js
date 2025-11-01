@@ -25,9 +25,15 @@ const TestWebhooks = () => {
   useEffect(() => {
     if (selectedEndpoint) {
       generateCurlCommand();
-      generateSamplePayload(); // Auto-generate sample data when endpoint changes
     }
   }, [selectedEndpoint, payload]);
+
+  // Separate useEffect for auto-generating sample payload only on endpoint change
+  useEffect(() => {
+    if (selectedEndpoint) {
+      generateSamplePayload();
+    }
+  }, [selectedEndpoint]); // Only runs when endpoint changes, not on payload edit
 
   const generateSamplePayload = () => {
     if (!selectedEndpoint || !selectedEndpoint.field_mapping) return;
