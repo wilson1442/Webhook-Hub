@@ -852,6 +852,72 @@ async def get_sendgrid_templates(current_user: dict = Depends(get_current_user))
     
     return {"templates": templates}
 
+@api_router.get("/sendgrid/templates/{template_id}")
+async def get_sendgrid_template_details(template_id: str, current_user: dict = Depends(get_current_user)):
+    """Get a specific SendGrid template and extract dynamic substitution keys"""
+    key_doc = await db.api_keys.find_one({"service_name": "sendgrid"}, {"_id": 0})
+    if not key_doc:
+        raise HTTPException(status_code=404, detail="SendGrid API key not configured")
+    
+    api_key = decrypt_data(key_doc['credentials']['api_key'])
+    api_key = api_key.encode('ascii', 'ignore').decode('ascii').strip()
+    
+    headers = {"Authorization": f"Bearer {api_key}"}
+    
+    try:
+        # Fetch template details
+        response = requests.get(f"https://api.sendgrid.com/v3/templates/{template_id}", headers=headers, timeout=10)
+        
+        if response.status_code != 200:
+            raise HTTPException(status_code=response.status_code, detail=f"SendGrid API error: {response.text}")
+        
+        template_data = response.json()
+        
+        # Extract template keys from the HTML content
+        # SendGrid uses handlebars syntax: {{key_name}}
+        import re
+        template_keys = set()
+        
+        # Check all versions for template variables
+        versions = template_data.get('versions', [])
+        for version in versions:
+            html_content = version.get('html_content', '')
+            plain_content = version.get('plain_content', '')
+            subject = version.get('subject', '')
+            
+            # Find all {{variable}} patterns
+            # Match {{variable}} or {{#if variable}} or any handlebars syntax
+            pattern = r'\{\{[#\/]?([a-zA-Z0-9_]+)\}\}'
+            
+            # Extract from HTML
+            if html_content:
+                matches = re.findall(pattern, html_content)
+                template_keys.update(matches)
+            
+            # Extract from plain text
+            if plain_content:
+                matches = re.findall(pattern, plain_content)
+                template_keys.update(matches)
+            
+            # Extract from subject
+            if subject:
+                matches = re.findall(pattern, subject)
+                template_keys.update(matches)
+        
+        # Convert to sorted list
+        template_keys_list = sorted(list(template_keys))
+        
+        return {
+            "template_id": template_id,
+            "template_name": template_data.get('name', ''),
+            "template_keys": template_keys_list,
+            "versions_count": len(versions)
+        }
+        
+    except requests.exceptions.RequestException as e:
+        logging.error(f"Error fetching template details: {e}")
+        raise HTTPException(status_code=500, detail=f"Failed to fetch template: {str(e)}")
+
 # SendGrid Field Definitions Management
 @api_router.post("/sendgrid/sync-fields")
 async def sync_sendgrid_fields(current_user: dict = Depends(get_current_user)):
