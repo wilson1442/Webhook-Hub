@@ -339,15 +339,15 @@ metadata:
 
 test_plan:
   current_focus:
-    - "Webhooks Page - Collapsible Cards Default Collapsed"
-    - "Settings Page - Backup Download"
-    - "Profile Page with Dark Mode Toggle"
+    - "SendGrid Template Keys Endpoint"
+    - "Dynamic Email Field Substitution"
+    - "Email Configuration UI - Send Email Mode"
   stuck_tasks:
     - "Webhooks Page - Collapsible Cards Default Collapsed"
     - "Settings Page - Backup Download"
     - "Profile Page with Dark Mode Toggle"
   test_all: false
-  test_priority: "stuck_first"
+  test_priority: "high_first"
 
 agent_communication:
   - agent: "main"
