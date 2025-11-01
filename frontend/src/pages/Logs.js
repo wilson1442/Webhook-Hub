@@ -137,6 +137,16 @@ const Logs = () => {
         </div>
         <div className="flex space-x-2">
           <Button 
+            onClick={handleRefresh}
+            disabled={refreshing}
+            variant="outline"
+            className="btn-transition" 
+            data-testid="refresh-logs-btn"
+          >
+            <RefreshCw className={`h-4 w-4 mr-2 ${refreshing ? 'animate-spin' : ''}`} />
+            {refreshing ? 'Refreshing...' : 'Refresh'}
+          </Button>
+          <Button 
             onClick={handleClearLogs} 
             variant="destructive"
             className="btn-transition" 
