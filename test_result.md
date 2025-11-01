@@ -347,8 +347,7 @@ metadata:
   run_ui: false
 
 test_plan:
-  current_focus:
-    - "Email Configuration UI - Send Email Mode"
+  current_focus: []
   stuck_tasks:
     - "Webhooks Page - Collapsible Cards Default Collapsed"
     - "Settings Page - Backup Download"
