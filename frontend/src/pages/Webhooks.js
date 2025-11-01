@@ -174,8 +174,6 @@ const Webhooks = () => {
       field_mapping: normalizedMapping,
       sendgrid_list_id: endpoint.sendgrid_list_id || '',
       sendgrid_template_id: endpoint.sendgrid_template_id || '',
-      email_to: endpoint.email_to || '',
-      email_to_name: endpoint.email_to_name || '',
       email_from: endpoint.email_from || '',
       email_from_name: endpoint.email_from_name || ''
     });
