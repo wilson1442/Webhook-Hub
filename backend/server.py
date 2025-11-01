@@ -661,6 +661,36 @@ async def clear_webhook_logs(current_user: dict = Depends(get_current_user)):
         logger.error(f"Failed to clear logs: {str(e)}")
         raise HTTPException(status_code=500, detail=str(e))
 
+@api_router.delete("/webhooks/logs/{log_id}")
+async def delete_webhook_log(log_id: str, current_user: dict = Depends(get_current_user)):
+    """Delete a single webhook log entry"""
+    try:
+        result = await db.webhook_logs.delete_one({"id": log_id})
+        if result.deleted_count == 0:
+            raise HTTPException(status_code=404, detail="Log entry not found")
+        return {"message": "Log entry deleted successfully"}
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Failed to delete log: {str(e)}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+@api_router.delete("/webhooks/logs/failed/all")
+async def delete_all_failed_logs(current_user: dict = Depends(get_current_user)):
+    """Delete all failed webhook logs"""
+    if current_user.get("role") != "admin":
+        raise HTTPException(status_code=403, detail="Admin access required")
+    
+    try:
+        result = await db.webhook_logs.delete_many({"status": "failed"})
+        return {
+            "message": f"Successfully deleted {result.deleted_count} failed log entries",
+            "deleted_count": result.deleted_count
+        }
+    except Exception as e:
+        logger.error(f"Failed to delete failed logs: {str(e)}")
+        raise HTTPException(status_code=500, detail=str(e))
+
 @api_router.post("/webhooks/logs/{log_id}/retry")
 async def retry_webhook(log_id: str, current_user: dict = Depends(get_current_user)):
     """Retry a failed webhook request"""
