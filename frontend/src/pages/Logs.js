@@ -297,21 +297,35 @@ const Logs = () => {
                         </div>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
-                        {log.status === 'failed' && (
+                        <div className="flex space-x-2">
+                          {log.status === 'failed' && (
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleRetry(log.id);
+                              }}
+                              disabled={retrying}
+                              className="text-orange-600 hover:text-orange-700 border-orange-300 hover:border-orange-400"
+                            >
+                              <RefreshCw className="h-3 w-3 mr-1" />
+                              Retry
+                            </Button>
+                          )}
                           <Button
                             size="sm"
-                            variant="outline"
+                            variant="ghost"
                             onClick={(e) => {
                               e.stopPropagation();
-                              handleRetry(log.id);
+                              handleDeleteLog(log.id);
                             }}
-                            disabled={retrying}
-                            className="text-orange-600 hover:text-orange-700 border-orange-300 hover:border-orange-400"
+                            disabled={deleting}
+                            className="text-red-600 hover:text-red-700 hover:bg-red-50 dark:hover:bg-red-950"
                           >
-                            <RefreshCw className="h-3 w-3 mr-1" />
-                            Retry
+                            <Trash2 className="h-3 w-3" />
                           </Button>
-                        )}
+                        </div>
                       </td>
                     </tr>
                   ))}
