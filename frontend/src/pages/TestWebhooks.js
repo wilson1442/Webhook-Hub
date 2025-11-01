@@ -75,12 +75,10 @@ const TestWebhooks = () => {
       }
     });
     
-    // Only update if we have data and it's different from current
+    // Always update with new sample data when called
     if (Object.keys(sampleData).length > 0) {
       const newPayload = JSON.stringify(sampleData, null, 2);
-      if (newPayload !== payload) {
-        setPayload(newPayload);
-      }
+      setPayload(newPayload);
     }
   };
 
