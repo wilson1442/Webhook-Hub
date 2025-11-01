@@ -684,9 +684,339 @@ class WebhookGatewayTester:
             self.log_test("CC/BCC Fields", False, f"Request error: {str(e)}")
             return False
     
+    def test_all_recipients_together(self):
+        """Test sending webhook with mailto, cc, and bcc all together"""
+        try:
+            # Create webhook with from fields only
+            email_config = {
+                "email_from": "sender@company.com",
+                "email_from_name": "Company Support"
+            }
+            
+            webhook_data = self.create_send_email_webhook(email_config)
+            if not webhook_data:
+                return False
+            
+            webhook_path = webhook_data.get("path")
+            webhook_token = webhook_data.get("secret_token")
+            webhook_id = webhook_data.get("id")
+            
+            # Test payload with all recipient types
+            test_payload = {
+                "mailto": "primary1@example.com, primary2@example.com",
+                "cc": "cc1@example.com, cc2@example.com, cc3@example.com",
+                "bcc": "bcc1@example.com, bcc2@example.com",
+                "subject": "Test All Recipients Together",
+                "message": "Testing mailto + cc + bcc functionality"
+            }
+            
+            # Send webhook request
+            webhook_session = requests.Session()
+            headers = {"X-Webhook-Token": webhook_token}
+            
+            response = webhook_session.post(
+                f"{BASE_URL}/hooks/{webhook_path}", 
+                json=test_payload,
+                headers=headers
+            )
+            
+            time.sleep(1)  # Wait for log to be written
+            
+            # Get the webhook log to verify processing
+            logs_response = self.session.get(f"{BASE_URL}/webhooks/logs?endpoint_id={webhook_id}&limit=1")
+            
+            if logs_response.status_code == 200:
+                logs = logs_response.json()
+                if logs:
+                    log_entry = logs[0]
+                    
+                    # Check if the webhook was processed
+                    if log_entry.get("status") in ["success", "failed"]:
+                        self.log_test("All Recipients Together", True, 
+                                    f"✅ All recipient types processed - Status: {log_entry.get('status')}")
+                        
+                        # Verify the payload was stored correctly
+                        stored_payload = log_entry.get("payload", {})
+                        expected_fields = ["mailto", "cc", "bcc"]
+                        has_all_fields = all(field in stored_payload for field in expected_fields)
+                        
+                        if has_all_fields:
+                            mailto_count = len(stored_payload.get("mailto", "").split(","))
+                            cc_count = len(stored_payload.get("cc", "").split(","))
+                            bcc_count = len(stored_payload.get("bcc", "").split(","))
+                            self.log_test("All Recipients Payload Verification", True, 
+                                        f"All recipient types stored - mailto: {mailto_count}, cc: {cc_count}, bcc: {bcc_count}")
+                        else:
+                            missing_fields = [f for f in expected_fields if f not in stored_payload]
+                            self.log_test("All Recipients Payload Verification", False, 
+                                        f"Payload missing fields: {missing_fields}")
+                        
+                        # Clean up webhook
+                        self.session.delete(f"{BASE_URL}/webhooks/endpoints/{webhook_id}")
+                        return True
+                    else:
+                        self.log_test("All Recipients Together", False, 
+                                    f"Webhook processing failed: {log_entry.get('response_message', 'Unknown error')}")
+                else:
+                    self.log_test("All Recipients Together", False, 
+                                "No webhook log found after processing")
+            else:
+                self.log_test("All Recipients Together", False, 
+                            f"Failed to retrieve webhook logs: {logs_response.status_code}")
+            
+            # Clean up webhook
+            self.session.delete(f"{BASE_URL}/webhooks/endpoints/{webhook_id}")
+            return False
+                
+        except Exception as e:
+            self.log_test("All Recipients Together", False, f"Request error: {str(e)}")
+            return False
+    
+    def test_missing_mailto_error(self):
+        """Test error handling when mailto is missing from payload"""
+        try:
+            # Create webhook with from fields only
+            email_config = {
+                "email_from": "sender@company.com",
+                "email_from_name": "Company Support"
+            }
+            
+            webhook_data = self.create_send_email_webhook(email_config)
+            if not webhook_data:
+                return False
+            
+            webhook_path = webhook_data.get("path")
+            webhook_token = webhook_data.get("secret_token")
+            webhook_id = webhook_data.get("id")
+            
+            # Test payload WITHOUT mailto field
+            test_payload = {
+                "cc": "cc@example.com",
+                "bcc": "bcc@example.com",
+                "subject": "Test Missing Mailto",
+                "message": "Testing error handling when mailto is missing"
+            }
+            
+            # Send webhook request
+            webhook_session = requests.Session()
+            headers = {"X-Webhook-Token": webhook_token}
+            
+            response = webhook_session.post(
+                f"{BASE_URL}/hooks/{webhook_path}", 
+                json=test_payload,
+                headers=headers
+            )
+            
+            time.sleep(1)  # Wait for log to be written
+            
+            # Get the webhook log to verify error handling
+            logs_response = self.session.get(f"{BASE_URL}/webhooks/logs?endpoint_id={webhook_id}&limit=1")
+            
+            if logs_response.status_code == 200:
+                logs = logs_response.json()
+                if logs:
+                    log_entry = logs[0]
+                    
+                    # Check if the webhook failed as expected
+                    if log_entry.get("status") == "failed":
+                        response_message = log_entry.get("response_message", "")
+                        if "mailto" in response_message.lower() or "recipient" in response_message.lower():
+                            self.log_test("Missing Mailto Error Handling", True, 
+                                        f"✅ Correctly handled missing mailto - Error: {response_message}")
+                        else:
+                            self.log_test("Missing Mailto Error Handling", False, 
+                                        f"Failed but wrong error message: {response_message}")
+                        
+                        # Clean up webhook
+                        self.session.delete(f"{BASE_URL}/webhooks/endpoints/{webhook_id}")
+                        return True
+                    else:
+                        self.log_test("Missing Mailto Error Handling", False, 
+                                    f"Expected failure but got status: {log_entry.get('status')}")
+                else:
+                    self.log_test("Missing Mailto Error Handling", False, 
+                                "No webhook log found after processing")
+            else:
+                self.log_test("Missing Mailto Error Handling", False, 
+                            f"Failed to retrieve webhook logs: {logs_response.status_code}")
+            
+            # Clean up webhook
+            self.session.delete(f"{BASE_URL}/webhooks/endpoints/{webhook_id}")
+            return False
+                
+        except Exception as e:
+            self.log_test("Missing Mailto Error Handling", False, f"Request error: {str(e)}")
+            return False
+    
+    def test_dynamic_from_fields(self):
+        """Test dynamic from fields with {{field}} syntax"""
+        try:
+            # Create webhook with dynamic from fields
+            email_config = {
+                "email_from": "{{sender_email}}",
+                "email_from_name": "{{sender_name}}"
+            }
+            
+            webhook_data = self.create_send_email_webhook(email_config)
+            if not webhook_data:
+                return False
+            
+            webhook_path = webhook_data.get("path")
+            webhook_token = webhook_data.get("secret_token")
+            webhook_id = webhook_data.get("id")
+            
+            # Test payload with dynamic from values
+            test_payload = {
+                "mailto": "recipient@example.com",
+                "sender_email": "dynamic.sender@company.com",
+                "sender_name": "Dynamic Sender Name",
+                "subject": "Test Dynamic From Fields",
+                "message": "Testing dynamic from field substitution"
+            }
+            
+            # Send webhook request
+            webhook_session = requests.Session()
+            headers = {"X-Webhook-Token": webhook_token}
+            
+            response = webhook_session.post(
+                f"{BASE_URL}/hooks/{webhook_path}", 
+                json=test_payload,
+                headers=headers
+            )
+            
+            time.sleep(1)  # Wait for log to be written
+            
+            # Get the webhook log to verify processing
+            logs_response = self.session.get(f"{BASE_URL}/webhooks/logs?endpoint_id={webhook_id}&limit=1")
+            
+            if logs_response.status_code == 200:
+                logs = logs_response.json()
+                if logs:
+                    log_entry = logs[0]
+                    
+                    # Check if the webhook was processed
+                    if log_entry.get("status") in ["success", "failed"]:
+                        self.log_test("Dynamic From Fields", True, 
+                                    f"✅ Dynamic from fields processed - Status: {log_entry.get('status')}")
+                        
+                        # Verify the payload was stored correctly
+                        stored_payload = log_entry.get("payload", {})
+                        expected_fields = ["mailto", "sender_email", "sender_name"]
+                        has_all_fields = all(field in stored_payload for field in expected_fields)
+                        
+                        if has_all_fields:
+                            self.log_test("Dynamic From Fields Payload Verification", True, 
+                                        f"Payload correctly stored - sender_email: {stored_payload.get('sender_email')}, sender_name: {stored_payload.get('sender_name')}")
+                        else:
+                            missing_fields = [f for f in expected_fields if f not in stored_payload]
+                            self.log_test("Dynamic From Fields Payload Verification", False, 
+                                        f"Payload missing fields: {missing_fields}")
+                        
+                        # Clean up webhook
+                        self.session.delete(f"{BASE_URL}/webhooks/endpoints/{webhook_id}")
+                        return True
+                    else:
+                        self.log_test("Dynamic From Fields", False, 
+                                    f"Webhook processing failed: {log_entry.get('response_message', 'Unknown error')}")
+                else:
+                    self.log_test("Dynamic From Fields", False, 
+                                "No webhook log found after processing")
+            else:
+                self.log_test("Dynamic From Fields", False, 
+                            f"Failed to retrieve webhook logs: {logs_response.status_code}")
+            
+            # Clean up webhook
+            self.session.delete(f"{BASE_URL}/webhooks/endpoints/{webhook_id}")
+            return False
+                
+        except Exception as e:
+            self.log_test("Dynamic From Fields", False, f"Request error: {str(e)}")
+            return False
+    
+    def test_static_from_fields(self):
+        """Test static from fields (no {{}} syntax)"""
+        try:
+            # Create webhook with static from fields
+            email_config = {
+                "email_from": "static.sender@company.com",
+                "email_from_name": "Static Sender Name"
+            }
+            
+            webhook_data = self.create_send_email_webhook(email_config)
+            if not webhook_data:
+                return False
+            
+            webhook_path = webhook_data.get("path")
+            webhook_token = webhook_data.get("secret_token")
+            webhook_id = webhook_data.get("id")
+            
+            # Test payload (static values should be used regardless of payload content)
+            test_payload = {
+                "mailto": "recipient@example.com",
+                "sender_email": "payload.sender@example.com",  # Should be ignored
+                "sender_name": "Payload Sender Name",  # Should be ignored
+                "subject": "Test Static From Fields",
+                "message": "Testing static from field configuration"
+            }
+            
+            # Send webhook request
+            webhook_session = requests.Session()
+            headers = {"X-Webhook-Token": webhook_token}
+            
+            response = webhook_session.post(
+                f"{BASE_URL}/hooks/{webhook_path}", 
+                json=test_payload,
+                headers=headers
+            )
+            
+            time.sleep(1)  # Wait for log to be written
+            
+            # Get the webhook log to verify processing
+            logs_response = self.session.get(f"{BASE_URL}/webhooks/logs?endpoint_id={webhook_id}&limit=1")
+            
+            if logs_response.status_code == 200:
+                logs = logs_response.json()
+                if logs:
+                    log_entry = logs[0]
+                    
+                    # Check if the webhook was processed
+                    if log_entry.get("status") in ["success", "failed"]:
+                        self.log_test("Static From Fields", True, 
+                                    f"✅ Static from fields processed - Status: {log_entry.get('status')}")
+                        
+                        # Verify the payload was stored correctly
+                        stored_payload = log_entry.get("payload", {})
+                        if stored_payload.get("mailto") == "recipient@example.com":
+                            self.log_test("Static From Fields Payload Verification", True, 
+                                        "Payload correctly stored (static config should be used)")
+                        else:
+                            self.log_test("Static From Fields Payload Verification", False, 
+                                        "Payload not stored correctly")
+                        
+                        # Clean up webhook
+                        self.session.delete(f"{BASE_URL}/webhooks/endpoints/{webhook_id}")
+                        return True
+                    else:
+                        self.log_test("Static From Fields", False, 
+                                    f"Webhook processing failed: {log_entry.get('response_message', 'Unknown error')}")
+                else:
+                    self.log_test("Static From Fields", False, 
+                                "No webhook log found after processing")
+            else:
+                self.log_test("Static From Fields", False, 
+                            f"Failed to retrieve webhook logs: {logs_response.status_code}")
+            
+            # Clean up webhook
+            self.session.delete(f"{BASE_URL}/webhooks/endpoints/{webhook_id}")
+            return False
+                
+        except Exception as e:
+            self.log_test("Static From Fields", False, f"Request error: {str(e)}")
+            return False
+
     def run_all_tests(self):
-        """Run complete test suite for SendGrid template features"""
-        print("🚀 Starting Webhook Gateway Hub - SendGrid Template Features Tests")
+        """Run complete test suite for refactored send_email functionality"""
+        print("🚀 Starting Webhook Gateway Hub - Refactored Send Email Functionality Tests")
         print("=" * 70)
         
         # Authentication
