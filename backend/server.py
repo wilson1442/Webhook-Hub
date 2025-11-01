@@ -105,6 +105,10 @@ class WebhookEndpoint(BaseModel):
     field_mapping: Dict[str, Any] = {}  # Maps incoming JSON fields to SendGrid fields (supports both str and dict values)
     sendgrid_list_id: Optional[str] = None
     sendgrid_template_id: Optional[str] = None
+    # Email template fields (for send_email mode)
+    email_to: Optional[str] = None  # Can be static "user@example.com" or dynamic "{{email}}"
+    email_from: Optional[str] = None  # Can be static or dynamic
+    email_from_name: Optional[str] = None  # Can be static or dynamic
     created_by: str
     created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
     enabled: bool = True
@@ -117,6 +121,9 @@ class WebhookEndpointCreate(BaseModel):
     field_mapping: Dict[str, Any] = {}  # Changed to Any to support both old (str) and new (dict) formats
     sendgrid_list_id: Optional[str] = None
     sendgrid_template_id: Optional[str] = None
+    email_to: Optional[str] = None
+    email_from: Optional[str] = None
+    email_from_name: Optional[str] = None
 
 class WebhookLog(BaseModel):
     model_config = ConfigDict(extra="ignore")
