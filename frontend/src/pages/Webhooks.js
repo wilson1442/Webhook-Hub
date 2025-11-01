@@ -562,12 +562,40 @@ const Webhooks = () => {
         </Dialog>
       </div>
 
-      <div className="grid grid-cols-1 gap-6">
+      <div className="space-y-6">
         {endpoints.length > 0 ? (
-          endpoints.map((endpoint) => {
-            const normalizedMapping = normalizeFieldMapping(endpoint.field_mapping || {});
-            return (
-              <Card key={endpoint.id} className="glass card-hover" data-testid="webhook-endpoint-card">
+          <>
+            {/* Add Contact Group */}
+            {endpoints.filter(e => e.mode === 'add_contact').length > 0 && (
+              <div className="space-y-4">
+                <button
+                  onClick={() => toggleGroup('add_contact')}
+                  className="flex items-center justify-between w-full p-4 bg-gradient-to-r from-green-50 to-emerald-50 dark:from-green-950 dark:to-emerald-950 rounded-lg border border-green-200 dark:border-green-800 hover:shadow-md transition-all"
+                >
+                  <div className="flex items-center space-x-3">
+                    <div className="p-2 bg-green-100 dark:bg-green-900 rounded-lg">
+                      <Plus className="h-5 w-5 text-green-600 dark:text-green-300" />
+                    </div>
+                    <div className="text-left">
+                      <h3 className="text-lg font-semibold text-green-900 dark:text-green-100">Add Contact Webhooks</h3>
+                      <p className="text-sm text-green-600 dark:text-green-400">
+                        {endpoints.filter(e => e.mode === 'add_contact').length} webhook{endpoints.filter(e => e.mode === 'add_contact').length !== 1 ? 's' : ''}
+                      </p>
+                    </div>
+                  </div>
+                  {collapsedGroups.add_contact ? (
+                    <ChevronDown className="h-6 w-6 text-green-600 dark:text-green-300" />
+                  ) : (
+                    <ChevronUp className="h-6 w-6 text-green-600 dark:text-green-300" />
+                  )}
+                </button>
+                
+                {!collapsedGroups.add_contact && (
+                  <div className="grid grid-cols-1 gap-4 pl-4">
+                    {endpoints.filter(e => e.mode === 'add_contact').map((endpoint) => {
+                      const normalizedMapping = normalizeFieldMapping(endpoint.field_mapping || {});
+                      return (
+                        <Card key={endpoint.id} className="glass card-hover" data-testid="webhook-endpoint-card">
                 <CardHeader>
                   <div className="flex justify-between items-center">
                     <div className="flex-1">
