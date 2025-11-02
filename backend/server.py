@@ -762,6 +762,48 @@ async def retry_webhook(log_id: str, current_user: dict = Depends(get_current_us
         logger.error(f"Failed to retry webhook: {str(e)}")
         raise HTTPException(status_code=500, detail=str(e))
 
+# Migrate old logs
+@api_router.post("/webhooks/logs/migrate")
+async def migrate_logs(current_user: dict = Depends(get_current_user)):
+    """Migrate old logs to add integration and mode fields"""
+    if current_user.get("role") != "admin":
+        raise HTTPException(status_code=403, detail="Admin access required")
+    
+    try:
+        # Get all logs without mode or integration
+        logs_to_migrate = await db.webhook_logs.find({
+            "$or": [
+                {"mode": {"$exists": False}},
+                {"integration": {"$exists": False}}
+            ]
+        }).to_list(None)
+        
+        migrated_count = 0
+        for log in logs_to_migrate:
+            # Get the endpoint to determine mode and integration
+            endpoint = await db.webhook_endpoints.find_one({"id": log['endpoint_id']}, {"_id": 0})
+            if endpoint:
+                update_fields = {}
+                if 'mode' not in log or log.get('mode') is None:
+                    update_fields['mode'] = endpoint.get('mode', 'add_contact')
+                if 'integration' not in log or log.get('integration') is None:
+                    update_fields['integration'] = endpoint.get('integration', 'sendgrid')
+                
+                if update_fields:
+                    await db.webhook_logs.update_one(
+                        {"id": log['id']},
+                        {"$set": update_fields}
+                    )
+                    migrated_count += 1
+        
+        return {
+            "message": f"Successfully migrated {migrated_count} log entries",
+            "migrated_count": migrated_count
+        }
+    except Exception as e:
+        logger.error(f"Failed to migrate logs: {str(e)}")
+        raise HTTPException(status_code=500, detail=str(e))
+
 # Dashboard Stats
 @api_router.get("/dashboard/stats")
 async def get_dashboard_stats(current_user: dict = Depends(get_current_user)):
