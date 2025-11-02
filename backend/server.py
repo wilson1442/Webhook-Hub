@@ -422,7 +422,9 @@ async def handle_webhook(path: str, request: Request, x_webhook_token: Optional[
             result['status'],
             real_ip,
             payload,
-            result.get('message', '')
+            result.get('message', ''),
+            endpoint.get('integration', 'sendgrid'),
+            endpoint.get('mode', 'add_contact')
         )
         
         # Ensure result is JSON serializable
@@ -434,7 +436,16 @@ async def handle_webhook(path: str, request: Request, x_webhook_token: Optional[
     except Exception as e:
         error_message = str(e) if str(e) else "Unknown error occurred"
         logger.error(f"Webhook processing error: {error_message}", exc_info=True)
-        await log_webhook(endpoint['id'], endpoint['name'], "failed", real_ip, payload, error_message)
+        await log_webhook(
+            endpoint['id'], 
+            endpoint['name'], 
+            "failed", 
+            real_ip, 
+            payload, 
+            error_message,
+            endpoint.get('integration', 'sendgrid'),
+            endpoint.get('mode', 'add_contact')
+        )
         raise HTTPException(status_code=500, detail=error_message)
 
 async def process_add_contact(endpoint: dict, payload: dict) -> dict:
