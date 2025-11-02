@@ -130,6 +130,8 @@ class WebhookLog(BaseModel):
     id: str = Field(default_factory=lambda: str(uuid.uuid4()))
     endpoint_id: str
     endpoint_name: str
+    integration: Optional[str] = "sendgrid"  # Integration name
+    mode: Optional[str] = "add_contact"  # add_contact or send_email
     timestamp: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
     payload_summary: str
     payload: Optional[Dict[str, Any]] = None  # Full payload for detail view
