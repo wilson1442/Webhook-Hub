@@ -40,12 +40,28 @@ const Logs = () => {
     }
   };
 
+  const fetchIntegrations = async () => {
+    try {
+      const response = await axios.get(`${API}/settings/api-keys`);
+      const active = response.data.filter(key => key.is_active !== false);
+      setIntegrations(active);
+    } catch (error) {
+      // No integrations configured
+    }
+  };
+
   const fetchLogs = async () => {
     try {
-      const url =
-        selectedEndpoint === 'all'
-          ? `${API}/webhooks/logs?limit=100`
-          : `${API}/webhooks/logs?limit=100&endpoint_id=${selectedEndpoint}`;
+      let url = `${API}/webhooks/logs?limit=100`;
+      
+      if (selectedEndpoint !== 'all') {
+        url += `&endpoint_id=${selectedEndpoint}`;
+      }
+      
+      if (selectedIntegration !== 'all') {
+        url += `&integration=${selectedIntegration}`;
+      }
+      
       const response = await axios.get(url);
       setLogs(response.data);
     } catch (error) {
