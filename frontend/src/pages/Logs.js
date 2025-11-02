@@ -325,6 +325,20 @@ const Logs = () => {
                         <div className="text-sm font-medium text-gray-900 dark:text-gray-100">{log.endpoint_name}</div>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap cursor-pointer" onClick={() => handleLogClick(log)}>
+                        <div className="text-sm text-gray-600 dark:text-gray-300">
+                          {log.integration ? log.integration.charAt(0).toUpperCase() + log.integration.slice(1) : 'SendGrid'}
+                        </div>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap cursor-pointer" onClick={() => handleLogClick(log)}>
+                        <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
+                          log.mode === 'send_email' 
+                            ? 'bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200' 
+                            : 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200'
+                        }`}>
+                          {log.mode === 'send_email' ? 'Send Email' : 'Add Contact'}
+                        </span>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap cursor-pointer" onClick={() => handleLogClick(log)}>
                         <div className="text-sm text-gray-900 dark:text-gray-100">
                           {new Date(log.timestamp).toLocaleString()}
                         </div>
