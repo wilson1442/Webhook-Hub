@@ -12,6 +12,8 @@ const Logs = () => {
   const [logs, setLogs] = useState([]);
   const [endpoints, setEndpoints] = useState([]);
   const [selectedEndpoint, setSelectedEndpoint] = useState('all');
+  const [selectedIntegration, setSelectedIntegration] = useState('all');
+  const [integrations, setIntegrations] = useState([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [selectedLog, setSelectedLog] = useState(null);
@@ -21,12 +23,13 @@ const Logs = () => {
 
   useEffect(() => {
     fetchEndpoints();
+    fetchIntegrations();
     fetchLogs();
   }, []);
 
   useEffect(() => {
     fetchLogs();
-  }, [selectedEndpoint]);
+  }, [selectedEndpoint, selectedIntegration]);
 
   const fetchEndpoints = async () => {
     try {
