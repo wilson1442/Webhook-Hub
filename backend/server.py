@@ -748,7 +748,9 @@ async def retry_webhook(log_id: str, current_user: dict = Depends(get_current_us
             result['status'],
             "retry",  # Mark as retry
             payload,
-            f"Retry of {log_id}: {result.get('message', '')}"
+            f"Retry of {log_id}: {result.get('message', '')}",
+            endpoint.get('integration', 'sendgrid'),
+            endpoint.get('mode', 'add_contact')
         )
         
         return {
