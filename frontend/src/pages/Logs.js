@@ -171,6 +171,18 @@ const Logs = () => {
     }
   };
 
+  const handleMigrateLogs = async () => {
+    if (!window.confirm('This will update old logs to include integration and mode information. Continue?')) return;
+    
+    try {
+      const response = await axios.post(`${API}/webhooks/logs/migrate`);
+      toast.success(response.data.message || 'Logs migrated successfully');
+      fetchLogs();
+    } catch (error) {
+      toast.error(error.response?.data?.detail || 'Failed to migrate logs');
+    }
+  };
+
   if (loading) {
     return (
       <div className="flex items-center justify-center h-64">
