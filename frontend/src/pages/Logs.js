@@ -226,19 +226,35 @@ const Logs = () => {
         <CardHeader>
           <div className="flex justify-between items-center">
             <CardTitle>Filter Logs</CardTitle>
-            <Select value={selectedEndpoint} onValueChange={setSelectedEndpoint}>
-              <SelectTrigger className="w-64" data-testid="filter-endpoint-select">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">All Endpoints</SelectItem>
-                {endpoints.map((endpoint) => (
-                  <SelectItem key={endpoint.id} value={endpoint.id}>
-                    {endpoint.name}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+            <div className="flex space-x-3">
+              <Select value={selectedEndpoint} onValueChange={setSelectedEndpoint}>
+                <SelectTrigger className="w-64" data-testid="filter-endpoint-select">
+                  <SelectValue placeholder="Filter by Endpoint" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All Endpoints</SelectItem>
+                  {endpoints.map((endpoint) => (
+                    <SelectItem key={endpoint.id} value={endpoint.id}>
+                      {endpoint.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              
+              <Select value={selectedIntegration} onValueChange={setSelectedIntegration}>
+                <SelectTrigger className="w-64">
+                  <SelectValue placeholder="Filter by Integration" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All Integrations</SelectItem>
+                  {integrations.map((integration) => (
+                    <SelectItem key={integration.service_name} value={integration.service_name}>
+                      {integration.service_name.charAt(0).toUpperCase() + integration.service_name.slice(1)}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
           </div>
         </CardHeader>
       </Card>
@@ -255,6 +271,12 @@ const Logs = () => {
                     </th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
                       Endpoint
+                    </th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                      Integration
+                    </th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                      Mode
                     </th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
                       Timestamp
