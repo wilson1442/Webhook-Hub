@@ -266,6 +266,16 @@ const Logs = () => {
                   ))}
                 </SelectContent>
               </Select>
+              
+              <Button 
+                onClick={handleMigrateLogs}
+                variant="outline"
+                size="sm"
+                className="text-xs"
+                title="Fix old logs to show correct integration and mode"
+              >
+                Fix Old Logs
+              </Button>
             </div>
           </div>
         </CardHeader>
