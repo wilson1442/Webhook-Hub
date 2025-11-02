@@ -620,10 +620,12 @@ async def process_send_email(endpoint: dict, payload: dict) -> dict:
     else:
         return {"status": "failed", "message": f"SendGrid API error: {response.text}"}
 
-async def log_webhook(endpoint_id: str, endpoint_name: str, status: str, source_ip: str, payload: dict, response_msg: str = ""):
+async def log_webhook(endpoint_id: str, endpoint_name: str, status: str, source_ip: str, payload: dict, response_msg: str = "", integration: str = "sendgrid", mode: str = "add_contact"):
     log = WebhookLog(
         endpoint_id=endpoint_id,
         endpoint_name=endpoint_name,
+        integration=integration,
+        mode=mode,
         status=status,
         source_ip=source_ip,
         payload_summary=json.dumps(payload)[:500],
