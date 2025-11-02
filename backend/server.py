@@ -638,10 +638,17 @@ async def log_webhook(endpoint_id: str, endpoint_name: str, status: str, source_
 
 # Webhook Logs
 @api_router.get("/webhooks/logs")
-async def get_webhook_logs(limit: int = 100, endpoint_id: Optional[str] = None, current_user: dict = Depends(get_current_user)):
+async def get_webhook_logs(
+    limit: int = 100, 
+    endpoint_id: Optional[str] = None, 
+    integration: Optional[str] = None,
+    current_user: dict = Depends(get_current_user)
+):
     query = {}
     if endpoint_id:
         query['endpoint_id'] = endpoint_id
+    if integration:
+        query['integration'] = integration
     
     logs = await db.webhook_logs.find(query, {"_id": 0}).sort("timestamp", -1).limit(limit).to_list(limit)
     for log in logs:
