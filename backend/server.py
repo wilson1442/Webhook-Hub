@@ -458,64 +458,85 @@ async def process_add_contact(endpoint: dict, payload: dict) -> dict:
     # Clean the API key
     api_key = api_key.encode('ascii', 'ignore').decode('ascii').strip()
     
-    # Map fields - handle both old and new field_mapping formats
-    email_config = endpoint['field_mapping'].get('email', 'email')
-    email_field = email_config if isinstance(email_config, str) else email_config.get('payload_field', 'email')
-    email = payload.get(email_field)
-    
-    if not email:
-        return {"status": "failed", "message": f"Email field '{email_field}' not found in payload"}
-    
-    # Add to SendGrid list
     headers = {
         "Authorization": f"Bearer {api_key}",
         "Content-Type": "application/json"
     }
     
-    contact_data = {"contacts": [{"email": email}]}
+    # Check if payload contains bulk contacts or single contact
+    if 'contacts' in payload and isinstance(payload['contacts'], list):
+        # Bulk mode: payload has "contacts" array
+        raw_contacts = payload['contacts']
+        logger.info(f"Processing bulk contacts: {len(raw_contacts)} contacts")
+    else:
+        # Single mode: payload is one contact
+        raw_contacts = [payload]
+        logger.info(f"Processing single contact")
     
-    # Dynamically map all fields from field_mapping
-    # New format: {"sendgrid_field": {"payload_field": "...", "is_custom": true/false}}
-    # Old format: {"sendgrid_field": "payload_field"} (for backward compatibility)
-    logger.info(f"Field mapping: {endpoint.get('field_mapping', {})}")
-    logger.info(f"Payload: {payload}")
+    # Build SendGrid contacts array
+    sendgrid_contacts = []
     
-    for sendgrid_field, config in endpoint.get('field_mapping', {}).items():
-        if sendgrid_field == 'email':
-            continue  # Already handled
+    for contact_data in raw_contacts:
+        # Map fields for this contact
+        email_config = endpoint['field_mapping'].get('email', 'email')
+        email_field = email_config if isinstance(email_config, str) else email_config.get('payload_field', 'email')
+        email = contact_data.get(email_field)
         
-        # Handle both old and new format
-        if isinstance(config, str):
-            # Old format: {"first_name": "firstname"}
-            payload_field = config
-            is_custom = False
-        else:
-            # New format: {"first_name": {"payload_field": "firstname", "is_custom": false}}
-            payload_field = config.get('payload_field', '')
-            is_custom = config.get('is_custom', False)
+        if not email:
+            logger.warning(f"Skipping contact - Email field '{email_field}' not found in contact data")
+            continue  # Skip this contact but continue processing others
         
-        # Get value from payload using the mapped field name
-        field_value = payload.get(payload_field)
-        logger.info(f"Checking field: {sendgrid_field} -> {payload_field}, is_custom: {is_custom}, value: {field_value}")
+        sendgrid_contact = {"email": email}
         
-        if field_value:
-            if is_custom:
-                # Custom SendGrid field - add to custom_fields object
-                if 'custom_fields' not in contact_data['contacts'][0]:
-                    contact_data['contacts'][0]['custom_fields'] = {}
-                contact_data['contacts'][0]['custom_fields'][sendgrid_field] = field_value
-                logger.info(f"Added custom field: {sendgrid_field} = {field_value}")
+        # Dynamically map all fields from field_mapping
+        logger.info(f"Field mapping: {endpoint.get('field_mapping', {})}")
+        logger.info(f"Contact data: {contact_data}")
+        
+        for sendgrid_field, config in endpoint.get('field_mapping', {}).items():
+            if sendgrid_field == 'email':
+                continue  # Already handled
+            
+            # Handle both old and new format
+            if isinstance(config, str):
+                # Old format: {"first_name": "firstname"}
+                payload_field = config
+                is_custom = False
             else:
-                # Standard SendGrid field
-                contact_data['contacts'][0][sendgrid_field] = field_value
-                logger.info(f"Added standard field: {sendgrid_field} = {field_value}")
+                # New format: {"first_name": {"payload_field": "firstname", "is_custom": false}}
+                payload_field = config.get('payload_field', '')
+                is_custom = config.get('is_custom', False)
+            
+            # Get value from contact data using the mapped field name
+            field_value = contact_data.get(payload_field)
+            logger.info(f"Checking field: {sendgrid_field} -> {payload_field}, is_custom: {is_custom}, value: {field_value}")
+            
+            if field_value:
+                if is_custom:
+                    # Custom SendGrid field - add to custom_fields object
+                    if 'custom_fields' not in sendgrid_contact:
+                        sendgrid_contact['custom_fields'] = {}
+                    sendgrid_contact['custom_fields'][sendgrid_field] = field_value
+                    logger.info(f"Added custom field: {sendgrid_field} = {field_value}")
+                else:
+                    # Standard SendGrid field
+                    sendgrid_contact[sendgrid_field] = field_value
+                    logger.info(f"Added standard field: {sendgrid_field} = {field_value}")
+        
+        sendgrid_contacts.append(sendgrid_contact)
+    
+    # Check if we have any valid contacts
+    if not sendgrid_contacts:
+        return {"status": "failed", "message": "No valid contacts found in payload"}
+    
+    # Build final request data
+    contact_request = {"contacts": sendgrid_contacts}
     
     # Add list_ids if specified
     if endpoint.get('sendgrid_list_id'):
-        contact_data['list_ids'] = [endpoint['sendgrid_list_id']]
+        contact_request['list_ids'] = [endpoint['sendgrid_list_id']]
     
     # Log the data being sent to SendGrid for debugging
-    logger.info(f"SendGrid contact data: {json.dumps(contact_data)}")
+    logger.info(f"SendGrid contact data: {json.dumps(contact_request)}")
     
     response = requests.put(
         "https://api.sendgrid.com/v3/marketing/contacts",
