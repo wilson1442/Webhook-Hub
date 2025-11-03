@@ -349,6 +349,25 @@ const TestWebhooks = () => {
                         );
                       })}
                     </div>
+                    {selectedEndpoint.mode === 'add_contact' && (
+                      <div className="mt-3 pt-3 border-t border-green-300 dark:border-green-700 space-y-2">
+                        <p className="text-xs text-green-700 dark:text-green-400">
+                          👤 <strong>Single Contact:</strong> Send fields directly in the payload (current format shown above)
+                        </p>
+                        <p className="text-xs text-green-700 dark:text-green-400">
+                          👥 <strong>Bulk Contacts:</strong> Send multiple contacts by wrapping them in a <code className="bg-white dark:bg-gray-800 px-1 rounded">contacts</code> array:
+                        </p>
+                        <pre className="text-xs bg-gray-900 dark:bg-gray-950 text-green-400 p-2 rounded overflow-x-auto">
+{`{
+  "contacts": [
+    {"email": "user1@example.com", "first_name": "John"},
+    {"email": "user2@example.com", "first_name": "Jane"},
+    {"email": "user3@example.com", "first_name": "Bob"}
+  ]
+}`}
+                        </pre>
+                      </div>
+                    )}
                     {selectedEndpoint.mode === 'send_email' && (
                       <div className="mt-3 pt-3 border-t border-green-300 dark:border-green-700 space-y-2">
                         <p className="text-xs text-green-700 dark:text-green-400">
