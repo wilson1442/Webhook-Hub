@@ -1260,7 +1260,7 @@ async def bulk_update_contacts(
     }
     
     contact_ids = request.get('contact_ids', [])
-    contact_emails = request.get('contact_emails', [])  # Also accept emails
+    contact_emails = request.get('contact_emails', [])
     updates = request.get('updates', {})
     
     if (not contact_ids and not contact_emails) or not updates:
@@ -1273,19 +1273,14 @@ async def bulk_update_contacts(
         raise HTTPException(status_code=400, detail="No valid update values provided")
     
     try:
-        # Use emails for search if available, otherwise use IDs
+        # Build search query using emails
         if contact_emails:
-            # Build search query using emails
             email_conditions = " OR ".join([f"email = '{email}'" for email in contact_emails])
             search_query = {"query": email_conditions}
         else:
-            # For IDs, we need to use a different approach
-            # SendGrid doesn't support searching by ID in SGQL
-            # We'll need to get contacts by their emails or use a workaround
-            # Let's fetch contacts from the list they're in
             raise HTTPException(
                 status_code=400, 
-                detail="Please use contact emails for bulk update. Contact IDs alone are not supported for search."
+                detail="Please provide contact emails for bulk update."
             )
         
         logger.info(f"Searching for contacts with query: {search_query}")
@@ -1298,17 +1293,43 @@ async def bulk_update_contacts(
         )
         
         logger.info(f"Search response status: {search_response.status_code}")
-        logger.info(f"Search response: {search_response.text[:500]}")
         
         if search_response.status_code != 200:
             error_msg = search_response.text if search_response.text else f"HTTP {search_response.status_code}"
             logger.error(f"Failed to fetch contacts: {error_msg}")
+            
+            # Log the failed batch edit
+            await log_webhook(
+                "batch_edit",
+                "Bulk Contact Update",
+                "failed",
+                request.get('source_ip', current_user.get('username', 'unknown')),
+                {"contact_emails": contact_emails, "updates": updates},
+                f"Failed to fetch contacts: {error_msg}",
+                "sendgrid",
+                "batch_edit"
+            )
+            
             raise HTTPException(status_code=search_response.status_code, detail=f"Failed to fetch contacts: {error_msg}")
         
         search_data = search_response.json()
         current_contacts = search_data.get('result', [])
         
         if not current_contacts:
+            logger.error("No contacts found with the provided emails")
+            
+            # Log the failed batch edit
+            await log_webhook(
+                "batch_edit",
+                "Bulk Contact Update",
+                "failed",
+                current_user.get('username', 'unknown'),
+                {"contact_emails": contact_emails, "updates": updates},
+                "No contacts found with the provided emails",
+                "sendgrid",
+                "batch_edit"
+            )
+            
             raise HTTPException(status_code=404, detail="No contacts found with the provided emails")
         
         logger.info(f"Found {len(current_contacts)} contacts to update")
@@ -1316,27 +1337,45 @@ async def bulk_update_contacts(
         # Update each contact with the new values
         updated_contacts = []
         for contact in current_contacts:
-            # Merge updates into existing contact data
+            # IMPORTANT: Keep the contact ID
+            updated_contact = {
+                "email": contact.get("email"),  # Required
+            }
+            
+            # Add ID if present
+            if contact.get("id"):
+                updated_contact["id"] = contact.get("id")
+            
+            # Copy existing fields we want to preserve
+            for field in ["first_name", "last_name", "phone_number", "city", "state_province_region", 
+                         "country", "postal_code", "address_line_1", "address_line_2"]:
+                if field in contact:
+                    updated_contact[field] = contact[field]
+            
+            # Copy existing custom fields
+            if "custom_fields" in contact and contact["custom_fields"]:
+                updated_contact["custom_fields"] = contact["custom_fields"].copy()
+            
+            # Apply updates
             for field, value in updates.items():
                 # Check if it's a custom field based on field naming pattern
-                # Custom fields in SendGrid: e1_T, e2_N, w1, w2, etc.
                 is_custom_field = field.startswith('e') or field.startswith('w')
                 
                 if is_custom_field:
-                    if 'custom_fields' not in contact:
-                        contact['custom_fields'] = {}
-                    contact['custom_fields'][field] = value
+                    if 'custom_fields' not in updated_contact:
+                        updated_contact['custom_fields'] = {}
+                    updated_contact['custom_fields'][field] = value
                 else:
                     # Standard field
-                    contact[field] = value
+                    updated_contact[field] = value
             
-            updated_contacts.append(contact)
+            updated_contacts.append(updated_contact)
         
         logger.info(f"Updating {len(updated_contacts)} contacts")
+        logger.info(f"First contact update: {json.dumps(updated_contacts[0], default=str)}")
         
         # Send update request to SendGrid
         update_payload = {"contacts": updated_contacts}
-        logger.info(f"Update payload (first contact): {json.dumps(updated_contacts[0], default=str)}")
         
         update_response = requests.put(
             "https://api.sendgrid.com/v3/marketing/contacts",
@@ -1351,6 +1390,24 @@ async def bulk_update_contacts(
         if update_response.status_code in [200, 202]:
             response_data = update_response.json() if update_response.text else {}
             job_id = response_data.get('job_id', 'N/A')
+            
+            # Log the successful batch edit
+            await log_webhook(
+                "batch_edit",
+                "Bulk Contact Update",
+                "success",
+                current_user.get('username', 'unknown'),
+                {
+                    "contact_count": len(updated_contacts),
+                    "contact_emails": contact_emails,
+                    "updates": updates,
+                    "updated_contacts": updated_contacts
+                },
+                f"Successfully updated {len(updated_contacts)} contacts (Job ID: {job_id})",
+                "sendgrid",
+                "batch_edit"
+            )
+            
             return {
                 "message": f"Successfully updated {len(updated_contacts)} contacts (Job ID: {job_id})",
                 "updated_count": len(updated_contacts),
@@ -1359,16 +1416,57 @@ async def bulk_update_contacts(
         else:
             error_msg = update_response.text if update_response.text else f"HTTP {update_response.status_code}"
             logger.error(f"SendGrid update error: {error_msg}")
+            
+            # Log the failed batch edit
+            await log_webhook(
+                "batch_edit",
+                "Bulk Contact Update",
+                "failed",
+                current_user.get('username', 'unknown'),
+                {"contact_emails": contact_emails, "updates": updates},
+                f"SendGrid API error: {error_msg}",
+                "sendgrid",
+                "batch_edit"
+            )
+            
             raise HTTPException(status_code=update_response.status_code, detail=f"SendGrid API error: {error_msg}")
             
     except HTTPException:
         raise
     except requests.exceptions.RequestException as e:
+        error_msg = f"Request error: {str(e)}"
         logger.error(f"Request error updating contacts: {e}")
-        raise HTTPException(status_code=500, detail=f"Failed to update contacts: {str(e)}")
+        
+        # Log the failed batch edit
+        await log_webhook(
+            "batch_edit",
+            "Bulk Contact Update",
+            "failed",
+            current_user.get('username', 'unknown'),
+            {"contact_emails": contact_emails, "updates": updates},
+            error_msg,
+            "sendgrid",
+            "batch_edit"
+        )
+        
+        raise HTTPException(status_code=500, detail=error_msg)
     except Exception as e:
+        error_msg = f"Unexpected error: {str(e)}"
         logger.error(f"Unexpected error updating contacts: {e}", exc_info=True)
-        raise HTTPException(status_code=500, detail=f"Unexpected error: {str(e)}")
+        
+        # Log the failed batch edit
+        await log_webhook(
+            "batch_edit",
+            "Bulk Contact Update",
+            "failed",
+            current_user.get('username', 'unknown'),
+            {"contact_emails": contact_emails, "updates": updates},
+            error_msg,
+            "sendgrid",
+            "batch_edit"
+        )
+        
+        raise HTTPException(status_code=500, detail=error_msg)
 
 # Backup Management
 @api_router.post("/backups/create")
