@@ -428,7 +428,11 @@ metadata:
   run_ui: false
 
 test_plan:
-  current_focus: []
+  current_focus:
+    - "Batch Edit Logging in Backend"
+    - "Logs Page - Batch Edit Mode Display"
+    - "SendGrid Contacts Management Page"
+    - "Backend Contacts Filtering and Bulk Update"
   stuck_tasks:
     - "Webhooks Page - Collapsible Cards Default Collapsed"
     - "Settings Page - Backup Download"
