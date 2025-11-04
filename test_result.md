@@ -463,6 +463,21 @@ frontend:
         agent: "testing"
         comment: "✅ COMPREHENSIVE VERIFICATION COMPLETE: SendGrid Contacts custom column display working perfectly. All test scenarios passed: (1) Column Headers - Exactly 6 headers match specification: Checkbox (no text), EMAIL, LOANOFFICERNAME, LO EMAIL, LO NMLS, LO PHONE. (2) Table Structure - Contact data displays correctly in specified columns with proper alignment. (3) Functionality - Individual contact selection working (Bulk Edit button appears with correct count '(1)'), Select All checkbox working, Radix UI checkboxes properly implemented (2 checkboxes detected). (4) Navigation/UI - Page loads correctly, list selection works (24 lists available), Load Contacts button functions, clean table layout. (5) Data Verification - Contact 'nsanto17@gmail.com' and LoanOfficerName 'Teresa Balian' display in correct columns. Table now shows ONLY the 5 specified user fields plus checkbox column, replacing previous 'first 6 fields' behavior. All selection and bulk edit functionality intact. Ready for production use."
 
+  - task: "SendGrid Contacts Bulk Edit - Custom Fields Display"
+    implemented: true
+    working: true
+    file: "/app/frontend/src/pages/SendGridContacts.js"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+      - working: "NA"
+        agent: "main"
+        comment: "Reorganized bulk edit dialog into two sections: (1) Reserved Fields Section with 📋 icon and gray styling, (2) Custom Fields Section with ⚙️ icon and purple styling. Both sections use 2-column grid layout. Dialog width increased to max-w-3xl for better space utilization."
+      - working: true
+        agent: "testing"
+        comment: "✅ COMPREHENSIVE BULK EDIT DIALOG TESTING COMPLETE: All requested features verified and working perfectly. RESULTS: (1) ✅ Dialog Structure - Successfully opened bulk edit dialog with proper organization into 2 distinct sections. (2) ✅ Reserved Fields Section - Header '📋 Reserved Fields (14)' found with correct count, 2-column grid layout confirmed, standard SendGrid fields like Email, First Name, Last Name, Address, City, etc. displayed properly. (3) ✅ Custom Fields Section - Header '⚙️ Custom Fields (25)' found with correct count, 2-column grid layout confirmed, purple styling applied to labels and inputs. (4) ✅ Custom Field Names Identified - Found all requested fields: LoanOfficerName, Company, and multiple web_* fields (web_desired_loan_amount, web_whats_credit_score, web_loanpurpose, web_union, web_submitting_URL, web_submitting_page_title, web_referred_by, web_comments). (5) ✅ Layout & UX - Dialog has correct width (max-w-3xl), scrollable content, proper placeholder text 'Leave empty to keep current' on all 39 input fields, clear visual separation between sections. (6) ✅ Field Counts Verified - 14 reserved fields + 25 custom fields = 39 total inputs, matching section headers exactly. All test scenarios from review request successfully completed with screenshots captured for documentation."
+
 metadata:
   created_by: "main_agent"
   version: "1.0"
