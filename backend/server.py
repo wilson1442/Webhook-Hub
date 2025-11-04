@@ -1181,6 +1181,142 @@ async def get_sendgrid_fields(current_user: dict = Depends(get_current_user)):
         "synced_at": fields[0].get('synced_at') if fields else None
     }
 
+@api_router.get("/sendgrid/lists/{list_id}/contacts")
+async def get_list_contacts(list_id: str, filters: Optional[str] = None, current_user: dict = Depends(get_current_user)):
+    """Get all contacts from a SendGrid list with optional filtering"""
+    key_doc = await db.api_keys.find_one({"service_name": "sendgrid"}, {"_id": 0})
+    if not key_doc:
+        raise HTTPException(status_code=404, detail="SendGrid API key not configured")
+    
+    api_key = decrypt_data(key_doc['credentials']['api_key'])
+    api_key = api_key.encode('ascii', 'ignore').decode('ascii').strip()
+    
+    headers = {"Authorization": f"Bearer {api_key}"}
+    
+    try:
+        # Search for contacts in the list
+        # SendGrid Marketing API v3 - search contacts
+        search_query = {
+            "query": f"CONTAINS(list_ids, '{list_id}')"
+        }
+        
+        # Add filters if provided (format: field=operator:value&field2=operator:value)
+        if filters:
+            filter_conditions = []
+            for filter_str in filters.split('&'):
+                if '=' in filter_str:
+                    field, op_value = filter_str.split('=', 1)
+                    if ':' in op_value:
+                        operator, value = op_value.split(':', 1)
+                        
+                        if operator == 'equals':
+                            filter_conditions.append(f"{field} = '{value}'")
+                        elif operator == 'contains':
+                            filter_conditions.append(f"CONTAINS({field}, '{value}')")
+                        elif operator == 'startsWith':
+                            filter_conditions.append(f"{field} LIKE '{value}%'")
+                        elif operator == 'notEmpty':
+                            filter_conditions.append(f"{field} IS NOT NULL")
+                        elif operator == 'empty':
+                            filter_conditions.append(f"{field} IS NULL")
+            
+            if filter_conditions:
+                search_query["query"] += " AND " + " AND ".join(filter_conditions)
+        
+        response = requests.post(
+            "https://api.sendgrid.com/v3/marketing/contacts/search",
+            headers=headers,
+            json=search_query,
+            timeout=30
+        )
+        
+        if response.status_code == 200:
+            data = response.json()
+            contacts = data.get('result', [])
+            return {"contacts": contacts, "count": len(contacts)}
+        else:
+            raise HTTPException(status_code=response.status_code, detail=f"SendGrid API error: {response.text}")
+            
+    except requests.exceptions.RequestException as e:
+        logger.error(f"Error fetching contacts: {e}")
+        raise HTTPException(status_code=500, detail=f"Failed to fetch contacts: {str(e)}")
+
+@api_router.patch("/sendgrid/contacts/bulk-update")
+async def bulk_update_contacts(
+    request: dict,
+    current_user: dict = Depends(get_current_user)
+):
+    """Bulk update multiple contacts"""
+    key_doc = await db.api_keys.find_one({"service_name": "sendgrid"}, {"_id": 0})
+    if not key_doc:
+        raise HTTPException(status_code=404, detail="SendGrid API key not configured")
+    
+    api_key = decrypt_data(key_doc['credentials']['api_key'])
+    api_key = api_key.encode('ascii', 'ignore').decode('ascii').strip()
+    
+    headers = {
+        "Authorization": f"Bearer {api_key}",
+        "Content-Type": "application/json"
+    }
+    
+    contact_ids = request.get('contact_ids', [])
+    updates = request.get('updates', {})
+    
+    if not contact_ids or not updates:
+        raise HTTPException(status_code=400, detail="contact_ids and updates are required")
+    
+    try:
+        # First, get the current contacts data
+        search_response = requests.post(
+            "https://api.sendgrid.com/v3/marketing/contacts/search",
+            headers=headers,
+            json={"query": " OR ".join([f"id = '{cid}'" for cid in contact_ids])},
+            timeout=30
+        )
+        
+        if search_response.status_code != 200:
+            raise HTTPException(status_code=search_response.status_code, detail="Failed to fetch contacts")
+        
+        current_contacts = search_response.json().get('result', [])
+        
+        # Update each contact with the new values
+        updated_contacts = []
+        for contact in current_contacts:
+            # Merge updates into existing contact data
+            for field, value in updates.items():
+                if value:  # Only update if value is provided
+                    # Check if it's a custom field or standard field
+                    if field.startswith('e') or field in ['w1', 'w2', 'w3']:  # Custom field pattern
+                        if 'custom_fields' not in contact:
+                            contact['custom_fields'] = {}
+                        contact['custom_fields'][field] = value
+                    else:
+                        contact[field] = value
+            
+            updated_contacts.append(contact)
+        
+        # Send update request to SendGrid
+        update_response = requests.put(
+            "https://api.sendgrid.com/v3/marketing/contacts",
+            headers=headers,
+            json={"contacts": updated_contacts},
+            timeout=30
+        )
+        
+        if update_response.status_code in [200, 202]:
+            response_data = update_response.json() if update_response.text else {}
+            job_id = response_data.get('job_id', 'N/A')
+            return {
+                "message": f"Successfully updated {len(updated_contacts)} contacts (Job ID: {job_id})",
+                "updated_count": len(updated_contacts)
+            }
+        else:
+            raise HTTPException(status_code=update_response.status_code, detail=f"SendGrid API error: {update_response.text}")
+            
+    except requests.exceptions.RequestException as e:
+        logger.error(f"Error updating contacts: {e}")
+        raise HTTPException(status_code=500, detail=f"Failed to update contacts: {str(e)}")
+
 # Backup Management
 @api_router.post("/backups/create")
 async def create_backup(current_user: dict = Depends(get_admin_user)):
