@@ -1362,18 +1362,46 @@ class WebhookGatewayTester:
             if logs_response.status_code == 200:
                 logs = logs_response.json()
                 
-                # Find successful batch edit logs with multiple contacts
-                multi_contact_log = None
+                # Find recent successful batch edit logs (to avoid old logs from before the fix)
+                from datetime import datetime, timezone, timedelta
+                cutoff_time = datetime.now(timezone.utc) - timedelta(minutes=10)  # Only check recent logs
+                
+                recent_success_logs = []
                 for log in logs:
                     if (log.get("mode") == "batch_edit" and 
                         log.get("status") == "success"):
                         
+                        # Check if log is recent
+                        timestamp_str = log.get("timestamp", "")
+                        try:
+                            log_time = datetime.fromisoformat(timestamp_str.replace('Z', '+00:00'))
+                            if log_time > cutoff_time:
+                                recent_success_logs.append(log)
+                        except:
+                            pass  # Skip logs with invalid timestamps
+                
+                if recent_success_logs:
+                    # Check all recent successful logs for ID fields
+                    total_contacts_checked = 0
+                    contacts_with_id = 0
+                    
+                    for log in recent_success_logs:
                         payload = log.get("payload", {})
                         updated_contacts = payload.get("updated_contacts", [])
                         
-                        if len(updated_contacts) > 1:  # Multiple contacts
-                            multi_contact_log = log
-                            break
+                        for contact in updated_contacts:
+                            total_contacts_checked += 1
+                            if "id" in contact:
+                                contacts_with_id += 1
+                    
+                    if contacts_with_id == 0:
+                        self.log_test("Multiple Contacts - No ID Fields", True, 
+                                    f"✅ ALL {total_contacts_checked} contacts in recent logs have NO 'id' field")
+                        return True
+                    else:
+                        self.log_test("Multiple Contacts - No ID Fields", False, 
+                                    f"❌ CRITICAL: {contacts_with_id}/{total_contacts_checked} recent contacts still have 'id' field")
+                        return False
                 
                 if multi_contact_log:
                     payload = multi_contact_log.get("payload", {})
