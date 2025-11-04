@@ -471,7 +471,7 @@ metadata:
 
 test_plan:
   current_focus:
-    - "SendGrid Bulk Update Fix - Contact ID Removed"
+    - "SendGrid Contacts Custom Column Display"
   stuck_tasks:
     - "Webhooks Page - Collapsible Cards Default Collapsed"
     - "Settings Page - Backup Download"
