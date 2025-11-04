@@ -1343,10 +1343,10 @@ async def bulk_update_contacts(
                 "email": contact.get("email"),  # Required - used to identify contact
             }
             
-            # Copy existing fields we want to preserve
+            # Copy existing fields we want to preserve (EXPLICITLY EXCLUDE 'id' field)
             for field in ["first_name", "last_name", "phone_number", "city", "state_province_region", 
                          "country", "postal_code", "address_line_1", "address_line_2"]:
-                if field in contact:
+                if field in contact and field != "id":  # Explicitly exclude 'id' field
                     updated_contact[field] = contact[field]
             
             # Copy existing custom fields
