@@ -1252,11 +1252,12 @@ class WebhookGatewayTester:
                 if batch_edit_log:
                     # CRITICAL CHECK: Verify payload structure
                     payload = batch_edit_log.get("payload", {})
+                    log_status = batch_edit_log.get("status", "unknown")
                     
                     # Check if updated_contacts exists and examine structure
                     updated_contacts = payload.get("updated_contacts", [])
                     
-                    if updated_contacts:
+                    if log_status == "success" and updated_contacts:
                         # Examine first contact payload structure
                         first_contact = updated_contacts[0]
                         
