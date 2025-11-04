@@ -1260,10 +1260,11 @@ async def bulk_update_contacts(
     }
     
     contact_ids = request.get('contact_ids', [])
+    contact_emails = request.get('contact_emails', [])  # Also accept emails
     updates = request.get('updates', {})
     
-    if not contact_ids or not updates:
-        raise HTTPException(status_code=400, detail="contact_ids and updates are required")
+    if (not contact_ids and not contact_emails) or not updates:
+        raise HTTPException(status_code=400, detail="contact_ids/contact_emails and updates are required")
     
     # Remove empty update values
     updates = {k: v for k, v in updates.items() if v}
@@ -1272,13 +1273,20 @@ async def bulk_update_contacts(
         raise HTTPException(status_code=400, detail="No valid update values provided")
     
     try:
-        # First, get the current contacts data using batch search
-        # SendGrid accepts OR queries with proper format
-        contact_ids_str = [str(cid) for cid in contact_ids]  # Ensure strings
-        
-        # Build search query - SendGrid format
-        id_conditions = " OR ".join([f"id = '{cid}'" for cid in contact_ids_str])
-        search_query = {"query": id_conditions}
+        # Use emails for search if available, otherwise use IDs
+        if contact_emails:
+            # Build search query using emails
+            email_conditions = " OR ".join([f"email = '{email}'" for email in contact_emails])
+            search_query = {"query": email_conditions}
+        else:
+            # For IDs, we need to use a different approach
+            # SendGrid doesn't support searching by ID in SGQL
+            # We'll need to get contacts by their emails or use a workaround
+            # Let's fetch contacts from the list they're in
+            raise HTTPException(
+                status_code=400, 
+                detail="Please use contact emails for bulk update. Contact IDs alone are not supported for search."
+            )
         
         logger.info(f"Searching for contacts with query: {search_query}")
         
@@ -1301,7 +1309,7 @@ async def bulk_update_contacts(
         current_contacts = search_data.get('result', [])
         
         if not current_contacts:
-            raise HTTPException(status_code=404, detail="No contacts found with the provided IDs")
+            raise HTTPException(status_code=404, detail="No contacts found with the provided emails")
         
         logger.info(f"Found {len(current_contacts)} contacts to update")
         
