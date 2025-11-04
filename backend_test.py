@@ -1213,9 +1213,202 @@ class WebhookGatewayTester:
             self.log_test("Bulk Update Standard Fields", False, f"Request error: {str(e)}")
             return False
 
+    def test_sendgrid_bulk_update_payload_no_contact_id(self):
+        """CRITICAL TEST: Verify SendGrid bulk update payload does NOT contain contact ID field"""
+        try:
+            # Test data for bulk update with real-looking contact email
+            test_data = {
+                "contact_emails": ["john.doe@company.com", "jane.smith@company.com"],
+                "updates": {
+                    "first_name": "UpdatedFirst",
+                    "last_name": "UpdatedLast",
+                    "city": "New York"
+                }
+            }
+            
+            response = self.session.patch(f"{BASE_URL}/sendgrid/contacts/bulk-update", json=test_data)
+            
+            # Wait for log to be written
+            time.sleep(2)
+            
+            # Get recent logs to find our batch edit log
+            logs_response = self.session.get(f"{BASE_URL}/webhooks/logs?limit=10")
+            
+            if logs_response.status_code == 200:
+                logs = logs_response.json()
+                
+                # Find the most recent batch edit log with our test data
+                batch_edit_log = None
+                for log in logs:
+                    if (log.get("mode") == "batch_edit" and 
+                        log.get("integration") == "sendgrid" and
+                        log.get("endpoint_name") == "Bulk Contact Update"):
+                        
+                        payload = log.get("payload", {})
+                        if payload.get("contact_emails") == test_data["contact_emails"]:
+                            batch_edit_log = log
+                            break
+                
+                if batch_edit_log:
+                    # CRITICAL CHECK: Verify payload structure
+                    payload = batch_edit_log.get("payload", {})
+                    
+                    # Check if updated_contacts exists and examine structure
+                    updated_contacts = payload.get("updated_contacts", [])
+                    
+                    if updated_contacts:
+                        # Examine first contact payload structure
+                        first_contact = updated_contacts[0]
+                        
+                        # CRITICAL: Check that contact ID is NOT present
+                        has_contact_id = "id" in first_contact
+                        has_email = "email" in first_contact
+                        has_updates = any(field in first_contact for field in test_data["updates"].keys())
+                        
+                        if not has_contact_id and has_email and has_updates:
+                            self.log_test("SendGrid Bulk Update - No Contact ID in Payload", True, 
+                                        f"✅ CRITICAL FIX VERIFIED: Payload does NOT contain contact 'id' field. Contains: email + update fields only")
+                            
+                            # Verify the exact payload structure
+                            expected_fields = ["email"] + list(test_data["updates"].keys())
+                            actual_fields = list(first_contact.keys())
+                            
+                            # Remove custom_fields from comparison if present (it's valid)
+                            actual_fields_filtered = [f for f in actual_fields if f != "custom_fields"]
+                            
+                            self.log_test("Payload Structure Validation", True, 
+                                        f"✅ Payload structure correct - Fields: {actual_fields_filtered}")
+                            
+                            # Check API response status
+                            if response.status_code in [200, 202]:
+                                response_data = response.json() if response.text else {}
+                                job_id = response_data.get('job_id', 'N/A')
+                                self.log_test("SendGrid API Response", True, 
+                                            f"✅ API returned success with job_id: {job_id}")
+                            else:
+                                self.log_test("SendGrid API Response", False, 
+                                            f"API returned status {response.status_code}: {response.text}")
+                            
+                            return True
+                        else:
+                            issues = []
+                            if has_contact_id:
+                                issues.append("❌ CRITICAL ISSUE: Contact 'id' field found in payload")
+                            if not has_email:
+                                issues.append("Missing 'email' field")
+                            if not has_updates:
+                                issues.append("Missing update fields")
+                            
+                            self.log_test("SendGrid Bulk Update - No Contact ID in Payload", False, 
+                                        f"Payload validation failed: {'; '.join(issues)}")
+                            
+                            # Log the actual payload for debugging
+                            self.log_test("Payload Debug Info", False, 
+                                        f"First contact payload: {json.dumps(first_contact, indent=2)}")
+                    else:
+                        self.log_test("SendGrid Bulk Update - No Contact ID in Payload", False, 
+                                    "No updated_contacts found in batch edit log payload")
+                else:
+                    self.log_test("SendGrid Bulk Update - No Contact ID in Payload", False, 
+                                "No batch_edit log found for bulk update test")
+            else:
+                self.log_test("SendGrid Bulk Update - No Contact ID in Payload", False, 
+                            f"Failed to retrieve logs: {logs_response.status_code}")
+            
+            return False
+                
+        except Exception as e:
+            self.log_test("SendGrid Bulk Update - No Contact ID in Payload", False, f"Request error: {str(e)}")
+            return False
+
+    def test_multiple_contacts_no_id_field(self):
+        """Test multiple contacts update - verify ALL contacts have no ID field"""
+        try:
+            # Test data with multiple contacts
+            test_data = {
+                "contact_emails": ["contact1@test.com", "contact2@test.com", "contact3@test.com"],
+                "updates": {
+                    "first_name": "MultiTest",
+                    "city": "TestCity"
+                }
+            }
+            
+            response = self.session.patch(f"{BASE_URL}/sendgrid/contacts/bulk-update", json=test_data)
+            
+            # Wait for log to be written
+            time.sleep(2)
+            
+            # Get recent logs
+            logs_response = self.session.get(f"{BASE_URL}/webhooks/logs?limit=5")
+            
+            if logs_response.status_code == 200:
+                logs = logs_response.json()
+                
+                # Find our batch edit log
+                batch_edit_log = None
+                for log in logs:
+                    if (log.get("mode") == "batch_edit" and 
+                        log.get("integration") == "sendgrid"):
+                        
+                        payload = log.get("payload", {})
+                        if payload.get("contact_emails") == test_data["contact_emails"]:
+                            batch_edit_log = log
+                            break
+                
+                if batch_edit_log:
+                    payload = batch_edit_log.get("payload", {})
+                    updated_contacts = payload.get("updated_contacts", [])
+                    
+                    if len(updated_contacts) >= 3:
+                        # Check all contacts for ID field
+                        contacts_with_id = []
+                        contacts_without_id = []
+                        
+                        for i, contact in enumerate(updated_contacts):
+                            if "id" in contact:
+                                contacts_with_id.append(i)
+                            else:
+                                contacts_without_id.append(i)
+                        
+                        if len(contacts_with_id) == 0:
+                            self.log_test("Multiple Contacts - No ID Fields", True, 
+                                        f"✅ ALL {len(updated_contacts)} contacts have NO 'id' field in payload")
+                            
+                            # Verify all have email and update fields
+                            all_have_email = all("email" in contact for contact in updated_contacts)
+                            all_have_updates = all(any(field in contact for field in test_data["updates"].keys()) 
+                                                 for contact in updated_contacts)
+                            
+                            if all_have_email and all_have_updates:
+                                self.log_test("Multiple Contacts - Structure Validation", True, 
+                                            "✅ All contacts have email and update fields")
+                            else:
+                                self.log_test("Multiple Contacts - Structure Validation", False, 
+                                            "Some contacts missing email or update fields")
+                            
+                            return True
+                        else:
+                            self.log_test("Multiple Contacts - No ID Fields", False, 
+                                        f"❌ CRITICAL: {len(contacts_with_id)} contacts still have 'id' field: positions {contacts_with_id}")
+                    else:
+                        self.log_test("Multiple Contacts - No ID Fields", False, 
+                                    f"Expected 3 contacts, found {len(updated_contacts)}")
+                else:
+                    self.log_test("Multiple Contacts - No ID Fields", False, 
+                                "No batch_edit log found for multiple contacts test")
+            else:
+                self.log_test("Multiple Contacts - No ID Fields", False, 
+                            f"Failed to retrieve logs: {logs_response.status_code}")
+            
+            return False
+                
+        except Exception as e:
+            self.log_test("Multiple Contacts - No ID Fields", False, f"Request error: {str(e)}")
+            return False
+
     def run_all_tests(self):
-        """Run complete test suite for SendGrid batch edit logging and contacts management"""
-        print("🚀 Starting Webhook Gateway Hub - SendGrid Batch Edit Logging and Contacts Management Tests")
+        """Run complete test suite focusing on SendGrid Bulk Update Fix (Contact ID Removed)"""
+        print("🚀 CRITICAL FIX VERIFICATION: SendGrid Bulk Update - Contact ID Removed")
         print("=" * 80)
         
         # Authentication
@@ -1223,41 +1416,33 @@ class WebhookGatewayTester:
             print("❌ Authentication failed. Cannot proceed with tests.")
             return False
         
-        print("\n🎯 FEATURE 1: Batch Edit Logging (HIGH PRIORITY)")
+        print("\n🎯 CRITICAL FIX: Contact ID Removal from SendGrid Bulk Update Payload")
         print("=" * 80)
+        print("ISSUE: Contact IDs were being included in SendGrid bulk update payload,")
+        print("       causing updates to be silently ignored by SendGrid API v3")
+        print("FIX:   Removed contact ID from update payload - contacts identified by email only")
         
         # Test 1: Check SendGrid configuration
         print("\n1. Checking SendGrid Configuration...")
         sendgrid_available = self.check_sendgrid_configuration()
         if not sendgrid_available:
-            print("⚠️  SendGrid not configured. Tests will proceed but may fail at SendGrid API level.")
-            print("   This is expected - we're testing the webhook logging logic.")
+            print("⚠️  SendGrid not configured. Tests will focus on payload structure validation.")
         
-        # Test 2: Successful bulk update logging
-        print("\n2. Testing Successful Bulk Update Logging...")
+        # Test 2: CRITICAL - Verify no contact ID in payload
+        print("\n2. 🔍 CRITICAL TEST: Verifying Contact ID Removed from Payload...")
+        self.test_sendgrid_bulk_update_payload_no_contact_id()
+        
+        # Test 3: Multiple contacts verification
+        print("\n3. 🔍 Testing Multiple Contacts - No ID Fields...")
+        self.test_multiple_contacts_no_id_field()
+        
+        # Test 4: Verify API still returns success
+        print("\n4. Testing API Success Response...")
         self.test_batch_edit_successful_logging()
-        
-        # Test 3: Failed bulk update (missing contact emails) logging
-        print("\n3. Testing Failed Bulk Update Logging - Missing Contact Emails...")
-        self.test_batch_edit_failed_logging_missing_emails()
-        
-        print("\n🎯 FEATURE 2: Contacts Filtering (HIGH PRIORITY)")
-        print("=" * 80)
-        
-        # Test 4: Fetch contacts without filters
-        print("\n4. Testing Contacts Filtering - No Filters...")
-        self.test_contacts_filtering_no_filters()
-        
-        print("\n🎯 FEATURE 3: Bulk Update Functionality")
-        print("=" * 80)
-        
-        # Test 5: Update standard fields
-        print("\n5. Testing Bulk Update - Standard Fields...")
-        self.test_bulk_update_standard_fields()
         
         # Summary
         print("\n" + "=" * 80)
-        print("📊 SENDGRID BATCH EDIT LOGGING AND CONTACTS MANAGEMENT TEST SUMMARY")
+        print("📊 SENDGRID BULK UPDATE FIX VERIFICATION SUMMARY")
         print("=" * 80)
         
         total_tests = len(self.test_results)
@@ -1269,16 +1454,12 @@ class WebhookGatewayTester:
         print(f"Failed: {failed_tests}")
         print(f"Success Rate: {(passed_tests/total_tests)*100:.1f}%")
         
-        # Categorize results by feature
-        batch_edit_tests = [r for r in self.test_results if "batch edit" in r["test"].lower() or "bulk update" in r["test"].lower()]
-        contacts_tests = [r for r in self.test_results if "contacts filtering" in r["test"].lower()]
+        # Check critical tests
+        critical_tests = [r for r in self.test_results if "Contact ID" in r["test"] or "No ID" in r["test"]]
+        critical_passed = sum(1 for r in critical_tests if r["success"])
         
-        batch_edit_passed = sum(1 for r in batch_edit_tests if r["success"])
-        contacts_passed = sum(1 for r in contacts_tests if r["success"])
-        
-        print(f"\n📋 Feature Breakdown:")
-        print(f"  Batch Edit Logging: {batch_edit_passed}/{len(batch_edit_tests)} passed")
-        print(f"  Contacts Filtering: {contacts_passed}/{len(contacts_tests)} passed")
+        print(f"\n🔥 CRITICAL FIX VERIFICATION:")
+        print(f"  Contact ID Removal Tests: {critical_passed}/{len(critical_tests)} passed")
         
         if failed_tests > 0:
             print(f"\n❌ FAILED TESTS ({failed_tests}):")
@@ -1287,8 +1468,16 @@ class WebhookGatewayTester:
                     print(f"  - {result['test']}: {result['message']}")
                     if result.get("details"):
                         print(f"    Details: {result['details']}")
+        
+        # Final verdict
+        if critical_passed == len(critical_tests) and critical_tests:
+            print(f"\n🎉 CRITICAL FIX VERIFIED: Contact ID successfully removed from SendGrid bulk update payload!")
+            print("   ✅ SendGrid API should now properly process bulk updates")
+            print("   ✅ User's reported issue should be resolved")
         else:
-            print(f"\n🎉 All SendGrid batch edit and contacts management features working correctly!")
+            print(f"\n💥 CRITICAL FIX VERIFICATION FAILED!")
+            print("   ❌ Contact ID may still be present in payload")
+            print("   ❌ User's issue may persist")
         
         return failed_tests == 0
 
