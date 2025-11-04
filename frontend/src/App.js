@@ -10,6 +10,7 @@ import Users from './pages/Users';
 import SendGridLists from './pages/SendGridLists';
 import SendGridTemplates from './pages/SendGridTemplates';
 import SendGridFields from './pages/SendGridFields';
+import SendGridContacts from './pages/SendGridContacts';
 import Profile from './pages/Profile';
 import TestWebhooks from './pages/TestWebhooks';
 import ReleaseNotes from './pages/ReleaseNotes';
