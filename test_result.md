@@ -456,8 +456,7 @@ metadata:
 
 test_plan:
   current_focus:
-    - "Batch Edit Logging in Backend"
-    - "Backend Contacts Filtering and Bulk Update"
+    - "SendGrid Bulk Update Fix - Contact ID Removed"
   stuck_tasks:
     - "Webhooks Page - Collapsible Cards Default Collapsed"
     - "Settings Page - Backup Download"
