@@ -1265,57 +1265,102 @@ async def bulk_update_contacts(
     if not contact_ids or not updates:
         raise HTTPException(status_code=400, detail="contact_ids and updates are required")
     
+    # Remove empty update values
+    updates = {k: v for k, v in updates.items() if v}
+    
+    if not updates:
+        raise HTTPException(status_code=400, detail="No valid update values provided")
+    
     try:
-        # First, get the current contacts data
+        # First, get the current contacts data using batch search
+        # SendGrid accepts OR queries with proper format
+        contact_ids_str = [str(cid) for cid in contact_ids]  # Ensure strings
+        
+        # Build search query - SendGrid format
+        id_conditions = " OR ".join([f"id = '{cid}'" for cid in contact_ids_str])
+        search_query = {"query": id_conditions}
+        
+        logger.info(f"Searching for contacts with query: {search_query}")
+        
         search_response = requests.post(
             "https://api.sendgrid.com/v3/marketing/contacts/search",
             headers=headers,
-            json={"query": " OR ".join([f"id = '{cid}'" for cid in contact_ids])},
+            json=search_query,
             timeout=30
         )
         
-        if search_response.status_code != 200:
-            raise HTTPException(status_code=search_response.status_code, detail="Failed to fetch contacts")
+        logger.info(f"Search response status: {search_response.status_code}")
+        logger.info(f"Search response: {search_response.text[:500]}")
         
-        current_contacts = search_response.json().get('result', [])
+        if search_response.status_code != 200:
+            error_msg = search_response.text if search_response.text else f"HTTP {search_response.status_code}"
+            logger.error(f"Failed to fetch contacts: {error_msg}")
+            raise HTTPException(status_code=search_response.status_code, detail=f"Failed to fetch contacts: {error_msg}")
+        
+        search_data = search_response.json()
+        current_contacts = search_data.get('result', [])
+        
+        if not current_contacts:
+            raise HTTPException(status_code=404, detail="No contacts found with the provided IDs")
+        
+        logger.info(f"Found {len(current_contacts)} contacts to update")
         
         # Update each contact with the new values
         updated_contacts = []
         for contact in current_contacts:
             # Merge updates into existing contact data
             for field, value in updates.items():
-                if value:  # Only update if value is provided
-                    # Check if it's a custom field or standard field
-                    if field.startswith('e') or field in ['w1', 'w2', 'w3']:  # Custom field pattern
-                        if 'custom_fields' not in contact:
-                            contact['custom_fields'] = {}
-                        contact['custom_fields'][field] = value
-                    else:
-                        contact[field] = value
+                # Check if it's a custom field based on field naming pattern
+                # Custom fields in SendGrid: e1_T, e2_N, w1, w2, etc.
+                is_custom_field = field.startswith('e') or field.startswith('w')
+                
+                if is_custom_field:
+                    if 'custom_fields' not in contact:
+                        contact['custom_fields'] = {}
+                    contact['custom_fields'][field] = value
+                else:
+                    # Standard field
+                    contact[field] = value
             
             updated_contacts.append(contact)
         
+        logger.info(f"Updating {len(updated_contacts)} contacts")
+        
         # Send update request to SendGrid
+        update_payload = {"contacts": updated_contacts}
+        logger.info(f"Update payload (first contact): {json.dumps(updated_contacts[0], default=str)}")
+        
         update_response = requests.put(
             "https://api.sendgrid.com/v3/marketing/contacts",
             headers=headers,
-            json={"contacts": updated_contacts},
+            json=update_payload,
             timeout=30
         )
+        
+        logger.info(f"Update response status: {update_response.status_code}")
+        logger.info(f"Update response: {update_response.text}")
         
         if update_response.status_code in [200, 202]:
             response_data = update_response.json() if update_response.text else {}
             job_id = response_data.get('job_id', 'N/A')
             return {
                 "message": f"Successfully updated {len(updated_contacts)} contacts (Job ID: {job_id})",
-                "updated_count": len(updated_contacts)
+                "updated_count": len(updated_contacts),
+                "job_id": job_id
             }
         else:
-            raise HTTPException(status_code=update_response.status_code, detail=f"SendGrid API error: {update_response.text}")
+            error_msg = update_response.text if update_response.text else f"HTTP {update_response.status_code}"
+            logger.error(f"SendGrid update error: {error_msg}")
+            raise HTTPException(status_code=update_response.status_code, detail=f"SendGrid API error: {error_msg}")
             
+    except HTTPException:
+        raise
     except requests.exceptions.RequestException as e:
-        logger.error(f"Error updating contacts: {e}")
+        logger.error(f"Request error updating contacts: {e}")
         raise HTTPException(status_code=500, detail=f"Failed to update contacts: {str(e)}")
+    except Exception as e:
+        logger.error(f"Unexpected error updating contacts: {e}", exc_info=True)
+        raise HTTPException(status_code=500, detail=f"Unexpected error: {str(e)}")
 
 # Backup Management
 @api_router.post("/backups/create")
