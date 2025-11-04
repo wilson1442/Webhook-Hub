@@ -1354,17 +1354,22 @@ async def bulk_update_contacts(
                 updated_contact["custom_fields"] = contact["custom_fields"].copy()
             
             # Apply updates
+            # Define SendGrid's reserved/standard fields (per API v3 documentation)
+            reserved_fields = {
+                'first_name', 'last_name', 'email', 'address_line_1', 'address_line_2',
+                'city', 'state_province_region', 'postal_code', 'country', 'phone_number',
+                'whatsapp', 'line', 'facebook', 'unique_name'
+            }
+            
             for field, value in updates.items():
-                # Check if it's a custom field based on field naming pattern
-                is_custom_field = field.startswith('e') or field.startswith('w')
-                
-                if is_custom_field:
+                # Only reserved fields go at root level, everything else is a custom field
+                if field.lower() in reserved_fields:
+                    updated_contact[field] = value
+                else:
+                    # Custom field - goes in custom_fields object
                     if 'custom_fields' not in updated_contact:
                         updated_contact['custom_fields'] = {}
                     updated_contact['custom_fields'][field] = value
-                else:
-                    # Standard field
-                    updated_contact[field] = value
             
             updated_contacts.append(updated_contact)
         
