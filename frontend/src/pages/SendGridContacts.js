@@ -364,7 +364,7 @@ const SendGridContacts = () => {
 
       {/* Bulk Edit Dialog */}
       <Dialog open={bulkEditOpen} onOpenChange={setBulkEditOpen}>
-        <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
+        <DialogContent className="max-w-3xl max-h-[85vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>Bulk Edit Contacts</DialogTitle>
             <DialogDescription>
@@ -372,26 +372,52 @@ const SendGridContacts = () => {
             </DialogDescription>
           </DialogHeader>
 
-          <div className="space-y-4 py-4">
-            {allFields.map((field) => (
-              <div key={field.field_name} className="space-y-2">
-                <Label htmlFor={field.field_name}>
-                  {field.field_name}
-                  {field.is_reserved && (
-                    <span className="ml-2 text-xs text-green-600 dark:text-green-400">(Reserved)</span>
-                  )}
-                  {!field.is_reserved && (
-                    <span className="ml-2 text-xs text-purple-600 dark:text-purple-400">(Custom)</span>
-                  )}
-                </Label>
-                <Input
-                  id={field.field_name}
-                  value={bulkEditFields[field.field_name] || ''}
-                  onChange={(e) => updateBulkEditField(field.field_name, e.target.value)}
-                  placeholder={`Leave empty to keep current values`}
-                />
+          <div className="space-y-6 py-4">
+            {/* Reserved Fields Section */}
+            <div>
+              <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3 pb-2 border-b border-gray-200 dark:border-gray-700">
+                📋 Reserved Fields ({allFields.filter(f => f.is_reserved).length})
+              </h3>
+              <div className="grid grid-cols-2 gap-4">
+                {allFields.filter(field => field.is_reserved).map((field) => (
+                  <div key={field.field_name} className="space-y-1.5">
+                    <Label htmlFor={field.field_name} className="text-xs font-medium text-gray-600 dark:text-gray-400">
+                      {field.field_name}
+                    </Label>
+                    <Input
+                      id={field.field_name}
+                      value={bulkEditFields[field.field_name] || ''}
+                      onChange={(e) => updateBulkEditField(field.field_name, e.target.value)}
+                      placeholder="Leave empty to keep current"
+                      className="text-sm"
+                    />
+                  </div>
+                ))}
               </div>
-            ))}
+            </div>
+
+            {/* Custom Fields Section */}
+            <div>
+              <h3 className="text-sm font-semibold text-purple-700 dark:text-purple-400 mb-3 pb-2 border-b border-purple-200 dark:border-purple-800">
+                ⚙️ Custom Fields ({allFields.filter(f => !f.is_reserved).length})
+              </h3>
+              <div className="grid grid-cols-2 gap-4">
+                {allFields.filter(field => !field.is_reserved).map((field) => (
+                  <div key={field.field_name} className="space-y-1.5">
+                    <Label htmlFor={field.field_name} className="text-xs font-medium text-purple-700 dark:text-purple-400">
+                      {field.field_name}
+                    </Label>
+                    <Input
+                      id={field.field_name}
+                      value={bulkEditFields[field.field_name] || ''}
+                      onChange={(e) => updateBulkEditField(field.field_name, e.target.value)}
+                      placeholder="Leave empty to keep current"
+                      className="text-sm border-purple-200 dark:border-purple-800 focus:ring-purple-500"
+                    />
+                  </div>
+                ))}
+              </div>
+            </div>
           </div>
 
           <div className="flex justify-end gap-3">
