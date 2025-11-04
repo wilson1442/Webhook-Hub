@@ -98,6 +98,7 @@ function App() {
                     <Route path="/sendgrid-lists" element={<SendGridLists user={user} />} />
                     <Route path="/sendgrid-templates" element={<SendGridTemplates user={user} />} />
                     <Route path="/sendgrid-fields" element={<SendGridFields user={user} />} />
+                    <Route path="/sendgrid-contacts" element={<SendGridContacts user={user} />} />
                     <Route path="/settings" element={<Settings user={user} />} />
                     <Route path="/profile" element={<Profile user={user} />} />
                     <Route path="/release-notes" element={<ReleaseNotes user={user} />} />
