@@ -19,6 +19,7 @@ const Layout = ({ children, user, logout }) => {
   ];
 
   const sendgridSubmenu = [
+    { name: 'SendGrid Contacts', href: '/sendgrid-contacts', icon: Users },
     { name: 'SendGrid Lists', href: '/sendgrid-lists', icon: List },
     { name: 'SendGrid Templates', href: '/sendgrid-templates', icon: Mail },
     { name: 'SendGrid Fields', href: '/sendgrid-fields', icon: Database },
