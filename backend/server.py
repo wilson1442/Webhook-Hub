@@ -1337,14 +1337,11 @@ async def bulk_update_contacts(
         # Update each contact with the new values
         updated_contacts = []
         for contact in current_contacts:
-            # IMPORTANT: Keep the contact ID
+            # NOTE: Do NOT include contact ID - SendGrid API v3 rejects updates with ID field
+            # Contacts are identified by email address only
             updated_contact = {
-                "email": contact.get("email"),  # Required
+                "email": contact.get("email"),  # Required - used to identify contact
             }
-            
-            # Add ID if present
-            if contact.get("id"):
-                updated_contact["id"] = contact.get("id")
             
             # Copy existing fields we want to preserve
             for field in ["first_name", "last_name", "phone_number", "city", "state_province_region", 
