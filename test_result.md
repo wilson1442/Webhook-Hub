@@ -448,6 +448,21 @@ frontend:
         agent: "testing"
         comment: "✅ CRITICAL FIX VERIFIED: SendGrid bulk update contact ID removal working perfectly. Comprehensive testing completed (8/8 tests passed, 100% success rate): (1) Payload Structure Verification - Contact payloads do NOT contain 'id' field, only email + update fields + custom_fields. (2) API Success Response - SendGrid returns 200/202 with job_id for successful updates. (3) Multiple Contacts Verification - ALL contacts in recent logs have NO 'id' field. (4) Batch Edit Logging - Proper webhook logs created with mode='batch_edit' and correct payload structure. BEFORE FIX: Payload included {'id': 'abc123', 'email': '...', ...} causing silent failures. AFTER FIX: Payload only contains {'email': '...', 'first_name': '...', ...} enabling successful updates. User's reported issue should now be resolved - bulk updates via SendGrid Contacts page will now be visible in SendGrid dashboard."
 
+  - task: "SendGrid Contacts Custom Column Display"
+    implemented: true
+    working: true
+    file: "/app/frontend/src/pages/SendGridContacts.js"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+      - working: "NA"
+        agent: "main"
+        comment: "Updated SendGrid Contacts table to display specific custom columns: Checkbox, Email, LoanOfficerName, LO EMAIL, LO NMLS, LO Phone. Replaced previous 'first 6 fields' behavior with user-requested specific field display."
+      - working: true
+        agent: "testing"
+        comment: "✅ COMPREHENSIVE VERIFICATION COMPLETE: SendGrid Contacts custom column display working perfectly. All test scenarios passed: (1) Column Headers - Exactly 6 headers match specification: Checkbox (no text), EMAIL, LOANOFFICERNAME, LO EMAIL, LO NMLS, LO PHONE. (2) Table Structure - Contact data displays correctly in specified columns with proper alignment. (3) Functionality - Individual contact selection working (Bulk Edit button appears with correct count '(1)'), Select All checkbox working, Radix UI checkboxes properly implemented (2 checkboxes detected). (4) Navigation/UI - Page loads correctly, list selection works (24 lists available), Load Contacts button functions, clean table layout. (5) Data Verification - Contact 'nsanto17@gmail.com' and LoanOfficerName 'Teresa Balian' display in correct columns. Table now shows ONLY the 5 specified user fields plus checkbox column, replacing previous 'first 6 fields' behavior. All selection and bulk edit functionality intact. Ready for production use."
+
 metadata:
   created_by: "main_agent"
   version: "1.0"
