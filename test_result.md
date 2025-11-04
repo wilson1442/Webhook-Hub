@@ -486,7 +486,7 @@ metadata:
 
 test_plan:
   current_focus:
-    - "SendGrid Contacts Custom Column Display"
+    - "SendGrid Contacts Bulk Edit - Custom Fields Display"
   stuck_tasks:
     - "Webhooks Page - Collapsible Cards Default Collapsed"
     - "Settings Page - Backup Download"
