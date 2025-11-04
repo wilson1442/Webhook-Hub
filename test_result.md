@@ -390,15 +390,18 @@ frontend:
   
   - task: "Logs Page - Batch Edit Mode Display"
     implemented: true
-    working: "NA"
+    working: true
     file: "/app/frontend/src/pages/Logs.js"
     stuck_count: 0
     priority: "high"
-    needs_retesting: true
+    needs_retesting: false
     status_history:
       - working: "NA"
         agent: "main"
         comment: "Added 'Batch Edit' mode display in Logs.js (lines 358-362). When log.mode === 'batch_edit', displays orange badge with 'Batch Edit' text. Mode column shows alongside Integration column in logs table."
+      - working: true
+        agent: "testing"
+        comment: "✅ COMPREHENSIVE TESTING COMPLETE: Batch Edit mode display working perfectly. Found 17 batch edit log entries with correct orange badge styling (bg-orange-100 text-orange-800). Mode column header properly displayed in logs table. Log detail dialog opens correctly and shows full payload with expected fields: contact_emails, updates, and other batch edit data. Payload section displays complete JSON structure as expected. All batch edit logging functionality verified and working correctly."
   
   - task: "SendGrid Contacts Management Page"
     implemented: true
