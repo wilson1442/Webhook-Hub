@@ -355,9 +355,11 @@ const Logs = () => {
                         <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
                           log.mode === 'send_email' 
                             ? 'bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200' 
+                            : log.mode === 'batch_edit'
+                            ? 'bg-orange-100 text-orange-800 dark:bg-orange-900 dark:text-orange-200'
                             : 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200'
                         }`}>
-                          {log.mode === 'send_email' ? 'Send Email' : 'Add Contact'}
+                          {log.mode === 'send_email' ? 'Send Email' : log.mode === 'batch_edit' ? 'Batch Edit' : 'Add Contact'}
                         </span>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap cursor-pointer" onClick={() => handleLogClick(log)}>
