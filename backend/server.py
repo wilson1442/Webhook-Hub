@@ -1212,7 +1212,7 @@ async def get_list_contacts(list_id: str, filters: Optional[str] = None, current
                         if operator == 'equals':
                             filter_conditions.append(f"{field} = '{value}'")
                         elif operator == 'contains':
-                            filter_conditions.append(f"CONTAINS({field}, '{value}')")
+                            filter_conditions.append(f"{field} LIKE '%{value}%'")
                         elif operator == 'startsWith':
                             filter_conditions.append(f"{field} LIKE '{value}%'")
                         elif operator == 'notEmpty':
