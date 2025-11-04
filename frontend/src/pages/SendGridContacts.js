@@ -315,12 +315,18 @@ const SendGridContacts = () => {
                     <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">
                       Email
                     </th>
-                    {allFields.slice(0, 6).map((field) => (
-                      <th key={field.field_name} className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">
-                        {field.field_name}
-                        {field.is_reserved && <span className="ml-1 text-green-500">★</span>}
-                      </th>
-                    ))}
+                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">
+                      LoanOfficerName
+                    </th>
+                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">
+                      LO Email
+                    </th>
+                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">
+                      LO NMLS
+                    </th>
+                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">
+                      LO Phone
+                    </th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
@@ -335,11 +341,18 @@ const SendGridContacts = () => {
                       <td className="px-4 py-3 text-sm font-medium text-gray-900 dark:text-gray-100">
                         {contact.email}
                       </td>
-                      {allFields.slice(0, 6).map((field) => (
-                        <td key={field.field_name} className="px-4 py-3 text-sm text-gray-600 dark:text-gray-300">
-                          {getFieldValue(contact, field.field_name)}
-                        </td>
-                      ))}
+                      <td className="px-4 py-3 text-sm text-gray-600 dark:text-gray-300">
+                        {getFieldValue(contact, 'LoanOfficerName')}
+                      </td>
+                      <td className="px-4 py-3 text-sm text-gray-600 dark:text-gray-300">
+                        {getFieldValue(contact, 'LO EMAIL')}
+                      </td>
+                      <td className="px-4 py-3 text-sm text-gray-600 dark:text-gray-300">
+                        {getFieldValue(contact, 'LO NMLS')}
+                      </td>
+                      <td className="px-4 py-3 text-sm text-gray-600 dark:text-gray-300">
+                        {getFieldValue(contact, 'LO Phone')}
+                      </td>
                     </tr>
                   ))}
                 </tbody>
