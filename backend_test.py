@@ -1216,13 +1216,13 @@ class WebhookGatewayTester:
     def test_sendgrid_bulk_update_payload_no_contact_id(self):
         """CRITICAL TEST: Verify SendGrid bulk update payload does NOT contain contact ID field"""
         try:
-            # Test data for bulk update with real-looking contact email
+            # Test data for bulk update with real contact email (from logs)
             test_data = {
-                "contact_emails": ["john.doe@company.com", "jane.smith@company.com"],
+                "contact_emails": ["pearlineguillaume@gmail.com"],
                 "updates": {
-                    "first_name": "UpdatedFirst",
-                    "last_name": "UpdatedLast",
-                    "city": "New York"
+                    "first_name": "CriticalTestFirst",
+                    "last_name": "CriticalTestLast",
+                    "city": "TestCityVerification"
                 }
             }
             
