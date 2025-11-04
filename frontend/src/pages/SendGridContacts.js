@@ -127,8 +127,12 @@ const SendGridContacts = () => {
 
     setUpdating(true);
     try {
+      // Get email addresses for the selected contact IDs
+      const selectedContactData = contacts.filter(c => selectedContacts.includes(c.id));
+      const contactEmails = selectedContactData.map(c => c.email);
+      
       const response = await axios.patch(`${API}/sendgrid/contacts/bulk-update`, {
-        contact_ids: selectedContacts,
+        contact_emails: contactEmails,
         updates: bulkEditFields
       });
       
