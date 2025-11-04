@@ -367,7 +367,8 @@ class ComprehensiveSendGridTester:
         
         # Test 4: Empty/notEmpty operators
         try:
-            filters = "phone_number=notEmpty:&city=empty:"
+            # Use realistic field combinations - first_name should have value, city should be empty
+            filters = "first_name=notEmpty:&city=empty:"
             response = self.session.get(f"{BASE_URL}/sendgrid/lists/{self.test_list_id}/contacts?filters={filters}")
             
             if response.status_code == 200:
