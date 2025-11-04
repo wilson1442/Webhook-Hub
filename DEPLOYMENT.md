@@ -36,7 +36,7 @@ Your app is currently running on Emergent's managed infrastructure:
 - **Frontend**: React SPA served at port 3000
 - **Backend**: FastAPI running on port 8001
 - **Database**: MongoDB local instance
-- **URL**: https://webhook-gateway-2.preview.emergentagent.com
+- **URL**: https://webhook-gateway-3.preview.emergentagent.com
 
 ### Deployment Steps
 

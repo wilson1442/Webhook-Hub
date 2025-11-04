@@ -13,7 +13,7 @@ import re
 from datetime import datetime
 
 # Configuration
-BASE_URL = "https://webhook-gateway-2.preview.emergentagent.com/api"
+BASE_URL = "https://webhook-gateway-3.preview.emergentagent.com/api"
 USERNAME = "admin"
 PASSWORD = "admin123"
 
