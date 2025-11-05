@@ -8,15 +8,121 @@ import { Input } from '../components/ui/input';
 import { Label } from '../components/ui/label';
 import { toast } from 'sonner';
 import { List, Users, Plus, RefreshCw, Mail } from 'lucide-react';
+import NotConfigured from '../components/NotConfigured';
 
 const SendGridLists = () => {
   const [lists, setLists] = useState([]);
+  const [sendgridConfigured, setSendgridConfigured] = useState(true);
+
+  useEffect(() => {
+    checkSendGridConfig();
+  }, []);
+
+  const checkSendGridConfig = async () => {
+    try {
+      const response = await axios.get(`${API}/settings/api-keys`);
+      const sendgridKey = response.data.find(key => key.service_name === 'sendgrid');
+      setSendgridConfigured(sendgridKey && sendgridKey.is_active !== false);
+    } catch (error) {
+      setSendgridConfigured(false);
+    }
+  };
   const [filteredLists, setFilteredLists] = useState([]);
+  const [sendgridConfigured, setSendgridConfigured] = useState(true);
+
+  useEffect(() => {
+    checkSendGridConfig();
+  }, []);
+
+  const checkSendGridConfig = async () => {
+    try {
+      const response = await axios.get(`${API}/settings/api-keys`);
+      const sendgridKey = response.data.find(key => key.service_name === 'sendgrid');
+      setSendgridConfigured(sendgridKey && sendgridKey.is_active !== false);
+    } catch (error) {
+      setSendgridConfigured(false);
+    }
+  };
   const [loading, setLoading] = useState(true);
+  const [sendgridConfigured, setSendgridConfigured] = useState(true);
+
+  useEffect(() => {
+    checkSendGridConfig();
+  }, []);
+
+  const checkSendGridConfig = async () => {
+    try {
+      const response = await axios.get(`${API}/settings/api-keys`);
+      const sendgridKey = response.data.find(key => key.service_name === 'sendgrid');
+      setSendgridConfigured(sendgridKey && sendgridKey.is_active !== false);
+    } catch (error) {
+      setSendgridConfigured(false);
+    }
+  };
   const [hasApiKey, setHasApiKey] = useState(false);
+  const [sendgridConfigured, setSendgridConfigured] = useState(true);
+
+  useEffect(() => {
+    checkSendGridConfig();
+  }, []);
+
+  const checkSendGridConfig = async () => {
+    try {
+      const response = await axios.get(`${API}/settings/api-keys`);
+      const sendgridKey = response.data.find(key => key.service_name === 'sendgrid');
+      setSendgridConfigured(sendgridKey && sendgridKey.is_active !== false);
+    } catch (error) {
+      setSendgridConfigured(false);
+    }
+  };
   const [dialogOpen, setDialogOpen] = useState(false);
+  const [sendgridConfigured, setSendgridConfigured] = useState(true);
+
+  useEffect(() => {
+    checkSendGridConfig();
+  }, []);
+
+  const checkSendGridConfig = async () => {
+    try {
+      const response = await axios.get(`${API}/settings/api-keys`);
+      const sendgridKey = response.data.find(key => key.service_name === 'sendgrid');
+      setSendgridConfigured(sendgridKey && sendgridKey.is_active !== false);
+    } catch (error) {
+      setSendgridConfigured(false);
+    }
+  };
   const [searchQuery, setSearchQuery] = useState('');
+  const [sendgridConfigured, setSendgridConfigured] = useState(true);
+
+  useEffect(() => {
+    checkSendGridConfig();
+  }, []);
+
+  const checkSendGridConfig = async () => {
+    try {
+      const response = await axios.get(`${API}/settings/api-keys`);
+      const sendgridKey = response.data.find(key => key.service_name === 'sendgrid');
+      setSendgridConfigured(sendgridKey && sendgridKey.is_active !== false);
+    } catch (error) {
+      setSendgridConfigured(false);
+    }
+  };
   const [formData, setFormData] = useState({
+  const [sendgridConfigured, setSendgridConfigured] = useState(true);
+
+  useEffect(() => {
+    checkSendGridConfig();
+  }, []);
+
+  const checkSendGridConfig = async () => {
+    try {
+      const response = await axios.get(`${API}/settings/api-keys`);
+      const sendgridKey = response.data.find(key => key.service_name === 'sendgrid');
+      setSendgridConfigured(sendgridKey && sendgridKey.is_active !== false);
+    } catch (error) {
+      setSendgridConfigured(false);
+    }
+  };
     name: ''
   });
 

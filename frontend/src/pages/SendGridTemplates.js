@@ -6,13 +6,89 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '../co
 import { Input } from '../components/ui/input';
 import { toast } from 'sonner';
 import { FileText, Mail, RefreshCw, ExternalLink } from 'lucide-react';
+import NotConfigured from '../components/NotConfigured';
 
 const SendGridTemplates = () => {
   const [templates, setTemplates] = useState([]);
+  const [sendgridConfigured, setSendgridConfigured] = useState(true);
+
+  useEffect(() => {
+    checkSendGridConfig();
+  }, []);
+
+  const checkSendGridConfig = async () => {
+    try {
+      const response = await axios.get(`${API}/settings/api-keys`);
+      const sendgridKey = response.data.find(key => key.service_name === 'sendgrid');
+      setSendgridConfigured(sendgridKey && sendgridKey.is_active !== false);
+    } catch (error) {
+      setSendgridConfigured(false);
+    }
+  };
   const [filteredTemplates, setFilteredTemplates] = useState([]);
+  const [sendgridConfigured, setSendgridConfigured] = useState(true);
+
+  useEffect(() => {
+    checkSendGridConfig();
+  }, []);
+
+  const checkSendGridConfig = async () => {
+    try {
+      const response = await axios.get(`${API}/settings/api-keys`);
+      const sendgridKey = response.data.find(key => key.service_name === 'sendgrid');
+      setSendgridConfigured(sendgridKey && sendgridKey.is_active !== false);
+    } catch (error) {
+      setSendgridConfigured(false);
+    }
+  };
   const [loading, setLoading] = useState(true);
+  const [sendgridConfigured, setSendgridConfigured] = useState(true);
+
+  useEffect(() => {
+    checkSendGridConfig();
+  }, []);
+
+  const checkSendGridConfig = async () => {
+    try {
+      const response = await axios.get(`${API}/settings/api-keys`);
+      const sendgridKey = response.data.find(key => key.service_name === 'sendgrid');
+      setSendgridConfigured(sendgridKey && sendgridKey.is_active !== false);
+    } catch (error) {
+      setSendgridConfigured(false);
+    }
+  };
   const [hasApiKey, setHasApiKey] = useState(false);
+  const [sendgridConfigured, setSendgridConfigured] = useState(true);
+
+  useEffect(() => {
+    checkSendGridConfig();
+  }, []);
+
+  const checkSendGridConfig = async () => {
+    try {
+      const response = await axios.get(`${API}/settings/api-keys`);
+      const sendgridKey = response.data.find(key => key.service_name === 'sendgrid');
+      setSendgridConfigured(sendgridKey && sendgridKey.is_active !== false);
+    } catch (error) {
+      setSendgridConfigured(false);
+    }
+  };
   const [searchQuery, setSearchQuery] = useState('');
+  const [sendgridConfigured, setSendgridConfigured] = useState(true);
+
+  useEffect(() => {
+    checkSendGridConfig();
+  }, []);
+
+  const checkSendGridConfig = async () => {
+    try {
+      const response = await axios.get(`${API}/settings/api-keys`);
+      const sendgridKey = response.data.find(key => key.service_name === 'sendgrid');
+      setSendgridConfigured(sendgridKey && sendgridKey.is_active !== false);
+    } catch (error) {
+      setSendgridConfigured(false);
+    }
+  };
 
   useEffect(() => {
     checkApiKey();
