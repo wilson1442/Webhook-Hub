@@ -27,6 +27,7 @@ const Webhooks = () => {
   const [templateKeys, setTemplateKeys] = useState([]);
   const [loadingTemplateKeys, setLoadingTemplateKeys] = useState(false);
   const [activeIntegrations, setActiveIntegrations] = useState([]);
+  const [showDetails, setShowDetails] = useState(true);
 
   const getModeLabel = (mode) => {
     const modeLabels = {
