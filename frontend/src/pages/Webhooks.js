@@ -810,7 +810,7 @@ const Webhooks = () => {
                             ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200' 
                             : 'bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200'
                         }`}>
-                          {endpoint.mode === 'add_contact' ? 'Add Contact' : 'Send Email'}
+                          {getModeLabel(endpoint.mode)}
                         </span>
                       </div>
                     </div>
