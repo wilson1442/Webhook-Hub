@@ -531,7 +531,9 @@ metadata:
 
 test_plan:
   current_focus:
-    - "SendGrid Contacts Bulk Edit - Custom Fields Display"
+    - "Syslog Configuration Endpoints"
+    - "Notification Processing Functions"
+    - "API Key Storage for New Integrations"
   stuck_tasks:
     - "Webhooks Page - Collapsible Cards Default Collapsed"
     - "Settings Page - Backup Download"
