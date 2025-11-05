@@ -163,6 +163,10 @@ const SendGridTemplates = () => {
     );
   }
 
+  if (!sendgridConfigured) {
+    return <NotConfigured service="SendGrid" />;
+  }
+
   return (
     <div className="space-y-8" data-testid="sendgrid-templates-page">
       <div className="flex justify-between items-center">
