@@ -21,6 +21,31 @@ const Logs = () => {
   const [retrying, setRetrying] = useState(false);
   const [deleting, setDeleting] = useState(false);
 
+  const getModeLabel = (mode) => {
+    const modeLabels = {
+      'add_contact': 'Add Contact',
+      'send_email': 'Send Email',
+      'batch_edit': 'Batch Edit',
+      'ntfy': 'Ntfy',
+      'discord': 'Discord',
+      'slack': 'Slack',
+      'telegram': 'Telegram'
+    };
+    return modeLabels[mode] || mode;
+  };
+
+  const getModeColor = (mode) => {
+    const modeColors = {
+      'send_email': 'bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200',
+      'batch_edit': 'bg-orange-100 text-orange-800 dark:bg-orange-900 dark:text-orange-200',
+      'ntfy': 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200',
+      'discord': 'bg-indigo-100 text-indigo-800 dark:bg-indigo-900 dark:text-indigo-200',
+      'slack': 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200',
+      'telegram': 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200',
+      'add_contact': 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200'
+    };
+    return modeColors[mode] || 'bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-200';
+  };
   useEffect(() => {
     fetchEndpoints();
     fetchIntegrations();
