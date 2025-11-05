@@ -165,6 +165,21 @@ class SendGridField(BaseModel):
     is_reserved: bool  # True for standard fields, False for custom
     synced_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
 
+class SyslogConfig(BaseModel):
+    model_config = ConfigDict(extra="ignore")
+    id: str = Field(default_factory=lambda: str(uuid.uuid4()))
+    host: str
+    port: int
+    protocol: str  # 'udp' or 'tcp'
+    enabled: bool = True
+    created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+
+class SyslogConfigCreate(BaseModel):
+    host: str
+    port: int
+    protocol: str = 'udp'
+    enabled: bool = True
+
 # Helper Functions
 def hash_password(password: str) -> str:
     return bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt()).decode('utf-8')
