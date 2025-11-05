@@ -32,6 +32,20 @@ const Layout = ({ children, user, logout }) => {
     navigation.splice(5, 0, { name: 'Users', href: '/users', icon: Users });
   }
 
+  useEffect(() => {
+    // Check if SendGrid is enabled
+    const checkSendGridStatus = async () => {
+      try {
+        const response = await axios.get(`${API}/settings/api-keys`);
+        const sendgridKey = response.data.find(key => key.service_name === 'sendgrid');
+        setSendgridEnabled(sendgridKey && sendgridKey.is_active !== false);
+      } catch (error) {
+        setSendgridEnabled(false);
+      }
+    };
+    checkSendGridStatus();
+  }, []);
+
   return (
     <div className="min-h-screen flex">
       {/* Sidebar */}
