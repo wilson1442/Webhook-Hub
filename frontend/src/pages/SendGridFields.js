@@ -47,11 +47,17 @@ const SendGridFields = () => {
 
   const handleSync = async () => {
     setSyncing(true);
+    try {
       const response = await axios.post(`${API}/sendgrid/sync-fields`);
       toast.success(response.data.message);
       await fetchFields();
+    } catch (error) {
       toast.error(error.response?.data?.detail || 'Failed to sync SendGrid fields');
+    } finally {
       setSyncing(false);
+    }
+  };
+
   const getFieldTypeColor = (type) => {
     const colors = {
       'Text': 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200',
