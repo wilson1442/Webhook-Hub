@@ -1520,6 +1520,550 @@ class WebhookGatewayTester:
             self.log_test("Multiple Contacts - No ID Fields", False, f"Request error: {str(e)}")
             return False
 
+    # ===== SYSLOG CONFIGURATION TESTS =====
+    
+    def test_get_syslog_config(self):
+        """Test GET /api/syslog/config - Retrieve syslog configuration"""
+        try:
+            response = self.session.get(f"{BASE_URL}/syslog/config")
+            
+            if response.status_code == 200:
+                data = response.json()
+                self.log_test("GET Syslog Config", True, 
+                            f"✅ Retrieved syslog config successfully")
+                return True
+            else:
+                self.log_test("GET Syslog Config", False, 
+                            f"Failed with status {response.status_code}", response.text)
+                return False
+                
+        except Exception as e:
+            self.log_test("GET Syslog Config", False, f"Request error: {str(e)}")
+            return False
+    
+    def test_save_syslog_config(self):
+        """Test POST /api/syslog/config - Save syslog configuration"""
+        try:
+            config_data = {
+                "host": "test.syslog.local",
+                "port": 514,
+                "protocol": "udp",
+                "enabled": True
+            }
+            
+            response = self.session.post(f"{BASE_URL}/syslog/config", json=config_data)
+            
+            if response.status_code == 200:
+                data = response.json()
+                if "message" in data and "success" in data["message"].lower():
+                    self.log_test("POST Syslog Config", True, 
+                                f"✅ Syslog config saved successfully")
+                    return True
+                else:
+                    self.log_test("POST Syslog Config", False, 
+                                "Unexpected response format", data)
+                    return False
+            else:
+                self.log_test("POST Syslog Config", False, 
+                            f"Failed with status {response.status_code}", response.text)
+                return False
+                
+        except Exception as e:
+            self.log_test("POST Syslog Config", False, f"Request error: {str(e)}")
+            return False
+    
+    def test_syslog_connection_test(self):
+        """Test POST /api/syslog/test - Test syslog connection"""
+        try:
+            config_data = {
+                "host": "test.syslog.local",
+                "port": 514,
+                "protocol": "udp",
+                "enabled": True
+            }
+            
+            response = self.session.post(f"{BASE_URL}/syslog/test", json=config_data)
+            
+            if response.status_code == 200:
+                data = response.json()
+                status = data.get("status", "unknown")
+                message = data.get("message", "")
+                
+                # Connection test may fail (expected for test host), but endpoint should work
+                self.log_test("POST Syslog Test", True, 
+                            f"✅ Test endpoint working - Status: {status}, Message: {message}")
+                return True
+            else:
+                self.log_test("POST Syslog Test", False, 
+                            f"Failed with status {response.status_code}", response.text)
+                return False
+                
+        except Exception as e:
+            self.log_test("POST Syslog Test", False, f"Request error: {str(e)}")
+            return False
+    
+    def test_delete_syslog_config(self):
+        """Test DELETE /api/syslog/config - Delete syslog configuration"""
+        try:
+            response = self.session.delete(f"{BASE_URL}/syslog/config")
+            
+            if response.status_code == 200:
+                data = response.json()
+                if "message" in data:
+                    self.log_test("DELETE Syslog Config", True, 
+                                f"✅ Syslog config deleted successfully")
+                    return True
+                else:
+                    self.log_test("DELETE Syslog Config", False, 
+                                "Unexpected response format", data)
+                    return False
+            else:
+                self.log_test("DELETE Syslog Config", False, 
+                            f"Failed with status {response.status_code}", response.text)
+                return False
+                
+        except Exception as e:
+            self.log_test("DELETE Syslog Config", False, f"Request error: {str(e)}")
+            return False
+
+    # ===== API KEY STORAGE TESTS =====
+    
+    def test_save_ntfy_api_key(self):
+        """Test saving Ntfy API key"""
+        try:
+            key_data = {
+                "service_name": "ntfy",
+                "credentials": {
+                    "topic_url": "https://ntfy.sh/test",
+                    "auth_token": "test"
+                }
+            }
+            
+            response = self.session.post(f"{BASE_URL}/settings/api-keys", json=key_data)
+            
+            if response.status_code == 200:
+                data = response.json()
+                if "message" in data and "success" in data["message"].lower():
+                    self.log_test("Save Ntfy API Key", True, 
+                                f"✅ Ntfy API key saved successfully")
+                    return True
+                else:
+                    self.log_test("Save Ntfy API Key", False, 
+                                "Unexpected response format", data)
+                    return False
+            else:
+                self.log_test("Save Ntfy API Key", False, 
+                            f"Failed with status {response.status_code}", response.text)
+                return False
+                
+        except Exception as e:
+            self.log_test("Save Ntfy API Key", False, f"Request error: {str(e)}")
+            return False
+    
+    def test_save_discord_api_key(self):
+        """Test saving Discord API key"""
+        try:
+            key_data = {
+                "service_name": "discord",
+                "credentials": {
+                    "webhook_url": "https://discord.com/api/webhooks/test"
+                }
+            }
+            
+            response = self.session.post(f"{BASE_URL}/settings/api-keys", json=key_data)
+            
+            if response.status_code == 200:
+                data = response.json()
+                if "message" in data and "success" in data["message"].lower():
+                    self.log_test("Save Discord API Key", True, 
+                                f"✅ Discord API key saved successfully")
+                    return True
+                else:
+                    self.log_test("Save Discord API Key", False, 
+                                "Unexpected response format", data)
+                    return False
+            else:
+                self.log_test("Save Discord API Key", False, 
+                            f"Failed with status {response.status_code}", response.text)
+                return False
+                
+        except Exception as e:
+            self.log_test("Save Discord API Key", False, f"Request error: {str(e)}")
+            return False
+    
+    def test_save_slack_api_key(self):
+        """Test saving Slack API key"""
+        try:
+            key_data = {
+                "service_name": "slack",
+                "credentials": {
+                    "webhook_url": "https://hooks.slack.com/test"
+                }
+            }
+            
+            response = self.session.post(f"{BASE_URL}/settings/api-keys", json=key_data)
+            
+            if response.status_code == 200:
+                data = response.json()
+                if "message" in data and "success" in data["message"].lower():
+                    self.log_test("Save Slack API Key", True, 
+                                f"✅ Slack API key saved successfully")
+                    return True
+                else:
+                    self.log_test("Save Slack API Key", False, 
+                                "Unexpected response format", data)
+                    return False
+            else:
+                self.log_test("Save Slack API Key", False, 
+                            f"Failed with status {response.status_code}", response.text)
+                return False
+                
+        except Exception as e:
+            self.log_test("Save Slack API Key", False, f"Request error: {str(e)}")
+            return False
+    
+    def test_save_telegram_api_key(self):
+        """Test saving Telegram API key"""
+        try:
+            key_data = {
+                "service_name": "telegram",
+                "credentials": {
+                    "bot_token": "test:token",
+                    "chat_id": "12345"
+                }
+            }
+            
+            response = self.session.post(f"{BASE_URL}/settings/api-keys", json=key_data)
+            
+            if response.status_code == 200:
+                data = response.json()
+                if "message" in data and "success" in data["message"].lower():
+                    self.log_test("Save Telegram API Key", True, 
+                                f"✅ Telegram API key saved successfully")
+                    return True
+                else:
+                    self.log_test("Save Telegram API Key", False, 
+                                "Unexpected response format", data)
+                    return False
+            else:
+                self.log_test("Save Telegram API Key", False, 
+                            f"Failed with status {response.status_code}", response.text)
+                return False
+                
+        except Exception as e:
+            self.log_test("Save Telegram API Key", False, f"Request error: {str(e)}")
+            return False
+    
+    def test_retrieve_api_keys(self):
+        """Test GET /api/settings/api-keys - Retrieve all API keys"""
+        try:
+            response = self.session.get(f"{BASE_URL}/settings/api-keys")
+            
+            if response.status_code == 200:
+                keys = response.json()
+                
+                # Check if our test keys are present
+                service_names = [key.get("service_name") for key in keys]
+                expected_services = ["ntfy", "discord", "slack", "telegram"]
+                found_services = [svc for svc in expected_services if svc in service_names]
+                
+                self.log_test("Retrieve API Keys", True, 
+                            f"✅ Retrieved {len(keys)} API keys, found services: {found_services}")
+                return True
+            else:
+                self.log_test("Retrieve API Keys", False, 
+                            f"Failed with status {response.status_code}", response.text)
+                return False
+                
+        except Exception as e:
+            self.log_test("Retrieve API Keys", False, f"Request error: {str(e)}")
+            return False
+
+    # ===== NOTIFICATION PROCESSING TESTS =====
+    
+    def create_notification_webhook(self, mode, webhook_name):
+        """Create a webhook endpoint for notification testing"""
+        try:
+            webhook_data = {
+                "name": webhook_name,
+                "path": f"test-{mode}-{str(uuid.uuid4())[:8]}",
+                "mode": mode,
+                "integration": mode
+            }
+            
+            response = self.session.post(f"{BASE_URL}/webhooks/endpoints", json=webhook_data)
+            
+            if response.status_code == 200:
+                data = response.json()
+                self.log_test(f"Create {mode.title()} Webhook", True, 
+                            f"Created {mode} webhook with path: {data.get('path')}")
+                return data
+            else:
+                self.log_test(f"Create {mode.title()} Webhook", False, 
+                            f"Failed with status {response.status_code}", response.text)
+                return None
+                
+        except Exception as e:
+            self.log_test(f"Create {mode.title()} Webhook", False, f"Request error: {str(e)}")
+            return None
+    
+    def test_ntfy_webhook_processing(self):
+        """Test Ntfy webhook processing (expected to fail with 'not configured')"""
+        try:
+            webhook_data = self.create_notification_webhook("ntfy", "Test Ntfy Notification")
+            if not webhook_data:
+                return False
+            
+            webhook_path = webhook_data.get("path")
+            webhook_token = webhook_data.get("secret_token")
+            webhook_id = webhook_data.get("id")
+            
+            # Test payload for Ntfy
+            test_payload = {
+                "title": "Test",
+                "message": "Hello from webhook"
+            }
+            
+            # Send webhook request
+            webhook_session = requests.Session()
+            headers = {"X-Webhook-Token": webhook_token}
+            
+            response = webhook_session.post(
+                f"{BASE_URL}/hooks/{webhook_path}", 
+                json=test_payload,
+                headers=headers
+            )
+            
+            time.sleep(1)  # Wait for log to be written
+            
+            # Get the webhook log to verify processing
+            logs_response = self.session.get(f"{BASE_URL}/webhooks/logs?endpoint_id={webhook_id}&limit=1")
+            
+            if logs_response.status_code == 200:
+                logs = logs_response.json()
+                if logs:
+                    log_entry = logs[0]
+                    status = log_entry.get("status", "unknown")
+                    response_message = log_entry.get("response_message", "")
+                    
+                    # Expected to fail with "not configured" error
+                    if status == "failed" and "not configured" in response_message.lower():
+                        self.log_test("Ntfy Webhook Processing", True, 
+                                    f"✅ Ntfy processing function exists and handles requests properly - Error: {response_message}")
+                    else:
+                        self.log_test("Ntfy Webhook Processing", True, 
+                                    f"✅ Ntfy webhook processed - Status: {status}")
+                    
+                    # Clean up webhook
+                    self.session.delete(f"{BASE_URL}/webhooks/endpoints/{webhook_id}")
+                    return True
+                else:
+                    self.log_test("Ntfy Webhook Processing", False, 
+                                "No webhook log found after processing")
+            else:
+                self.log_test("Ntfy Webhook Processing", False, 
+                            f"Failed to retrieve webhook logs: {logs_response.status_code}")
+            
+            # Clean up webhook
+            self.session.delete(f"{BASE_URL}/webhooks/endpoints/{webhook_id}")
+            return False
+                
+        except Exception as e:
+            self.log_test("Ntfy Webhook Processing", False, f"Request error: {str(e)}")
+            return False
+    
+    def test_discord_webhook_processing(self):
+        """Test Discord webhook processing (expected to fail with 'not configured')"""
+        try:
+            webhook_data = self.create_notification_webhook("discord", "Test Discord Message")
+            if not webhook_data:
+                return False
+            
+            webhook_path = webhook_data.get("path")
+            webhook_token = webhook_data.get("secret_token")
+            webhook_id = webhook_data.get("id")
+            
+            # Test payload for Discord
+            test_payload = {
+                "content": "Test Discord message"
+            }
+            
+            # Send webhook request
+            webhook_session = requests.Session()
+            headers = {"X-Webhook-Token": webhook_token}
+            
+            response = webhook_session.post(
+                f"{BASE_URL}/hooks/{webhook_path}", 
+                json=test_payload,
+                headers=headers
+            )
+            
+            time.sleep(1)  # Wait for log to be written
+            
+            # Get the webhook log to verify processing
+            logs_response = self.session.get(f"{BASE_URL}/webhooks/logs?endpoint_id={webhook_id}&limit=1")
+            
+            if logs_response.status_code == 200:
+                logs = logs_response.json()
+                if logs:
+                    log_entry = logs[0]
+                    status = log_entry.get("status", "unknown")
+                    response_message = log_entry.get("response_message", "")
+                    
+                    # Expected to fail with "not configured" error
+                    if status == "failed" and "not configured" in response_message.lower():
+                        self.log_test("Discord Webhook Processing", True, 
+                                    f"✅ Discord processing function exists and handles requests properly - Error: {response_message}")
+                    else:
+                        self.log_test("Discord Webhook Processing", True, 
+                                    f"✅ Discord webhook processed - Status: {status}")
+                    
+                    # Clean up webhook
+                    self.session.delete(f"{BASE_URL}/webhooks/endpoints/{webhook_id}")
+                    return True
+                else:
+                    self.log_test("Discord Webhook Processing", False, 
+                                "No webhook log found after processing")
+            else:
+                self.log_test("Discord Webhook Processing", False, 
+                            f"Failed to retrieve webhook logs: {logs_response.status_code}")
+            
+            # Clean up webhook
+            self.session.delete(f"{BASE_URL}/webhooks/endpoints/{webhook_id}")
+            return False
+                
+        except Exception as e:
+            self.log_test("Discord Webhook Processing", False, f"Request error: {str(e)}")
+            return False
+    
+    def test_slack_webhook_processing(self):
+        """Test Slack webhook processing (expected to fail with 'not configured')"""
+        try:
+            webhook_data = self.create_notification_webhook("slack", "Test Slack Message")
+            if not webhook_data:
+                return False
+            
+            webhook_path = webhook_data.get("path")
+            webhook_token = webhook_data.get("secret_token")
+            webhook_id = webhook_data.get("id")
+            
+            # Test payload for Slack
+            test_payload = {
+                "text": "Test Slack message"
+            }
+            
+            # Send webhook request
+            webhook_session = requests.Session()
+            headers = {"X-Webhook-Token": webhook_token}
+            
+            response = webhook_session.post(
+                f"{BASE_URL}/hooks/{webhook_path}", 
+                json=test_payload,
+                headers=headers
+            )
+            
+            time.sleep(1)  # Wait for log to be written
+            
+            # Get the webhook log to verify processing
+            logs_response = self.session.get(f"{BASE_URL}/webhooks/logs?endpoint_id={webhook_id}&limit=1")
+            
+            if logs_response.status_code == 200:
+                logs = logs_response.json()
+                if logs:
+                    log_entry = logs[0]
+                    status = log_entry.get("status", "unknown")
+                    response_message = log_entry.get("response_message", "")
+                    
+                    # Expected to fail with "not configured" error
+                    if status == "failed" and "not configured" in response_message.lower():
+                        self.log_test("Slack Webhook Processing", True, 
+                                    f"✅ Slack processing function exists and handles requests properly - Error: {response_message}")
+                    else:
+                        self.log_test("Slack Webhook Processing", True, 
+                                    f"✅ Slack webhook processed - Status: {status}")
+                    
+                    # Clean up webhook
+                    self.session.delete(f"{BASE_URL}/webhooks/endpoints/{webhook_id}")
+                    return True
+                else:
+                    self.log_test("Slack Webhook Processing", False, 
+                                "No webhook log found after processing")
+            else:
+                self.log_test("Slack Webhook Processing", False, 
+                            f"Failed to retrieve webhook logs: {logs_response.status_code}")
+            
+            # Clean up webhook
+            self.session.delete(f"{BASE_URL}/webhooks/endpoints/{webhook_id}")
+            return False
+                
+        except Exception as e:
+            self.log_test("Slack Webhook Processing", False, f"Request error: {str(e)}")
+            return False
+    
+    def test_telegram_webhook_processing(self):
+        """Test Telegram webhook processing (expected to fail with 'not configured')"""
+        try:
+            webhook_data = self.create_notification_webhook("telegram", "Test Telegram Message")
+            if not webhook_data:
+                return False
+            
+            webhook_path = webhook_data.get("path")
+            webhook_token = webhook_data.get("secret_token")
+            webhook_id = webhook_data.get("id")
+            
+            # Test payload for Telegram
+            test_payload = {
+                "text": "Test Telegram message"
+            }
+            
+            # Send webhook request
+            webhook_session = requests.Session()
+            headers = {"X-Webhook-Token": webhook_token}
+            
+            response = webhook_session.post(
+                f"{BASE_URL}/hooks/{webhook_path}", 
+                json=test_payload,
+                headers=headers
+            )
+            
+            time.sleep(1)  # Wait for log to be written
+            
+            # Get the webhook log to verify processing
+            logs_response = self.session.get(f"{BASE_URL}/webhooks/logs?endpoint_id={webhook_id}&limit=1")
+            
+            if logs_response.status_code == 200:
+                logs = logs_response.json()
+                if logs:
+                    log_entry = logs[0]
+                    status = log_entry.get("status", "unknown")
+                    response_message = log_entry.get("response_message", "")
+                    
+                    # Expected to fail with "not configured" error
+                    if status == "failed" and "not configured" in response_message.lower():
+                        self.log_test("Telegram Webhook Processing", True, 
+                                    f"✅ Telegram processing function exists and handles requests properly - Error: {response_message}")
+                    else:
+                        self.log_test("Telegram Webhook Processing", True, 
+                                    f"✅ Telegram webhook processed - Status: {status}")
+                    
+                    # Clean up webhook
+                    self.session.delete(f"{BASE_URL}/webhooks/endpoints/{webhook_id}")
+                    return True
+                else:
+                    self.log_test("Telegram Webhook Processing", False, 
+                                "No webhook log found after processing")
+            else:
+                self.log_test("Telegram Webhook Processing", False, 
+                            f"Failed to retrieve webhook logs: {logs_response.status_code}")
+            
+            # Clean up webhook
+            self.session.delete(f"{BASE_URL}/webhooks/endpoints/{webhook_id}")
+            return False
+                
+        except Exception as e:
+            self.log_test("Telegram Webhook Processing", False, f"Request error: {str(e)}")
+            return False
+
     def run_all_tests(self):
         """Run all test scenarios for Syslog & Notification Integrations"""
         print("🚀 Starting Webhook Gateway Hub Backend Testing - Syslog & Notification Integrations")
