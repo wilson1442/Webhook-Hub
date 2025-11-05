@@ -372,8 +372,9 @@ const Settings = ({ user }) => {
       </div>
 
       <Tabs defaultValue="api-keys" className="w-full">
-        <TabsList className="grid w-full grid-cols-4">
-          <TabsTrigger value="api-keys" data-testid="api-keys-tab">Integrations</TabsTrigger>
+        <TabsList className="grid w-full grid-cols-5">
+          <TabsTrigger value="api-keys" data-testid="api-keys-tab">SendGrid</TabsTrigger>
+          <TabsTrigger value="notifications" data-testid="notifications-tab">Notifications</TabsTrigger>
           <TabsTrigger value="backups" data-testid="backups-tab">Backups</TabsTrigger>
           <TabsTrigger value="scheduler" data-testid="scheduler-tab">Backup Scheduler</TabsTrigger>
           <TabsTrigger value="updates" data-testid="updates-tab">Updates</TabsTrigger>
