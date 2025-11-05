@@ -42,6 +42,9 @@ const SendGridFields = () => {
       }
     } finally {
       setLoading(false);
+    }
+  };
+
   const handleSync = async () => {
     setSyncing(true);
       const response = await axios.post(`${API}/sendgrid/sync-fields`);
