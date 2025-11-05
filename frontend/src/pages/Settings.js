@@ -11,6 +11,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '.
 import { Switch } from '../components/ui/switch';
 import { toast } from 'sonner';
 import { Key, Trash2, Check, X, Download, GitBranch, Clock, Calendar } from 'lucide-react';
+import IntegrationsConfig from '../components/IntegrationsConfig';
 
 const Settings = ({ user }) => {
   const [apiKeys, setApiKeys] = useState([]);
