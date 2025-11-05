@@ -10,6 +10,7 @@ import { Checkbox } from '../components/ui/checkbox';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '../components/ui/dialog';
 import { toast } from 'sonner';
 import { Users, Search, Filter, Edit, RefreshCw, X, Plus } from 'lucide-react';
+import NotConfigured from '../components/NotConfigured';
 
 const SendGridContacts = () => {
   const [lists, setLists] = useState([]);
@@ -22,11 +23,28 @@ const SendGridContacts = () => {
   const [bulkEditOpen, setBulkEditOpen] = useState(false);
   const [bulkEditFields, setBulkEditFields] = useState({});
   const [updating, setUpdating] = useState(false);
+  const [sendgridConfigured, setSendgridConfigured] = useState(true);
 
   useEffect(() => {
-    fetchLists();
-    fetchFields();
+    checkSendGridConfig();
   }, []);
+
+  useEffect(() => {
+    if (sendgridConfigured) {
+      fetchLists();
+      fetchFields();
+    }
+  }, [sendgridConfigured]);
+
+  const checkSendGridConfig = async () => {
+    try {
+      const response = await axios.get(`${API}/settings/api-keys`);
+      const sendgridKey = response.data.find(key => key.service_name === 'sendgrid');
+      setSendgridConfigured(sendgridKey && sendgridKey.is_active !== false);
+    } catch (error) {
+      setSendgridConfigured(false);
+    }
+  };
 
   const fetchLists = async () => {
     try {
