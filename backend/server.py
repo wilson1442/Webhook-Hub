@@ -20,6 +20,10 @@ import json
 import zipfile
 import io
 from backup_scheduler import BackupScheduler
+from integrations import (
+    SyslogSender, send_ntfy_notification, send_discord_message,
+    send_slack_message, send_telegram_message
+)
 
 ROOT_DIR = Path(__file__).parent
 load_dotenv(ROOT_DIR / '.env')
