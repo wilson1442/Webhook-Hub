@@ -478,6 +478,18 @@ frontend:
         agent: "testing"
         comment: "✅ COMPREHENSIVE BULK EDIT DIALOG TESTING COMPLETE: All requested features verified and working perfectly. RESULTS: (1) ✅ Dialog Structure - Successfully opened bulk edit dialog with proper organization into 2 distinct sections. (2) ✅ Reserved Fields Section - Header '📋 Reserved Fields (14)' found with correct count, 2-column grid layout confirmed, standard SendGrid fields like Email, First Name, Last Name, Address, City, etc. displayed properly. (3) ✅ Custom Fields Section - Header '⚙️ Custom Fields (25)' found with correct count, 2-column grid layout confirmed, purple styling applied to labels and inputs. (4) ✅ Custom Field Names Identified - Found all requested fields: LoanOfficerName, Company, and multiple web_* fields (web_desired_loan_amount, web_whats_credit_score, web_loanpurpose, web_union, web_submitting_URL, web_submitting_page_title, web_referred_by, web_comments). (5) ✅ Layout & UX - Dialog has correct width (max-w-3xl), scrollable content, proper placeholder text 'Leave empty to keep current' on all 39 input fields, clear visual separation between sections. (6) ✅ Field Counts Verified - 14 reserved fields + 25 custom fields = 39 total inputs, matching section headers exactly. All test scenarios from review request successfully completed with screenshots captured for documentation."
 
+  - task: "Webhooks Page - Notification Webhooks Display"
+    implemented: true
+    working: true
+    file: "/app/frontend/src/pages/Webhooks.js"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+      - working: true
+        agent: "testing"
+        comment: "✅ NOTIFICATION WEBHOOKS DISPLAY TESTING COMPLETE: Comprehensive verification completed successfully. All success criteria met: (1) ✅ Three webhook groups verified - Add Contact Webhooks (GREEN), Send Email Webhooks (PURPLE), Notification Webhooks (YELLOW border). (2) ✅ Notification Webhooks section features - Yellow border styling, webhook count display ('1 webhook'), proper section structure. (3) ✅ Existing notification webhook verified - Found Discord notification webhook with correct indigo badge, proper webhook name, URL and secret token display. (4) ✅ Webhook card details accessible - All required information present: webhook URL, secret token, copy buttons (3 found), action buttons (Edit, Duplicate, Delete). (5) ✅ Mode badges display correct colors - Discord badge shows INDIGO color (bg-indigo-100). (6) ✅ View functionality working - Currently in detailed view, copy buttons functional, all information accessible. Minor: Bell icon import was missing but fixed during testing. All notification webhooks display correctly with proper styling and full functionality as specified in review request."
+
   - task: "Syslog Configuration Endpoints"
     implemented: true
     working: true
