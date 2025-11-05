@@ -2099,6 +2099,51 @@ class WebhookGatewayTester:
         self.print_test_summary()
         
         return True
+    
+    def print_test_summary(self):
+        """Print comprehensive test summary"""
+        print("\n" + "=" * 80)
+        print("📊 SYSLOG & NOTIFICATION INTEGRATIONS TEST SUMMARY")
+        print("=" * 80)
+        
+        total_tests = len(self.test_results)
+        passed_tests = sum(1 for result in self.test_results if result["success"])
+        failed_tests = total_tests - passed_tests
+        
+        print(f"Total Tests: {total_tests}")
+        print(f"Passed: {passed_tests}")
+        print(f"Failed: {failed_tests}")
+        print(f"Success Rate: {(passed_tests/total_tests)*100:.1f}%")
+        
+        # Group tests by category
+        syslog_tests = [r for r in self.test_results if "syslog" in r["test"].lower()]
+        api_key_tests = [r for r in self.test_results if "api key" in r["test"].lower()]
+        webhook_tests = [r for r in self.test_results if "webhook processing" in r["test"].lower()]
+        
+        print(f"\n📡 SYSLOG CONFIGURATION TESTS:")
+        syslog_passed = sum(1 for r in syslog_tests if r["success"])
+        print(f"  {syslog_passed}/{len(syslog_tests)} passed")
+        
+        print(f"\n🔑 API KEY STORAGE TESTS:")
+        api_key_passed = sum(1 for r in api_key_tests if r["success"])
+        print(f"  {api_key_passed}/{len(api_key_tests)} passed")
+        
+        print(f"\n🔔 NOTIFICATION PROCESSING TESTS:")
+        webhook_passed = sum(1 for r in webhook_tests if r["success"])
+        print(f"  {webhook_passed}/{len(webhook_tests)} passed")
+        
+        if failed_tests > 0:
+            print(f"\n❌ FAILED TESTS ({failed_tests}):")
+            for result in self.test_results:
+                if not result["success"]:
+                    print(f"  - {result['test']}: {result['message']}")
+        
+        if failed_tests == 0:
+            print(f"\n🎉 ALL TESTS PASSED! New syslog and notification features are working correctly!")
+        else:
+            print(f"\n⚠️  Some tests failed. Please review the issues above.")
+        
+        return failed_tests == 0
                 if not result["success"]:
                     print(f"  - {result['test']}: {result['message']}")
                     if result.get("details"):
