@@ -1109,6 +1109,59 @@ async def verify_api_key(service_name: str, current_user: dict = Depends(get_adm
     
     return {"status": "success", "message": "Verification not implemented for this service"}
 
+# Syslog Configuration Endpoints
+@api_router.get("/syslog/config")
+async def get_syslog_config(current_user: dict = Depends(get_current_user)):
+    """Get current syslog configuration"""
+    config = await db.syslog_config.find_one({}, {"_id": 0})
+    return config or {}
+
+@api_router.post("/syslog/config")
+async def save_syslog_config(config: SyslogConfigCreate, current_user: dict = Depends(get_admin_user)):
+    """Save or update syslog configuration"""
+    try:
+        # Check if config exists
+        existing = await db.syslog_config.find_one({})
+        
+        config_dict = config.model_dump()
+        
+        if existing:
+            # Update existing
+            await db.syslog_config.update_one(
+                {"id": existing['id']},
+                {"$set": config_dict}
+            )
+        else:
+            # Create new
+            new_config = SyslogConfig(**config_dict)
+            await db.syslog_config.insert_one(new_config.model_dump())
+        
+        return {"message": "Syslog configuration saved successfully"}
+    except Exception as e:
+        logger.error(f"Failed to save syslog config: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+@api_router.post("/syslog/test")
+async def test_syslog_connection(config: SyslogConfigCreate, current_user: dict = Depends(get_admin_user)):
+    """Test connection to syslog server"""
+    try:
+        syslog_sender = SyslogSender(config.host, config.port, config.protocol)
+        success = syslog_sender.test_connection()
+        
+        if success:
+            return {"status": "success", "message": f"Successfully connected to {config.host}:{config.port} via {config.protocol.upper()}"}
+        else:
+            return {"status": "failed", "message": f"Failed to connect to {config.host}:{config.port}"}
+    except Exception as e:
+        logger.error(f"Syslog test error: {e}")
+        return {"status": "failed", "message": str(e)}
+
+@api_router.delete("/syslog/config")
+async def delete_syslog_config(current_user: dict = Depends(get_admin_user)):
+    """Delete syslog configuration"""
+    await db.syslog_config.delete_many({})
+    return {"message": "Syslog configuration deleted"}
+
 # SendGrid Integration
 @api_router.get("/sendgrid/lists")
 async def get_sendgrid_lists(current_user: dict = Depends(get_current_user)):
