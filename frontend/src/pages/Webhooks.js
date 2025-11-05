@@ -454,6 +454,9 @@ const Webhooks = () => {
                       // Remove cc and bcc for add_contact mode
                       delete newFieldMapping.cc;
                       delete newFieldMapping.bcc;
+                    } else {
+                      // For notification modes (ntfy, discord, slack, telegram), no field mapping needed
+                      // Clear field_mapping as these use direct payload data
                     }
                     
                     setFormData({ ...formData, mode: value, field_mapping: newFieldMapping });
