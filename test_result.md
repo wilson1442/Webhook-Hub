@@ -607,9 +607,10 @@ metadata:
 
 test_plan:
   current_focus:
-    - "Syslog Configuration Endpoints"
-    - "Notification Processing Functions"
-    - "API Key Storage for New Integrations"
+    - "Syslog Configuration Frontend UI"
+    - "Notification Integrations Frontend UI"
+    - "Webhooks Page - New Notification Modes"
+    - "Logs Page - Mode Display Enhancement"
   stuck_tasks:
     - "Webhooks Page - Collapsible Cards Default Collapsed"
     - "Settings Page - Backup Download"
