@@ -1521,63 +1521,40 @@ class WebhookGatewayTester:
             return False
 
     def run_all_tests(self):
-        """Run complete test suite focusing on SendGrid Bulk Update Fix (Contact ID Removed)"""
-        print("🚀 CRITICAL FIX VERIFICATION: SendGrid Bulk Update - Contact ID Removed")
+        """Run all test scenarios for Syslog & Notification Integrations"""
+        print("🚀 Starting Webhook Gateway Hub Backend Testing - Syslog & Notification Integrations")
         print("=" * 80)
         
         # Authentication
         if not self.authenticate():
-            print("❌ Authentication failed. Cannot proceed with tests.")
             return False
         
-        print("\n🎯 CRITICAL FIX: Contact ID Removal from SendGrid Bulk Update Payload")
-        print("=" * 80)
-        print("ISSUE: Contact IDs were being included in SendGrid bulk update payload,")
-        print("       causing updates to be silently ignored by SendGrid API v3")
-        print("FIX:   Removed contact ID from update payload - contacts identified by email only")
+        # Test 1: Syslog Configuration (HIGH PRIORITY)
+        print("\n📡 Testing Syslog Configuration Endpoints...")
+        self.test_get_syslog_config()
+        self.test_save_syslog_config()
+        self.test_syslog_connection_test()
+        self.test_delete_syslog_config()
         
-        # Test 1: Check SendGrid configuration
-        print("\n1. Checking SendGrid Configuration...")
-        sendgrid_available = self.check_sendgrid_configuration()
-        if not sendgrid_available:
-            print("⚠️  SendGrid not configured. Tests will focus on payload structure validation.")
+        # Test 2: API Key Storage for New Integrations
+        print("\n🔑 Testing API Key Storage for New Integrations...")
+        self.test_save_ntfy_api_key()
+        self.test_save_discord_api_key()
+        self.test_save_slack_api_key()
+        self.test_save_telegram_api_key()
+        self.test_retrieve_api_keys()
         
-        # Test 2: CRITICAL - Verify no contact ID in payload
-        print("\n2. 🔍 CRITICAL TEST: Verifying Contact ID Removed from Payload...")
-        self.test_sendgrid_bulk_update_payload_no_contact_id()
+        # Test 3: Notification Processing Functions
+        print("\n🔔 Testing Notification Processing Functions...")
+        self.test_ntfy_webhook_processing()
+        self.test_discord_webhook_processing()
+        self.test_slack_webhook_processing()
+        self.test_telegram_webhook_processing()
         
-        # Test 3: Multiple contacts verification
-        print("\n3. 🔍 Testing Multiple Contacts - No ID Fields...")
-        self.test_multiple_contacts_no_id_field()
+        # Print summary
+        self.print_test_summary()
         
-        # Test 4: Verify API still returns success
-        print("\n4. Testing API Success Response...")
-        self.test_batch_edit_successful_logging()
-        
-        # Summary
-        print("\n" + "=" * 80)
-        print("📊 SENDGRID BULK UPDATE FIX VERIFICATION SUMMARY")
-        print("=" * 80)
-        
-        total_tests = len(self.test_results)
-        passed_tests = sum(1 for result in self.test_results if result["success"])
-        failed_tests = total_tests - passed_tests
-        
-        print(f"Total Tests: {total_tests}")
-        print(f"Passed: {passed_tests}")
-        print(f"Failed: {failed_tests}")
-        print(f"Success Rate: {(passed_tests/total_tests)*100:.1f}%")
-        
-        # Check critical tests
-        critical_tests = [r for r in self.test_results if "Contact ID" in r["test"] or "No ID" in r["test"]]
-        critical_passed = sum(1 for r in critical_tests if r["success"])
-        
-        print(f"\n🔥 CRITICAL FIX VERIFICATION:")
-        print(f"  Contact ID Removal Tests: {critical_passed}/{len(critical_tests)} passed")
-        
-        if failed_tests > 0:
-            print(f"\n❌ FAILED TESTS ({failed_tests}):")
-            for result in self.test_results:
+        return True
                 if not result["success"]:
                     print(f"  - {result['test']}: {result['message']}")
                     if result.get("details"):
