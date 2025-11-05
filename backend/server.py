@@ -428,10 +428,19 @@ async def handle_webhook(path: str, request: Request, x_webhook_token: Optional[
     
     # Process based on mode
     try:
-        if endpoint['mode'] == 'add_contact':
+        mode = endpoint['mode']
+        if mode == 'add_contact':
             result = await process_add_contact(endpoint, payload)
-        elif endpoint['mode'] == 'send_email':
+        elif mode == 'send_email':
             result = await process_send_email(endpoint, payload)
+        elif mode == 'ntfy':
+            result = await process_ntfy_notification(endpoint, payload)
+        elif mode == 'discord':
+            result = await process_discord_message(endpoint, payload)
+        elif mode == 'slack':
+            result = await process_slack_message(endpoint, payload)
+        elif mode == 'telegram':
+            result = await process_telegram_message(endpoint, payload)
         else:
             result = {"status": "failed", "message": "Invalid mode"}
         
