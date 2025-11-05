@@ -673,6 +673,115 @@ async def process_send_email(endpoint: dict, payload: dict) -> dict:
     else:
         return {"status": "failed", "message": f"SendGrid API error: {response.text}"}
 
+async def process_ntfy_notification(endpoint: dict, payload: dict) -> dict:
+    """Process Ntfy.sh notification"""
+    try:
+        # Get Ntfy config from API keys
+        key_doc = await db.api_keys.find_one({"service_name": "ntfy"}, {"_id": 0})
+        if not key_doc:
+            return {"status": "failed", "message": "Ntfy not configured"}
+        
+        topic_url = key_doc['credentials'].get('topic_url')
+        auth_token = key_doc['credentials'].get('auth_token')
+        
+        # Extract title and message from payload
+        title = payload.get('title', 'Webhook Notification')
+        message = payload.get('message', json.dumps(payload))
+        tags = payload.get('tags', [])
+        priority = payload.get('priority', 3)
+        
+        result = send_ntfy_notification(topic_url, title, message, auth_token, tags, priority)
+        
+        if result['success']:
+            return {"status": "success", "message": result['message']}
+        else:
+            return {"status": "failed", "message": result['message']}
+            
+    except Exception as e:
+        logger.error(f"Ntfy notification error: {e}")
+        return {"status": "failed", "message": str(e)}
+
+async def process_discord_message(endpoint: dict, payload: dict) -> dict:
+    """Process Discord webhook message"""
+    try:
+        # Get Discord config from API keys
+        key_doc = await db.api_keys.find_one({"service_name": "discord"}, {"_id": 0})
+        if not key_doc:
+            return {"status": "failed", "message": "Discord not configured"}
+        
+        webhook_url = key_doc['credentials'].get('webhook_url')
+        
+        # Extract message content from payload
+        content = payload.get('content') or payload.get('message')
+        username = payload.get('username', 'Webhook Gateway')
+        
+        # Support Discord embeds if provided
+        embeds = payload.get('embeds')
+        
+        result = send_discord_message(webhook_url, content, embeds, username)
+        
+        if result['success']:
+            return {"status": "success", "message": result['message']}
+        else:
+            return {"status": "failed", "message": result['message']}
+            
+    except Exception as e:
+        logger.error(f"Discord message error: {e}")
+        return {"status": "failed", "message": str(e)}
+
+async def process_slack_message(endpoint: dict, payload: dict) -> dict:
+    """Process Slack webhook message"""
+    try:
+        # Get Slack config from API keys
+        key_doc = await db.api_keys.find_one({"service_name": "slack"}, {"_id": 0})
+        if not key_doc:
+            return {"status": "failed", "message": "Slack not configured"}
+        
+        webhook_url = key_doc['credentials'].get('webhook_url')
+        
+        # Extract message content from payload
+        text = payload.get('text') or payload.get('message')
+        blocks = payload.get('blocks')
+        username = payload.get('username')
+        icon_emoji = payload.get('icon_emoji')
+        
+        result = send_slack_message(webhook_url, text, blocks, username, icon_emoji)
+        
+        if result['success']:
+            return {"status": "success", "message": result['message']}
+        else:
+            return {"status": "failed", "message": result['message']}
+            
+    except Exception as e:
+        logger.error(f"Slack message error: {e}")
+        return {"status": "failed", "message": str(e)}
+
+async def process_telegram_message(endpoint: dict, payload: dict) -> dict:
+    """Process Telegram bot message"""
+    try:
+        # Get Telegram config from API keys
+        key_doc = await db.api_keys.find_one({"service_name": "telegram"}, {"_id": 0})
+        if not key_doc:
+            return {"status": "failed", "message": "Telegram not configured"}
+        
+        bot_token = key_doc['credentials'].get('bot_token')
+        chat_id = key_doc['credentials'].get('chat_id')
+        
+        # Extract message text from payload
+        text = payload.get('text') or payload.get('message') or json.dumps(payload, indent=2)
+        parse_mode = payload.get('parse_mode', 'HTML')
+        
+        result = send_telegram_message(bot_token, chat_id, text, parse_mode)
+        
+        if result['success']:
+            return {"status": "success", "message": result['message']}
+        else:
+            return {"status": "failed", "message": result['message']}
+            
+    except Exception as e:
+        logger.error(f"Telegram message error: {e}")
+        return {"status": "failed", "message": str(e)}
+
 async def log_webhook(endpoint_id: str, endpoint_name: str, status: str, source_ip: str, payload: dict, response_msg: str = "", integration: str = "sendgrid", mode: str = "add_contact"):
     log = WebhookLog(
         endpoint_id=endpoint_id,
@@ -688,6 +797,19 @@ async def log_webhook(endpoint_id: str, endpoint_name: str, status: str, source_
     log_dict = log.model_dump()
     log_dict['timestamp'] = log_dict['timestamp'].isoformat()
     await db.webhook_logs.insert_one(log_dict)
+    
+    # Forward to syslog if configured
+    try:
+        syslog_config = await db.syslog_config.find_one({"enabled": True}, {"_id": 0})
+        if syslog_config:
+            syslog_sender = SyslogSender(
+                syslog_config['host'],
+                syslog_config['port'],
+                syslog_config['protocol']
+            )
+            syslog_sender.send_log(log_dict)
+    except Exception as e:
+        logger.error(f"Syslog forwarding error: {e}")
 
 # Webhook Logs
 @api_router.get("/webhooks/logs")
