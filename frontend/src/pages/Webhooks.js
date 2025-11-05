@@ -27,6 +27,19 @@ const Webhooks = () => {
   const [templateKeys, setTemplateKeys] = useState([]);
   const [loadingTemplateKeys, setLoadingTemplateKeys] = useState(false);
   const [activeIntegrations, setActiveIntegrations] = useState([]);
+
+  const getModeLabel = (mode) => {
+    const modeLabels = {
+      'add_contact': 'Add Contact',
+      'send_email': 'Send Email',
+      'ntfy': 'Ntfy Notification',
+      'discord': 'Discord Message',
+      'slack': 'Slack Message',
+      'telegram': 'Telegram Message'
+    };
+    return modeLabels[mode] || mode;
+  };
+
   const [formData, setFormData] = useState({
     name: '',
     path: '',
