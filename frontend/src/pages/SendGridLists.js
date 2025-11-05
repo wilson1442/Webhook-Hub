@@ -13,11 +13,9 @@ import NotConfigured from '../components/NotConfigured';
 const SendGridLists = () => {
   const [lists, setLists] = useState([]);
   const [sendgridConfigured, setSendgridConfigured] = useState(true);
-
   useEffect(() => {
     checkSendGridConfig();
   }, []);
-
   const checkSendGridConfig = async () => {
     try {
       const response = await axios.get(`${API}/settings/api-keys`);
@@ -28,110 +26,15 @@ const SendGridLists = () => {
     }
   };
   const [filteredLists, setFilteredLists] = useState([]);
-  const [sendgridConfigured, setSendgridConfigured] = useState(true);
-
-  useEffect(() => {
-    checkSendGridConfig();
-  }, []);
-
-  const checkSendGridConfig = async () => {
-    try {
-      const response = await axios.get(`${API}/settings/api-keys`);
-      const sendgridKey = response.data.find(key => key.service_name === 'sendgrid');
-      setSendgridConfigured(sendgridKey && sendgridKey.is_active !== false);
-    } catch (error) {
-      setSendgridConfigured(false);
-    }
-  };
   const [loading, setLoading] = useState(true);
-  const [sendgridConfigured, setSendgridConfigured] = useState(true);
-
-  useEffect(() => {
-    checkSendGridConfig();
-  }, []);
-
-  const checkSendGridConfig = async () => {
-    try {
-      const response = await axios.get(`${API}/settings/api-keys`);
-      const sendgridKey = response.data.find(key => key.service_name === 'sendgrid');
-      setSendgridConfigured(sendgridKey && sendgridKey.is_active !== false);
-    } catch (error) {
-      setSendgridConfigured(false);
-    }
-  };
   const [hasApiKey, setHasApiKey] = useState(false);
-  const [sendgridConfigured, setSendgridConfigured] = useState(true);
-
-  useEffect(() => {
-    checkSendGridConfig();
-  }, []);
-
-  const checkSendGridConfig = async () => {
-    try {
-      const response = await axios.get(`${API}/settings/api-keys`);
-      const sendgridKey = response.data.find(key => key.service_name === 'sendgrid');
-      setSendgridConfigured(sendgridKey && sendgridKey.is_active !== false);
-    } catch (error) {
-      setSendgridConfigured(false);
-    }
-  };
   const [dialogOpen, setDialogOpen] = useState(false);
-  const [sendgridConfigured, setSendgridConfigured] = useState(true);
-
-  useEffect(() => {
-    checkSendGridConfig();
-  }, []);
-
-  const checkSendGridConfig = async () => {
-    try {
-      const response = await axios.get(`${API}/settings/api-keys`);
-      const sendgridKey = response.data.find(key => key.service_name === 'sendgrid');
-      setSendgridConfigured(sendgridKey && sendgridKey.is_active !== false);
-    } catch (error) {
-      setSendgridConfigured(false);
-    }
-  };
   const [searchQuery, setSearchQuery] = useState('');
-  const [sendgridConfigured, setSendgridConfigured] = useState(true);
-
-  useEffect(() => {
-    checkSendGridConfig();
-  }, []);
-
-  const checkSendGridConfig = async () => {
-    try {
-      const response = await axios.get(`${API}/settings/api-keys`);
-      const sendgridKey = response.data.find(key => key.service_name === 'sendgrid');
-      setSendgridConfigured(sendgridKey && sendgridKey.is_active !== false);
-    } catch (error) {
-      setSendgridConfigured(false);
-    }
-  };
   const [formData, setFormData] = useState({
-  const [sendgridConfigured, setSendgridConfigured] = useState(true);
-
-  useEffect(() => {
-    checkSendGridConfig();
-  }, []);
-
-  const checkSendGridConfig = async () => {
-    try {
-      const response = await axios.get(`${API}/settings/api-keys`);
-      const sendgridKey = response.data.find(key => key.service_name === 'sendgrid');
-      setSendgridConfigured(sendgridKey && sendgridKey.is_active !== false);
-    } catch (error) {
-      setSendgridConfigured(false);
-    }
-  };
     name: ''
   });
-
-  useEffect(() => {
     checkApiKey();
     fetchLists();
-  }, []);
-
-  useEffect(() => {
     // Filter lists based on search query
     if (searchQuery.trim() === '') {
       setFilteredLists(lists);
@@ -141,44 +44,26 @@ const SendGridLists = () => {
         list.id.toLowerCase().includes(searchQuery.toLowerCase())
       );
       setFilteredLists(filtered);
-    }
   }, [searchQuery, lists]);
-
   const checkApiKey = async () => {
-    try {
-      const response = await axios.get(`${API}/settings/api-keys`);
       const sendgridKey = response.data.find(k => k.service_name === 'sendgrid');
       setHasApiKey(!!sendgridKey);
-    } catch (error) {
       setHasApiKey(false);
-    }
-  };
-
   const fetchLists = async () => {
-    try {
       const response = await axios.get(`${API}/sendgrid/lists`);
       setLists(response.data.lists || []);
       setFilteredLists(response.data.lists || []);
-    } catch (error) {
       toast.error('Failed to fetch SendGrid lists');
     } finally {
       setLoading(false);
-    }
-  };
-
   const handleCreateList = async (e) => {
     e.preventDefault();
-    try {
       const response = await axios.post(`${API}/sendgrid/lists/create`, formData);
       toast.success('List created successfully!');
       setDialogOpen(false);
       fetchLists();
       setFormData({ name: '' });
-    } catch (error) {
       toast.error(error.response?.data?.detail || 'Failed to create list');
-    }
-  };
-
   if (loading) {
     return (
       <div className="flex items-center justify-center h-64">
@@ -186,9 +71,7 @@ const SendGridLists = () => {
       </div>
     );
   }
-
   if (!hasApiKey) {
-    return (
       <div className="space-y-8" data-testid="sendgrid-lists-page">
         <div>
           <h1 className="text-4xl font-bold text-gray-800 mb-2">SendGrid Lists</h1>
@@ -208,21 +91,11 @@ const SendGridLists = () => {
             </Button>
           </CardContent>
         </Card>
-      </div>
-    );
-  }
-
   if (!sendgridConfigured) {
     return <NotConfigured service="SendGrid" />;
-  }
-
   return (
     <div className="space-y-8" data-testid="sendgrid-lists-page">
       <div className="flex justify-between items-center">
-        <div>
-          <h1 className="text-4xl font-bold text-gray-800 mb-2">SendGrid Lists</h1>
-          <p className="text-gray-600">Manage your SendGrid contact lists</p>
-        </div>
         <div className="flex space-x-2">
           <Input
             placeholder="Search lists..."
@@ -272,9 +145,6 @@ const SendGridLists = () => {
               </form>
             </DialogContent>
           </Dialog>
-        </div>
-      </div>
-
       {filteredLists.length > 0 ? (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {filteredLists.map((list) => (
@@ -290,31 +160,21 @@ const SendGridLists = () => {
                       <CardDescription className="mt-1">
                         {list.contact_count || 0} contacts
                       </CardDescription>
-                    </div>
                   </div>
-                </div>
               </CardHeader>
               <CardContent className="space-y-3">
                 <div className="text-sm text-gray-600">
                   <p><strong>ID:</strong> <code className="text-xs bg-gray-100 px-2 py-1 rounded">{list.id}</code></p>
-                </div>
               </CardContent>
             </Card>
           ))}
-        </div>
       ) : (
-        <Card className="glass">
-          <CardContent className="text-center py-12">
             <Users className="h-12 w-12 mx-auto mb-4 text-gray-400" />
             <p className="text-gray-500 mb-4">No lists found</p>
             <Button onClick={() => setDialogOpen(true)} data-testid="create-first-list-btn">
               Create Your First List
-            </Button>
-          </CardContent>
-        </Card>
       )}
     </div>
   );
 };
-
 export default SendGridLists;
