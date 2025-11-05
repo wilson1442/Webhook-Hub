@@ -174,6 +174,10 @@ const SendGridContacts = () => {
     return contact[fieldName] || '';
   };
 
+  if (!sendgridConfigured) {
+    return <NotConfigured service="SendGrid" />;
+  }
+
   return (
     <div className="space-y-6">
       <div>
