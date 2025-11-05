@@ -463,8 +463,12 @@ const Webhooks = () => {
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="add_contact">Add Contact to List</SelectItem>
-                    <SelectItem value="send_email">Send Email via Template</SelectItem>
+                    <SelectItem value="add_contact">SendGrid: Add Contact to List</SelectItem>
+                    <SelectItem value="send_email">SendGrid: Send Email via Template</SelectItem>
+                    <SelectItem value="ntfy">Ntfy: Push Notification</SelectItem>
+                    <SelectItem value="discord">Discord: Channel Message</SelectItem>
+                    <SelectItem value="slack">Slack: Channel Message</SelectItem>
+                    <SelectItem value="telegram">Telegram: Bot Message</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
