@@ -459,6 +459,10 @@ const Settings = ({ user }) => {
           </div>
         </TabsContent>
 
+        <TabsContent value="notifications" className="space-y-4">
+          <IntegrationsConfig />
+        </TabsContent>
+
         <TabsContent value="backups" className="space-y-4">
           <Card className="glass">
             <CardHeader>
