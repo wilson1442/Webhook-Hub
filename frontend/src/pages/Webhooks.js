@@ -476,7 +476,8 @@ const Webhooks = () => {
                 </Select>
               </div>
 
-              {/* Dynamic Field Mapping */}
+              {/* Dynamic Field Mapping - Only for SendGrid modes */}
+              {(formData.mode === 'add_contact' || formData.mode === 'send_email') && (
               <div className="space-y-3">
                 <div className="flex justify-between items-center">
                   <Label>Field Mapping</Label>
