@@ -1,12 +1,15 @@
 import { Link, useLocation } from 'react-router-dom';
 import { Button } from './ui/button';
 import { LayoutDashboard, Webhook, FileText, Settings, Users, LogOut, Menu, X, List, Mail, User, TestTube2, Database, ChevronDown, ChevronRight, BookOpen } from 'lucide-react';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import axios from 'axios';
+import { API } from '../App';
 
 const Layout = ({ children, user, logout }) => {
   const location = useLocation();
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [sendgridOpen, setSendgridOpen] = useState(true);
+  const [sendgridEnabled, setSendgridEnabled] = useState(false);
 
   const navigation = [
     { name: 'Dashboard', href: '/', icon: LayoutDashboard },
