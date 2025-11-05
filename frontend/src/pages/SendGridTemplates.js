@@ -10,25 +10,19 @@ import NotConfigured from '../components/NotConfigured';
 
 const SendGridTemplates = () => {
   const [templates, setTemplates] = useState([]);
-  const [sendgridConfigured, setSendgridConfigured] = useState(true);
-  useEffect(() => {
-    checkSendGridConfig();
-  }, []);
-  const checkSendGridConfig = async () => {
-    try {
-      const response = await axios.get(`${API}/settings/api-keys`);
-      const sendgridKey = response.data.find(key => key.service_name === 'sendgrid');
-      setSendgridConfigured(sendgridKey && sendgridKey.is_active !== false);
-    } catch (error) {
-      setSendgridConfigured(false);
-    }
-  };
   const [filteredTemplates, setFilteredTemplates] = useState([]);
   const [loading, setLoading] = useState(true);
   const [hasApiKey, setHasApiKey] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
+  const [sendgridConfigured, setSendgridConfigured] = useState(true);
+
+  useEffect(() => {
+    checkSendGridConfig();
     checkApiKey();
     fetchTemplates();
+  }, []);
+
+  useEffect(() => {
     // Filter templates based on search query
     if (searchQuery.trim() === '') {
       setFilteredTemplates(templates);
@@ -38,18 +32,41 @@ const SendGridTemplates = () => {
         template.id.toLowerCase().includes(searchQuery.toLowerCase())
       );
       setFilteredTemplates(filtered);
+    }
   }, [searchQuery, templates]);
+
+  const checkSendGridConfig = async () => {
+    try {
+      const response = await axios.get(`${API}/settings/api-keys`);
+      const sendgridKey = response.data.find(key => key.service_name === 'sendgrid');
+      setSendgridConfigured(sendgridKey && sendgridKey.is_active !== false);
+    } catch (error) {
+      setSendgridConfigured(false);
+    }
+  };
+
   const checkApiKey = async () => {
+    try {
+      const response = await axios.get(`${API}/settings/api-keys`);
       const sendgridKey = response.data.find(k => k.service_name === 'sendgrid');
       setHasApiKey(!!sendgridKey);
+    } catch (error) {
       setHasApiKey(false);
+    }
+  };
+
   const fetchTemplates = async () => {
+    try {
       const response = await axios.get(`${API}/sendgrid/templates`);
       setTemplates(response.data.templates || []);
       setFilteredTemplates(response.data.templates || []);
+    } catch (error) {
       toast.error('Failed to fetch SendGrid templates');
     } finally {
       setLoading(false);
+    }
+  };
+
   if (loading) {
     return (
       <div className="flex items-center justify-center h-64">
@@ -57,7 +74,13 @@ const SendGridTemplates = () => {
       </div>
     );
   }
+
+  if (!sendgridConfigured) {
+    return <NotConfigured service="SendGrid" />;
+  }
+
   if (!hasApiKey) {
+    return (
       <div className="space-y-8" data-testid="sendgrid-templates-page">
         <div>
           <h1 className="text-4xl font-bold text-gray-800 mb-2">SendGrid Templates</h1>
@@ -77,11 +100,17 @@ const SendGridTemplates = () => {
             </Button>
           </CardContent>
         </Card>
-  if (!sendgridConfigured) {
-    return <NotConfigured service="SendGrid" />;
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-8" data-testid="sendgrid-templates-page">
       <div className="flex justify-between items-center">
+        <div>
+          <h1 className="text-4xl font-bold text-gray-800 mb-2">SendGrid Templates</h1>
+          <p className="text-gray-600">Manage your SendGrid email templates</p>
+        </div>
         <div className="flex space-x-2">
           <Input
             placeholder="Search templates..."
@@ -99,10 +128,17 @@ const SendGridTemplates = () => {
             <RefreshCw className="h-4 w-4 mr-2" />
             Refresh
           </Button>
+          <Button
+            variant="outline"
             onClick={() => window.open('https://mc.sendgrid.com/dynamic-templates', '_blank')}
             data-testid="manage-sendgrid-btn"
+          >
             <ExternalLink className="h-4 w-4 mr-2" />
             Manage in SendGrid
+          </Button>
+        </div>
+      </div>
+
       {filteredTemplates.length > 0 ? (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {filteredTemplates.map((template) => (
@@ -118,6 +154,7 @@ const SendGridTemplates = () => {
                       <CardDescription className="mt-1">
                         {template.versions?.length || 0} version(s)
                       </CardDescription>
+                    </div>
                   </div>
                 </div>
               </CardHeader>
@@ -127,6 +164,7 @@ const SendGridTemplates = () => {
                   {template.updated_at && (
                     <p className="mt-2"><strong>Updated:</strong> {new Date(template.updated_at).toLocaleDateString()}</p>
                   )}
+                </div>
                 <Button
                   variant="outline"
                   size="sm"
@@ -139,7 +177,10 @@ const SendGridTemplates = () => {
               </CardContent>
             </Card>
           ))}
+        </div>
       ) : (
+        <Card className="glass">
+          <CardContent className="text-center py-12">
             <FileText className="h-12 w-12 mx-auto mb-4 text-gray-400" />
             <p className="text-gray-500 mb-4">No templates found</p>
             <Button
@@ -147,8 +188,12 @@ const SendGridTemplates = () => {
               data-testid="create-template-btn"
             >
               Create Template in SendGrid
+            </Button>
+          </CardContent>
+        </Card>
       )}
     </div>
   );
 };
+
 export default SendGridTemplates;
