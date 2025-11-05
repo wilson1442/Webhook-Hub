@@ -523,6 +523,82 @@ frontend:
         agent: "testing"
         comment: "✅ API KEY STORAGE TESTING COMPLETE: All new integration API keys tested and working perfectly (5/5 tests passed). (1) Ntfy API Key - Successfully saved with topic_url and auth_token credentials. (2) Discord API Key - Successfully saved with webhook_url credential. (3) Slack API Key - Successfully saved with webhook_url credential. (4) Telegram API Key - Successfully saved with bot_token and chat_id credentials. (5) Retrieve API Keys - Successfully retrieved all 6 API keys including the 4 new services (ntfy, discord, slack, telegram). All keys are properly encrypted and stored in database."
 
+frontend:
+  - task: "Syslog Configuration Frontend UI"
+    implemented: true
+    working: true
+    file: "/app/frontend/src/components/IntegrationsConfig.js"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+      - working: "NA"
+        agent: "main"
+        comment: "Implemented Syslog Server configuration card in Notifications tab with Host, Port, Protocol fields, Test Connection and Save Configuration buttons. Blue server icon and proper form validation included."
+      - working: true
+        agent: "testing"
+        comment: "✅ SYSLOG CONFIGURATION UI TESTING COMPLETE: All features working perfectly. Notifications tab accessible, Syslog Server card visible with blue server icon, all form fields functional (Host: test.syslog.local, Port: 514, Protocol: UDP Standard), Test Connection and Save Configuration buttons working, success toast 'Syslog configuration saved successfully' confirmed."
+
+  - task: "Notification Integrations Frontend UI"
+    implemented: true
+    working: true
+    file: "/app/frontend/src/components/IntegrationsConfig.js"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+      - working: "NA"
+        agent: "main"
+        comment: "Implemented 4 notification integration cards (Ntfy.sh, Discord, Slack, Telegram) with proper input fields, colored icons, blue info boxes with setup instructions, and save buttons for each service."
+      - working: true
+        agent: "testing"
+        comment: "✅ NOTIFICATION INTEGRATIONS UI TESTING COMPLETE: All 4 integration cards working perfectly. Ntfy.sh (orange bell icon, Topic URL + Auth Token fields), Discord (indigo message icon, Webhook URL field), Slack (green zap icon, Webhook URL field), Telegram (blue send icon, Bot Token + Chat ID fields). All cards have blue info boxes with setup instructions and functional save buttons."
+
+  - task: "Webhooks Page - New Notification Modes"
+    implemented: true
+    working: true
+    file: "/app/frontend/src/pages/Webhooks.js"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+      - working: "NA"
+        agent: "main"
+        comment: "Added 4 new webhook modes to Mode dropdown: Ntfy: Push Notification, Discord: Channel Message, Slack: Channel Message, Telegram: Bot Message. Added mode-specific UI with blue info boxes and field mapping logic."
+      - working: true
+        agent: "testing"
+        comment: "✅ WEBHOOKS NEW MODES TESTING COMPLETE: All 6 modes working perfectly in Create Webhook dialog. Mode dropdown contains: SendGrid: Add Contact to List, SendGrid: Send Email via Template, Ntfy: Push Notification, Discord: Channel Message, Slack: Channel Message, Telegram: Bot Message. Mode-specific UI working correctly with field mapping hidden for notification modes and visible for SendGrid modes."
+
+  - task: "Logs Page - Mode Display Enhancement"
+    implemented: true
+    working: true
+    file: "/app/frontend/src/pages/Logs.js"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+      - working: "NA"
+        agent: "main"
+        comment: "Enhanced logs table to display Mode column with colored badges for different webhook modes including new notification modes (ntfy, discord, slack, telegram) and existing modes (batch_edit, send_email, add_contact)."
+      - working: true
+        agent: "testing"
+        comment: "✅ LOGS MODE DISPLAY TESTING COMPLETE: Mode column working perfectly. Found 70 log entries with proper mode badges displaying correct colors: Telegram (blue), Slack (green), Discord (indigo), Ntfy (yellow), Batch Edit (orange). Mode column header present and all mode labels displaying correctly with appropriate styling."
+
+  - task: "SendGrid UI Visibility"
+    implemented: true
+    working: false
+    file: "/app/frontend/src/components/Layout.js"
+    stuck_count: 0
+    priority: "medium"
+    needs_retesting: false
+    status_history:
+      - working: "NA"
+        agent: "main"
+        comment: "SendGrid Data menu section with collapsible submenu (SendGrid Contacts, Lists, Templates, Fields) implemented in sidebar navigation. Visibility depends on SendGrid API key configuration."
+      - working: false
+        agent: "testing"
+        comment: "❌ SENDGRID UI VISIBILITY: SendGrid Data menu section not visible in sidebar navigation. SendGrid pages (/sendgrid-lists, /sendgrid-templates, /sendgrid-fields, /sendgrid-contacts) not accessible. This is expected behavior when SendGrid API key is not configured. Feature requires SendGrid integration to be set up in Settings → SendGrid tab first."
+
 metadata:
   created_by: "main_agent"
   version: "1.0"
