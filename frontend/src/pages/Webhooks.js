@@ -623,6 +623,22 @@ const Webhooks = () => {
                   <p><strong>Custom fields:</strong> Check the "Custom" box for SendGrid custom field IDs (e.g., e3_T, e4_T, e5_T, e13_T, e17_N)</p>
                 </div>
               </div>
+              )}
+
+              {/* Notification modes info */}
+              {['ntfy', 'discord', 'slack', 'telegram'].includes(formData.mode) && (
+                <div className="p-4 bg-blue-50 dark:bg-blue-900 rounded-lg space-y-2">
+                  <p className="text-sm font-medium text-blue-900 dark:text-blue-100">
+                    {formData.mode === 'ntfy' && '📲 Ntfy Notification: Webhook payload should include: title, message, tags, priority'}
+                    {formData.mode === 'discord' && '💬 Discord Message: Webhook payload should include: content (text) or embeds (array), username (optional)'}
+                    {formData.mode === 'slack' && '📢 Slack Message: Webhook payload should include: text (message) or blocks (array), username, icon_emoji (optional)'}
+                    {formData.mode === 'telegram' && '✈️ Telegram Message: Webhook payload should include: text (message), parse_mode (HTML or Markdown, optional)'}
+                  </p>
+                  <p className="text-xs text-blue-700 dark:text-blue-300">
+                    Configure this integration in Settings → Notifications tab first
+                  </p>
+                </div>
+              )}
 
               {formData.mode === 'add_contact' && sendgridLists.length > 0 && (
                 <div className="space-y-2">
